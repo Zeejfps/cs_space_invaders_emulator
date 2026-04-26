@@ -54,7 +54,7 @@ public class CpuTests
             Rb = 0x50
         };
         
-        Assert.Equal(4, cycles);
+        Assert.Equal(5, cycles);
         Assert.Equal(expectedState, CpuState.FromCpu(cpu));
     }
 

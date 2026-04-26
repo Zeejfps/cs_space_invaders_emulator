@@ -2,7 +2,7 @@
 
 namespace SpaceInvadersEmulator.Core;
 
-public sealed class Cpu
+public sealed partial class Cpu
 {
     public CpuFlags Flags { get; set; }
     public ushort Pc { get; set; }
@@ -28,7 +28,8 @@ public sealed class Cpu
         Pc++;
         return opCode switch
         {
-            0x00 or 0x40 => NoOp(),
+            0x00 => NoOp(),
+            0x40 => MoveBb(),
             0x41 => MoveBc(),
             0x42 => MoveBd(),
             0x43 => MoveBe(),
@@ -40,27 +41,6 @@ public sealed class Cpu
     private int NoOp()
     {
         return 4;
-    }
-
-    [MethodImpl( MethodImplOptions.AggressiveInlining)]
-    private int MoveBc()
-    {
-        Rb = Rc;
-        return 5;
-    }
-    
-    [MethodImpl( MethodImplOptions.AggressiveInlining)]
-    private int MoveBd()
-    {
-        Rb = Rd;
-        return 5;
-    }
-    
-    [MethodImpl( MethodImplOptions.AggressiveInlining)]
-    private int MoveBe()
-    {
-        Rb = Re;
-        return 5;
     }
 
     [MethodImpl( MethodImplOptions.AggressiveInlining)]
