@@ -16,10 +16,14 @@ public class CpuTests
         Rl = state.Rl
     };
 
-[Fact]
+    [Fact]
     public void TestNoOp()
     {
-        var initialState = new CpuState();
+        var initialState = new CpuState
+        {
+            Pc = 0x10
+        };
+        
         var mmu = new Mmu();
         mmu.Write(initialState.Pc, 0x00);
 
@@ -33,7 +37,10 @@ public class CpuTests
     [Fact]
     public void TestMoveBb()
     {
-        var initialState = new CpuState();
+        var initialState = new CpuState
+        {
+            Rb = 0x50
+        };
         
         var mmu = new Mmu();
         mmu.Write(initialState.Pc, 0x40);
@@ -43,7 +50,8 @@ public class CpuTests
 
         var expectedState = initialState with
         {
-            Pc = (byte)(initialState.Pc + 1)
+            Pc = (byte)(initialState.Pc + 1),
+            Rb = 0x50
         };
         
         Assert.Equal(4, cycles);
@@ -55,6 +63,7 @@ public class CpuTests
     {
         var initialState = new CpuState
         {
+            Rb = 0x11,
             Rc = 0x50
         };
         

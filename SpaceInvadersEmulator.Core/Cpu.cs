@@ -13,9 +13,11 @@ public sealed class Cpu
     public byte Rh { get; set; }
     public byte Rl { get; set; }
 
+    private readonly Mmu _mmu;
+    
     public Cpu(Mmu mmu)
     {
-        
+        _mmu = mmu;
     }
 
     public int Step()
