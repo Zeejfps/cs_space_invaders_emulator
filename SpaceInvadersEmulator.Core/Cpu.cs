@@ -163,9 +163,17 @@ public sealed partial class Cpu
         return 4;
     }
 
-    [MethodImpl( MethodImplOptions.AggressiveInlining)]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private byte Fetch()
     {
         return _mmu.Read(Pc++);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private ushort FetchWord()
+    {
+        var lo = Fetch();
+        var hi = Fetch();
+        return (ushort)((hi << 8) | lo);
     }
 }

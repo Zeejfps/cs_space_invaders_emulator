@@ -21,10 +21,8 @@ public sealed partial class Cpu
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int LdA()
     {
-        var lo = Fetch();
-        var hi = Fetch();
-        var address = (hi << 8) | lo;
-        Ra = _mmu.Read((ushort)address);
+        var address = FetchWord();
+        Ra = _mmu.Read(address);
         return 13;
     }
 }
