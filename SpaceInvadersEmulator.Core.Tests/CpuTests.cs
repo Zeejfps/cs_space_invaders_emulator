@@ -5,16 +5,16 @@ public class CpuTests
     [Fact]
     public void Test1()
     {
-        var startingFlags = 0x0;
-        var startingPc = 0x0;
-        var startingSp = 0x0;
-        var startingRa = 0x0;
-        var startingRb = 0x0;
-        var startingRc = 0x0;
-        var startingRd = 0x0;
-        var startingRe = 0x0;
-        var startingRh = 0x0;
-        var startingRl = 0x0;
+        var startingFlags = CpuFlags.None;
+        byte startingPc = 0x0;
+        byte startingSp = 0x0;
+        byte startingRa = 0x0;
+        byte startingRb = 0x0;
+        byte startingRc = 0x0;
+        byte startingRd = 0x0;
+        byte startingRe = 0x0;
+        byte startingRh = 0x0;
+        byte startingRl = 0x0;
         var noOpInsCycles = 4;
         
         var mmu = new Mmu();
@@ -22,7 +22,7 @@ public class CpuTests
         
         var cpu = new Cpu(mmu)
         {
-            Flags = 0x0,
+            Flags = startingFlags,
             Pc = startingPc,
             Sp = startingSp,
             Ra = startingRa,
