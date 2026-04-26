@@ -30,4 +30,13 @@ public sealed partial class Cpu
         Sp += 2;
         return 10;
     }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int PopPsw()
+    {
+        Flags = (CpuFlags)_mmu.Read(Sp);
+        Ra = _mmu.Read((ushort)(Sp + 1));
+        Sp += 2;
+        return 10;
+    }
 }

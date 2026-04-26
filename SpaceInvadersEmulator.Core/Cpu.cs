@@ -159,6 +159,7 @@ public sealed partial class Cpu
             0xC1 => PopB(),
             0xD1 => PopD(),
             0xE1 => PopH(),
+            0xF1 => PopPsw(),
             
             _ => 1
         };
