@@ -31,7 +31,16 @@ public sealed partial class Cpu
         return opCode switch
         {
             0x00 => NoOp(),
-            
+
+            // Mvi
+            0x06 => MviB(),
+            0x0E => MviC(),
+            0x16 => MviD(),
+            0x1E => MviE(),
+            0x26 => MviH(),
+            0x2E => MviL(),
+            0x3E => MviA(),
+
             // Move Bx
             0x40 => MoveBb(),
             0x41 => MoveBc(),
