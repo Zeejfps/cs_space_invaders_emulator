@@ -279,8 +279,7 @@ public class CpuTests
 
         var mmu = new Mmu();
         mmu.Write(initialState.Pc, opcode);
-        mmu.Write((ushort)(initialState.Pc + 1), (byte)(address & 0xFF));
-        mmu.Write((ushort)(initialState.Pc + 2), (byte)((address >> 8) & 0xFF));
+        mmu.WriteWord((ushort)(initialState.Pc + 1), address);
         mmu.Write(address, sentinel);
 
         var cpu = CreateCpu(mmu, initialState);
