@@ -34,6 +34,21 @@ public record struct CpuState
         Rh = cpu.Rh,
         Rl = cpu.Rl
     };
+
+    public void WriteRegPair(Reg r, ushort v)
+    {
+        switch (r)
+        {
+            case Reg.B: Rb = (byte)(v >> 8); Rc = (byte)(v & 0xFF); break;
+            case Reg.D: Rd = (byte)(v >> 8); Re = (byte)(v & 0xFF); break;
+            case Reg.H: Rh = (byte)(v >> 8); Rl = (byte)(v & 0xFF); break;
+            case Reg.A:
+            case Reg.C:
+            case Reg.E:
+            case Reg.L:
+            default: throw new ArgumentOutOfRangeException(nameof(r));
+        }
+    }
     
     public readonly ushort ReadRegPair(Reg r) => r switch
     {
