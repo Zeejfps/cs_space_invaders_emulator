@@ -32,12 +32,31 @@ public sealed partial class Cpu
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int PushD()
+    {
+        Sp -= 2;
+        _mmu.Write((ushort)(Sp + 1), Rd);
+        _mmu.Write(Sp, Re);
+        return 11;
+    }
+
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int PopH()
     {
         Rl = _mmu.Read(Sp);
         Rh = _mmu.Read((ushort)(Sp + 1));
         Sp += 2;
         return 10;
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int PushH()
+    {
+        Sp -= 2;
+        _mmu.Write((ushort)(Sp + 1), Rh);
+        _mmu.Write(Sp, Rl);
+        return 11;
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
