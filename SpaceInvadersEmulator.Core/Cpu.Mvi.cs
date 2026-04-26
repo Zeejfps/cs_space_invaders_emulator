@@ -57,7 +57,7 @@ public sealed partial class Cpu
     private int MviM()
     {
         var value = Fetch();
-        _mmu.Write(Hl, value);
+        _mmu.Write(Rhl, value);
         return 10;
     }
 }

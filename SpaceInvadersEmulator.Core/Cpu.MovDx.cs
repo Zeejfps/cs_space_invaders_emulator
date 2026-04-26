@@ -55,7 +55,7 @@ public sealed partial class Cpu
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int MoveDm()
     {
-        Rd = _mmu.Read(Hl);
+        Rd = _mmu.Read(Rhl);
         return 7;
     }
 }

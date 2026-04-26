@@ -7,49 +7,49 @@ public sealed partial class Cpu
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int MoveMb()
     {
-        _mmu.Write(Hl, Rb);
+        _mmu.Write(Rhl, Rb);
         return 7;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int MoveMc()
     {
-        _mmu.Write(Hl, Rc);
+        _mmu.Write(Rhl, Rc);
         return 7;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int MoveMd()
     {
-        _mmu.Write(Hl, Rd);
+        _mmu.Write(Rhl, Rd);
         return 7;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int MoveMe()
     {
-        _mmu.Write(Hl, Re);
+        _mmu.Write(Rhl, Re);
         return 7;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int MoveMh()
     {
-        _mmu.Write(Hl, Rh);
+        _mmu.Write(Rhl, Rh);
         return 7;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int MoveMl()
     {
-        _mmu.Write(Hl, Rl);
+        _mmu.Write(Rhl, Rl);
         return 7;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int MoveMa()
     {
-        _mmu.Write(Hl, Ra);
+        _mmu.Write(Rhl, Ra);
         return 7;
     }
 }
