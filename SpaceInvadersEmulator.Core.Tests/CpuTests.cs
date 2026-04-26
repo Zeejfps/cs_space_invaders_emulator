@@ -82,4 +82,54 @@ public class CpuTests
         Assert.Equal(5, cycles);
         Assert.Equal(expectedState, CpuState.FromCpu(cpu));
     }
+    
+    [Fact]
+    public void TestMoveBd()
+    {
+        var initialState = new CpuState
+        {
+            Rb = 0x11,
+            Rd = 0x50
+        };
+        
+        var mmu = new Mmu();
+        mmu.Write(initialState.Pc, 0x42);
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState with
+        {
+            Pc = (byte)(initialState.Pc + 1),
+            Rb = initialState.Rd
+        };
+        
+        Assert.Equal(5, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
+    
+    [Fact]
+    public void TestMoveBe()
+    {
+        var initialState = new CpuState
+        {
+            Rb = 0x11,
+            Re = 0x50
+        };
+        
+        var mmu = new Mmu();
+        mmu.Write(initialState.Pc, 0x43);
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState with
+        {
+            Pc = (byte)(initialState.Pc + 1),
+            Rb = initialState.Re
+        };
+        
+        Assert.Equal(5, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
 }

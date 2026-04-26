@@ -30,6 +30,8 @@ public sealed class Cpu
         {
             0x00 or 0x40 => NoOp(),
             0x41 => MoveBc(),
+            0x42 => MoveBd(),
+            0x43 => MoveBe(),
             _ => 1
         };
     }
@@ -44,6 +46,20 @@ public sealed class Cpu
     private int MoveBc()
     {
         Rb = Rc;
+        return 5;
+    }
+    
+    [MethodImpl( MethodImplOptions.AggressiveInlining)]
+    private int MoveBd()
+    {
+        Rb = Rd;
+        return 5;
+    }
+    
+    [MethodImpl( MethodImplOptions.AggressiveInlining)]
+    private int MoveBe()
+    {
+        Rb = Re;
         return 5;
     }
 
