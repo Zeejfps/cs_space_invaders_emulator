@@ -138,4 +138,40 @@ public class CpuTests
         Assert.Equal(7, cycles);
         Assert.Equal(expectedState, CpuState.FromCpu(cpu));
     }
+    
+    [Theory]
+    [InlineData(0x70, Reg.B)]
+    [InlineData(0x71, Reg.C)]
+    [InlineData(0x72, Reg.D)]
+    [InlineData(0x73, Reg.E)]
+    [InlineData(0x74, Reg.H)]
+    [InlineData(0x75, Reg.L)]
+    [InlineData(0x77, Reg.A)]
+    public void TestMoveMr(byte opcode, Reg src)
+    {
+        var initialState = new CpuState
+        {
+            Pc = 0x10,
+            Rh = 0x20,
+            Rl = 0x30
+        };
+        initialState.WriteReg(src, 0x50);
+        var address = initialState.Hl;
+
+        var mmu = new Mmu();
+        mmu.Write(initialState.Pc, opcode);
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState with
+        {
+            Pc = (byte)(initialState.Pc + 1),
+        };
+        var readValue = mmu.Read(address);
+        
+        Assert.Equal(7, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+        Assert.Equal(0x50, readValue);
+    }
 }

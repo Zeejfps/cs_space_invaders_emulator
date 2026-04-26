@@ -14,6 +14,8 @@ public record struct CpuState
     public byte Re;
     public byte Rh;
     public byte Rl;
+    
+    public ushort Hl => (ushort)((Rh << 8) | Rl);
 
     public static CpuState FromCpu(Cpu cpu) => new()
     {

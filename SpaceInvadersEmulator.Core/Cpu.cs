@@ -79,6 +79,7 @@ public sealed partial class Cpu
             0x6D => MoveLl(),
             0x6E => MoveLm(),
             0x6F => MoveLa(),
+            0x70 => MoveMb(),
             0x78 => MoveAb(),
             0x79 => MoveAc(),
             0x7A => MoveAd(),
