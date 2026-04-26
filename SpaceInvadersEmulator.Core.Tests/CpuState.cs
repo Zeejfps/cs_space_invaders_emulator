@@ -15,8 +15,9 @@ public record struct CpuState
     public byte Rh;
     public byte Rl;
     
-    public ushort Rbc => (ushort)((Rb << 8) | Rc);
-    public ushort Rhl => (ushort)((Rh << 8) | Rl);
+    public readonly ushort Rde => (ushort)((Rd << 8) | Re);
+    public readonly ushort Rbc => (ushort)((Rb << 8) | Rc);
+    public readonly ushort Rhl => (ushort)((Rh << 8) | Rl);
 
     public void IncrementPcBy(int n) => Pc = (byte)(Pc + n);
     
@@ -32,6 +33,14 @@ public record struct CpuState
         Re = cpu.Re,
         Rh = cpu.Rh,
         Rl = cpu.Rl
+    };
+    
+    public readonly ushort ReadRegPair(Reg r) => r switch
+    {
+        Reg.B => Rbc,
+        Reg.D => Rde,
+        Reg.H => Rhl,
+        _ => throw new ArgumentOutOfRangeException(nameof(r))
     };
 
     public readonly byte ReadReg(Reg r) => r switch
