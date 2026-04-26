@@ -570,4 +570,94 @@ public class CpuTests
         Assert.Equal((byte)CpuFlags.Z, mmu.Read((ushort)(stackAddr - 2)));
         Assert.Equal(0xAB, mmu.Read((ushort)(stackAddr - 1)));
     }
+
+    [Fact]
+    public void TestXthl()
+    {
+        byte opcode = 0xE3;
+        ushort stackAddr = 0x2000;
+        var initialState = new CpuState
+        {
+            Pc = 0x10,
+            Sp = stackAddr,
+            Rh = 0x20,
+            Rl = 0x30,
+            Flags = AllFlags
+        };
+
+        var mmu = new Mmu();
+        mmu.Write(initialState.Pc, opcode);
+        mmu.Write(stackAddr, 0xAA);
+        mmu.Write((ushort)(stackAddr + 1), 0xBB);
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.IncrementPcBy(1);
+        expectedState.Rl = 0xAA;
+        expectedState.Rh = 0xBB;
+
+        Assert.Equal(18, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+        Assert.Equal(0x30, mmu.Read(stackAddr));
+        Assert.Equal(0x20, mmu.Read((ushort)(stackAddr + 1)));
+    }
+
+    [Fact]
+    public void TestXchg()
+    {
+        byte opcode = 0xEB;
+        var initialState = new CpuState
+        {
+            Pc = 0x10,
+            Rh = 0x20,
+            Rl = 0x30,
+            Rd = 0x40,
+            Re = 0x50,
+            Flags = AllFlags
+        };
+
+        var mmu = new Mmu();
+        mmu.Write(initialState.Pc, opcode);
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.IncrementPcBy(1);
+        expectedState.Rh = 0x40;
+        expectedState.Rl = 0x50;
+        expectedState.Rd = 0x20;
+        expectedState.Re = 0x30;
+
+        Assert.Equal(4, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
+
+    [Fact]
+    public void TestSphl()
+    {
+        byte opcode = 0xF9;
+        var initialState = new CpuState
+        {
+            Pc = 0x10,
+            Rh = 0x20,
+            Rl = 0x30,
+            Flags = AllFlags
+        };
+
+        var mmu = new Mmu();
+        mmu.Write(initialState.Pc, opcode);
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.IncrementPcBy(1);
+        expectedState.Sp = 0x2030;
+
+        Assert.Equal(5, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
 }
