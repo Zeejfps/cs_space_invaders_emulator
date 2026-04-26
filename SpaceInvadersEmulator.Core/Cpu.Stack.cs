@@ -7,8 +7,7 @@ public sealed partial class Cpu
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int PopB()
     {
-        Rc = _mmu.Read(Sp);
-        Rb = _mmu.Read((ushort)(Sp + 1));
+        Rbc = _mmu.ReadWord(Sp);
         Sp += 2;
         return 10;
     }
@@ -25,8 +24,7 @@ public sealed partial class Cpu
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int PopD()
     {
-        Re = _mmu.Read(Sp);
-        Rd = _mmu.Read((ushort)(Sp + 1));
+        Rde = _mmu.ReadWord(Sp);
         Sp += 2;
         return 10;
     }
@@ -44,8 +42,7 @@ public sealed partial class Cpu
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int PopH()
     {
-        Rl = _mmu.Read(Sp);
-        Rh = _mmu.Read((ushort)(Sp + 1));
+        Rhl = _mmu.ReadWord(Sp);
         Sp += 2;
         return 10;
     }
@@ -80,12 +77,9 @@ public sealed partial class Cpu
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int Xthl()
     {
-        var tempL = Rl;
-        var tempH = Rh;
-        Rl = _mmu.Read(Sp);
-        Rh = _mmu.Read((ushort)(Sp + 1));
-        _mmu.Write(Sp, tempL);
-        _mmu.Write((ushort)(Sp + 1), tempH);
+        var temp = Rhl;
+        Rhl = _mmu.ReadWord(Sp);
+        _mmu.WriteWord(Sp, temp);
         return 18;
     }
 

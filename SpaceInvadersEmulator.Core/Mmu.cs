@@ -25,4 +25,12 @@ public sealed class Mmu
     {
         return Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(_ram), address);
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    public ushort ReadWord(ushort address)
+    {
+        var lo = Read(address);
+        var hi = Read((ushort)(address + 1));
+        return (ushort)((hi << 8) | lo);
+    }
 }

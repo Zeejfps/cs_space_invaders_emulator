@@ -166,6 +166,12 @@ public sealed partial class Cpu
             0xE5 => PushH(),
             0xF5 => PushPsw(),
 
+            // Conditional returns
+            0xC0 => Rnz(),
+            0xD0 => Rnc(),
+            0xE0 => Rpo(),
+            0xF0 => Rp(),
+
             0xE3 => Xthl(),
             0xEB => Xchg(),
             0xF9 => Sphl(),

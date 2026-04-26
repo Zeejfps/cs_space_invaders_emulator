@@ -8,8 +8,7 @@ public sealed partial class Cpu
     private int Lhld()
     {
         var address = FetchWord();
-        Rl = _mmu.Read(address);
-        Rh = _mmu.Read((ushort)(address + 1));
+        Rhl = _mmu.ReadWord(address);
         return 16;
     }
 }
