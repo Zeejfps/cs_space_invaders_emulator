@@ -333,6 +333,66 @@ public class CpuTests
         Assert.Equal(sentinel, memValue);
     }
 
+    [Fact]
+    public void TestShld()
+    {
+        byte opcode = 0x22;
+        ushort address = 0x4050;
+        var instructionSize = 3;
+        var initialState = new CpuState
+        {
+            Pc = 0x10,
+            Rh = 0x20,
+            Rl = 0x30,
+            Flags = AllFlags
+        };
+
+        var mmu = new Mmu();
+        mmu.Write(initialState.Pc, opcode);
+        mmu.WriteWord((ushort)(initialState.Pc + 1), address);
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.IncrementPcBy(instructionSize);
+
+        Assert.Equal(16, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+        Assert.Equal(initialState.Rl, mmu.Read(address));
+        Assert.Equal(initialState.Rh, mmu.Read((ushort)(address + 1)));
+    }
+
+    [Fact]
+    public void TestLhld()
+    {
+        byte opcode = 0x2A;
+        ushort address = 0x4050;
+        var instructionSize = 3;
+        var initialState = new CpuState
+        {
+            Pc = 0x10,
+            Flags = AllFlags
+        };
+
+        var mmu = new Mmu();
+        mmu.Write(initialState.Pc, opcode);
+        mmu.WriteWord((ushort)(initialState.Pc + 1), address);
+        mmu.Write(address, 0x30);
+        mmu.Write((ushort)(address + 1), 0x20);
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.IncrementPcBy(instructionSize);
+        expectedState.Rh = 0x20;
+        expectedState.Rl = 0x30;
+
+        Assert.Equal(16, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
+
     [Theory]
     [InlineData(0x02, Reg.B)]
     [InlineData(0x12, Reg.D)]
