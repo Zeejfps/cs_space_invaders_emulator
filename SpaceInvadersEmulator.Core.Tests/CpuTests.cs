@@ -129,10 +129,8 @@ public class CpuTests
         var cpu = CreateCpu(mmu, initialState);
         var cycles = cpu.Step();
 
-        var expectedState = initialState with
-        {
-            Pc = (byte)(initialState.Pc + 1),
-        };
+        var expectedState = initialState;
+        expectedState.IncrementPcBy(1);
         expectedState.WriteReg(dst, 0x50);
         
         Assert.Equal(7, cycles);
@@ -166,10 +164,8 @@ public class CpuTests
         var cpu = CreateCpu(mmu, initialState);
         var cycles = cpu.Step();
 
-        var expectedState = initialState with
-        {
-            Pc = (byte)(initialState.Pc + 1),
-        };
+        var expectedState = initialState;
+        expectedState.IncrementPcBy(1);
 
         var expectedValueInMem = initialState.ReadReg(src);
         var valueInMem = mmu.Read(initialState.Hl);
@@ -177,5 +173,37 @@ public class CpuTests
         Assert.Equal(7, cycles);
         Assert.Equal(expectedState, CpuState.FromCpu(cpu));
         Assert.Equal(expectedValueInMem, valueInMem);
+    }
+    
+        
+    [Theory]
+    [InlineData(0x06, Reg.B)]
+    [InlineData(0x0E, Reg.C)]
+    [InlineData(0x16, Reg.D)]
+    [InlineData(0x1E, Reg.E)]
+    [InlineData(0x26, Reg.H)]
+    [InlineData(0x2E, Reg.L)]
+    [InlineData(0x3E, Reg.A)]
+    public void TestMviR(byte opcode, Reg dst)
+    {
+        var instructionSize = 2;
+        var initialState = new CpuState
+        {
+            Pc = 0x10
+        };
+    
+        var mmu = new Mmu();
+        mmu.Write(initialState.Pc, opcode);
+        mmu.Write((byte)(initialState.Pc + 1), 0xAB);
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.IncrementPcBy(instructionSize);
+        expectedState.WriteReg(dst, 0xAB);
+        
+        Assert.Equal(7, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
     }
 }

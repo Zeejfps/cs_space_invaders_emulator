@@ -17,6 +17,8 @@ public record struct CpuState
     
     public ushort Hl => (ushort)((Rh << 8) | Rl);
 
+    public void IncrementPcBy(int n) => Pc = (byte)(Pc + n);
+    
     public static CpuState FromCpu(Cpu cpu) => new()
     {
         Flags = cpu.Flags,
