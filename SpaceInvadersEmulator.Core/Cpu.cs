@@ -138,11 +138,13 @@ public sealed partial class Cpu
             0x77 => MoveMa(),
             
             // Load
-            0x0A => LdAxB(),
-            0x1A => LdAxD(),
+            0x0A => LdAb(),
+            0x1A => LdAd(),
             0x3A => LdA(),
             
             // Store
+            0x02 => StAb(),
+            0x12 => StAd(),
             0x32 => StA(),
             
             _ => 1

@@ -13,4 +13,18 @@ public sealed partial class Cpu
         _mmu.Write((ushort)address, Ra);
         return 13;
     }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int StAb()
+    {
+        _mmu.Write(Rbc, Ra);
+        return 7;
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int StAd()
+    {
+        _mmu.Write(Rde, Ra);
+        return 7;
+    }
 }
