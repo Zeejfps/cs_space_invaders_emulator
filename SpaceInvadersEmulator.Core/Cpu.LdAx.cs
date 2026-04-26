@@ -17,4 +17,14 @@ public sealed partial class Cpu
         Ra = _mmu.Read(Rde);
         return 7;
     }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int LdA()
+    {
+        var lo = Fetch();
+        var hi = Fetch();
+        var address = (hi << 8) | lo;
+        Ra = _mmu.Read((ushort)address);
+        return 13;
+    }
 }

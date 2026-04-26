@@ -140,6 +140,7 @@ public sealed partial class Cpu
             // Load
             0x0A => LdAxB(),
             0x1A => LdAxD(),
+            0x3A => LdA(),
             
             _ => 1
         };
