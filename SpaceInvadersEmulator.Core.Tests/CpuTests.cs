@@ -2,6 +2,8 @@ namespace SpaceInvadersEmulator.Core.Tests;
 
 public class CpuTests
 {
+    private static readonly CpuFlags AllFlags = CpuFlags.S | CpuFlags.Z | CpuFlags.C | CpuFlags.P | CpuFlags.A;
+
     private static Cpu CreateCpu(Mmu mmu, CpuState state) => new(mmu)
     {
         Flags = state.Flags,
@@ -21,7 +23,8 @@ public class CpuTests
     {
         var initialState = new CpuState
         {
-            Pc = 0x10
+            Pc = 0x10,
+            Flags = AllFlags
         };
 
         var mmu = new Mmu();
@@ -86,7 +89,7 @@ public class CpuTests
     [InlineData(0x7F, Reg.A, Reg.A)]
     public void TestMoveRr(byte opcode, Reg dst, Reg src)
     {
-        var initialState = new CpuState { Pc = 0x10 };
+        var initialState = new CpuState { Pc = 0x10, Flags = AllFlags };
         initialState.WriteReg(dst, 0x11);
         initialState.WriteReg(src, 0x50);
 
@@ -96,7 +99,8 @@ public class CpuTests
         var cpu = CreateCpu(mmu, initialState);
         var cycles = cpu.Step();
 
-        var expectedState = initialState with { Pc = (ushort)(initialState.Pc + 1) };
+        var expectedState = initialState;
+        expectedState.IncrementPcBy(1);
         expectedState.WriteReg(dst, initialState.ReadReg(src));
 
         Assert.Equal(5, cycles);
@@ -117,7 +121,8 @@ public class CpuTests
         {
             Pc = 0x10,
             Rh = 0x20,
-            Rl = 0x30
+            Rl = 0x30,
+            Flags = AllFlags
         };
         initialState.WriteReg(dst, 0x11);
         var address = (ushort)((initialState.Rh << 8) | initialState.Rl);
@@ -132,11 +137,11 @@ public class CpuTests
         var expectedState = initialState;
         expectedState.IncrementPcBy(1);
         expectedState.WriteReg(dst, 0x50);
-        
+
         Assert.Equal(7, cycles);
         Assert.Equal(expectedState, CpuState.FromCpu(cpu));
     }
-    
+
     [Theory]
     [InlineData(0x70, Reg.B)]
     [InlineData(0x71, Reg.C)]
@@ -151,7 +156,8 @@ public class CpuTests
         {
             Pc = 0x10,
             Rh = 0x20,
-            Rl = 0x30
+            Rl = 0x30,
+            Flags = AllFlags
         };
         // Keep the sentinel distinct from H and L so a row asserting "wrote H"
         // can't pass by accidentally writing the sentinel, and vice versa.
@@ -169,13 +175,12 @@ public class CpuTests
 
         var expectedValueInMem = initialState.ReadReg(src);
         var valueInMem = mmu.Read(initialState.Rhl);
-        
+
         Assert.Equal(7, cycles);
         Assert.Equal(expectedState, CpuState.FromCpu(cpu));
         Assert.Equal(expectedValueInMem, valueInMem);
     }
-    
-        
+
     [Theory]
     [InlineData(0x06, Reg.B)]
     [InlineData(0x0E, Reg.C)]
@@ -189,9 +194,10 @@ public class CpuTests
         var instructionSize = 2;
         var initialState = new CpuState
         {
-            Pc = 0x10
+            Pc = 0x10,
+            Flags = AllFlags
         };
-    
+
         var mmu = new Mmu();
         mmu.Write(initialState.Pc, opcode);
         mmu.Write((ushort)(initialState.Pc + 1), 0xAB);
@@ -202,11 +208,11 @@ public class CpuTests
         var expectedState = initialState;
         expectedState.IncrementPcBy(instructionSize);
         expectedState.WriteReg(dst, 0xAB);
-        
+
         Assert.Equal(7, cycles);
         Assert.Equal(expectedState, CpuState.FromCpu(cpu));
     }
-    
+
     [Fact]
     public void TestMviM()
     {
@@ -217,12 +223,13 @@ public class CpuTests
         {
             Pc = 0x10,
             Rh = 0x20,
-            Rl = 0x30
+            Rl = 0x30,
+            Flags = AllFlags
         };
-    
+
         var mmu = new Mmu();
         mmu.Write(initialState.Pc, opcode);
-        mmu.Write((byte)(initialState.Pc + 1), sentinel);
+        mmu.Write((ushort)(initialState.Pc + 1), sentinel);
 
         var cpu = CreateCpu(mmu, initialState);
         var cycles = cpu.Step();
@@ -231,40 +238,41 @@ public class CpuTests
         expectedState.IncrementPcBy(instructionSize);
 
         var memValue = mmu.Read(expectedState.Rhl);
-        
+
         Assert.Equal(10, cycles);
         Assert.Equal(expectedState, CpuState.FromCpu(cpu));
         Assert.Equal(sentinel, memValue);
     }
-    
-    [Theory] 
+
+    [Theory]
     [InlineData(0x0A, Reg.B)]
     [InlineData(0x1A, Reg.D)]
-    public void TestLdAx(byte opcode, Reg src)                                                    
-    {                                                         
+    public void TestLdAx(byte opcode, Reg src)
+    {
         byte sentinel = 0xAB;
-        var initialState = new CpuState                       
-        {                                                     
+        var initialState = new CpuState
+        {
             Pc = 0x10,
+            Flags = AllFlags
         };
         initialState.WriteRegPair(src, 0x2030);
-        var address = initialState.ReadRegPair(src);                   
-                                                            
-        var mmu = new Mmu();                                  
+        var address = initialState.ReadRegPair(src);
+
+        var mmu = new Mmu();
         mmu.Write(initialState.Pc, opcode);
-        mmu.Write(address, sentinel);                       
-                                                          
-        var cpu = CreateCpu(mmu, initialState);               
+        mmu.Write(address, sentinel);
+
+        var cpu = CreateCpu(mmu, initialState);
         var cycles = cpu.Step();
-                                                            
-        var expectedState = initialState;                   
+
+        var expectedState = initialState;
         expectedState.IncrementPcBy(1);
-        expectedState.Ra = sentinel;                        
-   
-        Assert.Equal(7, cycles);                              
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu)); 
-    }    
-    
+        expectedState.Ra = sentinel;
+
+        Assert.Equal(7, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
+
     [Fact]
     public void TestLdA()
     {
@@ -274,7 +282,8 @@ public class CpuTests
         var instructionSize = 3;
         var initialState = new CpuState
         {
-            Pc = 0x10
+            Pc = 0x10,
+            Flags = AllFlags
         };
 
         var mmu = new Mmu();
@@ -292,7 +301,7 @@ public class CpuTests
         Assert.Equal(13, cycles);
         Assert.Equal(expectedState, CpuState.FromCpu(cpu));
     }
-    
+
     [Fact]
     public void TestStA()
     {
@@ -303,7 +312,8 @@ public class CpuTests
         var initialState = new CpuState
         {
             Pc = 0x10,
-            Ra = sentinel
+            Ra = sentinel,
+            Flags = AllFlags
         };
 
         var mmu = new Mmu();
@@ -315,39 +325,40 @@ public class CpuTests
 
         var expectedState = initialState;
         expectedState.IncrementPcBy(instructionSize);
-        
+
         var memValue = mmu.Read(address);
 
         Assert.Equal(13, cycles);
         Assert.Equal(expectedState, CpuState.FromCpu(cpu));
         Assert.Equal(sentinel, memValue);
     }
-    
-    [Theory] 
+
+    [Theory]
     [InlineData(0x02, Reg.B)]
     [InlineData(0x12, Reg.D)]
-    public void TestStAx(byte opcode, Reg src)                                                    
-    {                                                         
+    public void TestStAx(byte opcode, Reg src)
+    {
         byte sentinel = 0xAB;
-        var initialState = new CpuState                       
-        {                                                     
+        var initialState = new CpuState
+        {
             Pc = 0x10,
             Ra = sentinel,
+            Flags = AllFlags
         };
         initialState.WriteRegPair(src, 0x2030);
-        var address = initialState.ReadRegPair(src);                   
-                                                            
-        var mmu = new Mmu();                                  
+        var address = initialState.ReadRegPair(src);
+
+        var mmu = new Mmu();
         mmu.Write(initialState.Pc, opcode);
-                                                          
-        var cpu = CreateCpu(mmu, initialState);               
+
+        var cpu = CreateCpu(mmu, initialState);
         var cycles = cpu.Step();
-                                                            
-        var expectedState = initialState;                   
+
+        var expectedState = initialState;
         expectedState.IncrementPcBy(1);
-   
+
         var memValue = mmu.Read(address);
-        
+
         Assert.Equal(7, cycles);
         Assert.Equal(expectedState, CpuState.FromCpu(cpu));
         Assert.Equal(sentinel, memValue);
@@ -357,11 +368,12 @@ public class CpuTests
     [InlineData(0x01, Reg.B)]
     [InlineData(0x11, Reg.D)]
     [InlineData(0x21, Reg.H)]
+    [InlineData(0x31, Reg.Sp)]
     public void TestLxi(byte opcode, Reg dst)
     {
         ushort immediate = 0x2030;
         var instructionSize = 3;
-        var initialState = new CpuState { Pc = 0x10 };
+        var initialState = new CpuState { Pc = 0x10, Flags = AllFlags };
 
         var mmu = new Mmu();
         mmu.Write(initialState.Pc, opcode);
@@ -373,29 +385,6 @@ public class CpuTests
         var expectedState = initialState;
         expectedState.IncrementPcBy(instructionSize);
         expectedState.WriteRegPair(dst, immediate);
-
-        Assert.Equal(10, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
-    }
-
-    [Fact]
-    public void TestLxiSp()
-    {
-        byte opcode = 0x31;
-        ushort immediate = 0x2030;
-        var instructionSize = 3;
-        var initialState = new CpuState { Pc = 0x10 };
-
-        var mmu = new Mmu();
-        mmu.Write(initialState.Pc, opcode);
-        mmu.WriteWord((ushort)(initialState.Pc + 1), immediate);
-
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
-
-        var expectedState = initialState;
-        expectedState.IncrementPcBy(instructionSize);
-        expectedState.Sp = immediate;
 
         Assert.Equal(10, cycles);
         Assert.Equal(expectedState, CpuState.FromCpu(cpu));

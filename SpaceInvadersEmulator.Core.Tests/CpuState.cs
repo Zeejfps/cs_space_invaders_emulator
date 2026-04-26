@@ -1,6 +1,6 @@
 namespace SpaceInvadersEmulator.Core.Tests;
 
-public enum Reg { A, B, C, D, E, H, L }
+public enum Reg { A, B, C, D, E, H, L, Sp }
 
 public record struct CpuState
 {
@@ -42,6 +42,7 @@ public record struct CpuState
             case Reg.B: Rb = (byte)(v >> 8); Rc = (byte)(v & 0xFF); break;
             case Reg.D: Rd = (byte)(v >> 8); Re = (byte)(v & 0xFF); break;
             case Reg.H: Rh = (byte)(v >> 8); Rl = (byte)(v & 0xFF); break;
+            case Reg.Sp: Sp = v; break;
             case Reg.A:
             case Reg.C:
             case Reg.E:
@@ -49,12 +50,13 @@ public record struct CpuState
             default: throw new ArgumentOutOfRangeException(nameof(r));
         }
     }
-    
+
     public readonly ushort ReadRegPair(Reg r) => r switch
     {
         Reg.B => Rbc,
         Reg.D => Rde,
         Reg.H => Rhl,
+        Reg.Sp => Sp,
         _ => throw new ArgumentOutOfRangeException(nameof(r))
     };
 
