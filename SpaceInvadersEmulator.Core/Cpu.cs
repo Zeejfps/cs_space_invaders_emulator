@@ -155,6 +155,11 @@ public sealed partial class Cpu
             0x21 => LxiH(),
             0x31 => LxiSp(),
             
+            // Stack operations
+            0xC1 => PopB(),
+            0xD1 => PopD(),
+            0xE1 => PopH(),
+            
             _ => 1
         };
     }
