@@ -292,4 +292,34 @@ public class CpuTests
         Assert.Equal(13, cycles);
         Assert.Equal(expectedState, CpuState.FromCpu(cpu));
     }
+    
+    [Fact]
+    public void TestStA()
+    {
+        byte opcode = 0x32;
+        byte sentinel = 0xAB;
+        ushort address = 0x2030;
+        var instructionSize = 3;
+        var initialState = new CpuState
+        {
+            Pc = 0x10,
+            Ra = sentinel
+        };
+
+        var mmu = new Mmu();
+        mmu.Write(initialState.Pc, opcode);
+        mmu.WriteWord((ushort)(initialState.Pc + 1), address);
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.IncrementPcBy(instructionSize);
+        
+        var memValue = mmu.Read(address);
+
+        Assert.Equal(13, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+        Assert.Equal(sentinel, memValue);
+    }
 }

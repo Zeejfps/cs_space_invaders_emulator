@@ -142,6 +142,9 @@ public sealed partial class Cpu
             0x1A => LdAxD(),
             0x3A => LdA(),
             
+            // Store
+            0x32 => StA(),
+            
             _ => 1
         };
     }
