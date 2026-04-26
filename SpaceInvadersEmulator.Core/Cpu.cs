@@ -92,15 +92,6 @@ public sealed partial class Cpu
             0x6E => MoveLm(),
             0x6F => MoveLa(),
             
-            // Move Mx
-            0x70 => MoveMb(),
-            0x71 => MoveMc(),
-            0x72 => MoveMd(),
-            0x73 => MoveMe(),
-            0x74 => MoveMh(),
-            0x75 => MoveMl(),
-            0x77 => MoveMa(),
-            
             // Move Ax
             0x78 => MoveAb(),
             0x79 => MoveAc(),
@@ -110,6 +101,16 @@ public sealed partial class Cpu
             0x7D => MoveAl(),
             0x7E => MoveAm(),
             0x7F => MoveAa(),
+            
+            // Move Mx
+            0x70 => MoveMb(),
+            0x71 => MoveMc(),
+            0x72 => MoveMd(),
+            0x73 => MoveMe(),
+            0x74 => MoveMh(),
+            0x75 => MoveMl(),
+            0x77 => MoveMa(),
+            
             _ => 1
         };
     }
