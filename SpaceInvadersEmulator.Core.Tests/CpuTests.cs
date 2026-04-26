@@ -61,20 +61,21 @@ public class CpuTests
         Assert.Equal(expectedState, CpuState.FromCpu(cpu));
     }
 
-    [Fact]
-    public void TestMoveBm()
+    [Theory]
+    [InlineData(0x46, Reg.B)]
+    public void TestMoveRm(byte opcode, Reg dst)
     {
         var initialState = new CpuState
         {
             Pc = 0x10,
-            Rb = 0x11,
             Rh = 0x20,
             Rl = 0x30
         };
+        initialState.WriteReg(dst, 0x11);
         var address = (ushort)((initialState.Rh << 8) | initialState.Rl);
 
         var mmu = new Mmu();
-        mmu.Write(initialState.Pc, 0x46);
+        mmu.Write(initialState.Pc, opcode);
         mmu.Write(address, 0x50);
 
         var cpu = CreateCpu(mmu, initialState);
@@ -83,9 +84,9 @@ public class CpuTests
         var expectedState = initialState with
         {
             Pc = (byte)(initialState.Pc + 1),
-            Rb = 0x50
         };
-
+        expectedState.WriteReg(dst, 0x50);
+        
         Assert.Equal(7, cycles);
         Assert.Equal(expectedState, CpuState.FromCpu(cpu));
     }
