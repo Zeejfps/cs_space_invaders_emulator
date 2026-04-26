@@ -140,11 +140,13 @@ public sealed partial class Cpu
             // Load
             0x0A => LdAb(),
             0x1A => LdAd(),
+            0x2A => Lhld(),
             0x3A => LdA(),
-            
+
             // Store
             0x02 => StAb(),
             0x12 => StAd(),
+            0x22 => Shld(),
             0x32 => StA(),
 
             // Load register pair immediate
