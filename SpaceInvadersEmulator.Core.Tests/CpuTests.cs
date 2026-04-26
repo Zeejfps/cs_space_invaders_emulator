@@ -1,145 +1,76 @@
-﻿namespace SpaceInvadersEmulator.Core.Tests;
+namespace SpaceInvadersEmulator.Core.Tests;
 
 public class CpuTests
 {
-    [Fact]
+    private static Cpu CreateCpu(Mmu mmu, CpuState state) => new(mmu)
+    {
+        Flags = state.Flags,
+        Pc = state.Pc,
+        Sp = state.Sp,
+        Ra = state.Ra,
+        Rb = state.Rb,
+        Rc = state.Rc,
+        Rd = state.Rd,
+        Re = state.Re,
+        Rh = state.Rh,
+        Rl = state.Rl
+    };
+
+[Fact]
     public void TestNoOp()
     {
-        var startingFlags = CpuFlags.None;
-        byte startingPc = 0x0;
-        byte startingSp = 0x0;
-        byte startingRa = 0x0;
-        byte startingRb = 0x0;
-        byte startingRc = 0x0;
-        byte startingRd = 0x0;
-        byte startingRe = 0x0;
-        byte startingRh = 0x0;
-        byte startingRl = 0x0;
-        var noOpInsCycles = 4;
-        
+        var initialState = new CpuState();
         var mmu = new Mmu();
         mmu.Write(0x0, 0x00);
-        
-        var cpu = new Cpu(mmu)
-        {
-            Flags = startingFlags,
-            Pc = startingPc,
-            Sp = startingSp,
-            Ra = startingRa,
-            Rb = startingRb,
-            Rc = startingRc,
-            Rd = startingRd,
-            Re = startingRe,
-            Rh = startingRh,
-            Rl = startingRl
-        };
 
+        var cpu = CreateCpu(mmu, initialState);
         var cycles = cpu.Step();
 
-        Assert.Equal(noOpInsCycles, cycles);
-        Assert.Equal(startingPc + 1, cpu.Pc);
-        Assert.Equal(startingFlags, cpu.Flags);
-        Assert.Equal(startingSp, cpu.Sp);
-        Assert.Equal(startingRa, cpu.Ra);
-        Assert.Equal(startingRb, cpu.Rb);
-        Assert.Equal(startingRc, cpu.Rc);
-        Assert.Equal(startingRd, cpu.Rd);
-        Assert.Equal(startingRe, cpu.Re);
-        Assert.Equal(startingRh, cpu.Rh);
-        Assert.Equal(startingRl, cpu.Rl);
+        Assert.Equal(4, cycles);
+        Assert.Equal(initialState with { Pc = (byte)(initialState.Pc + 1) }, CpuState.FromCpu(cpu));
     }
 
     [Fact]
-    public void TestMoveBB()
+    public void TestMoveBb()
     {
-        var startingFlags = CpuFlags.None;
-        byte startingPc = 0x0;
-        byte startingSp = 0x0;
-        byte startingRa = 0x0;
-        byte startingRb = 0x0;
-        byte startingRc = 0x0;
-        byte startingRd = 0x0;
-        byte startingRe = 0x0;
-        byte startingRh = 0x0;
-        byte startingRl = 0x0;
-        var noOpInsCycles = 4;
+        var initialState = new CpuState();
         
         var mmu = new Mmu();
         mmu.Write(0x0, 0x40);
-        
-        var cpu = new Cpu(mmu)
-        {
-            Flags = startingFlags,
-            Pc = startingPc,
-            Sp = startingSp,
-            Ra = startingRa,
-            Rb = startingRb,
-            Rc = startingRc,
-            Rd = startingRd,
-            Re = startingRe,
-            Rh = startingRh,
-            Rl = startingRl
-        };
-        
+
+        var cpu = CreateCpu(mmu, initialState);
         var cycles = cpu.Step();
 
-        Assert.Equal(noOpInsCycles, cycles);
-        Assert.Equal(startingPc + 1, cpu.Pc);
-        Assert.Equal(startingFlags, cpu.Flags);
-        Assert.Equal(startingSp, cpu.Sp);
-        Assert.Equal(startingRa, cpu.Ra);
-        Assert.Equal(startingRb, cpu.Rb);
-        Assert.Equal(startingRc, cpu.Rc);
-        Assert.Equal(startingRd, cpu.Rd);
-        Assert.Equal(startingRe, cpu.Re);
-        Assert.Equal(startingRh, cpu.Rh);
-        Assert.Equal(startingRl, cpu.Rl);
+        var expectedState = initialState with
+        {
+            Pc = (byte)(initialState.Pc + 1)
+        };
+        
+        Assert.Equal(4, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
     }
-    
+
     [Fact]
-    public void TestMoveBC()
+    public void TestMoveBc()
     {
-        var startingFlags = CpuFlags.None;
-        byte startingPc = 0x0;
-        byte startingSp = 0x0;
-        byte startingRa = 0x0;
-        byte startingRb = 0x0;
-        byte startingRc = 0x0;
-        byte startingRd = 0x0;
-        byte startingRe = 0x0;
-        byte startingRh = 0x0;
-        byte startingRl = 0x0;
-        var noOpInsCycles = 4;
-        
-        var mmu = new Mmu();
-        mmu.Write(0x0, 0x40);
-        
-        var cpu = new Cpu(mmu)
+        var initialState = new CpuState
         {
-            Flags = startingFlags,
-            Pc = startingPc,
-            Sp = startingSp,
-            Ra = startingRa,
-            Rb = startingRb,
-            Rc = startingRc,
-            Rd = startingRd,
-            Re = startingRe,
-            Rh = startingRh,
-            Rl = startingRl
+            Rc = 0x50
         };
         
+        var mmu = new Mmu();
+        mmu.Write(0x0, 0x41);
+
+        var cpu = CreateCpu(mmu, initialState);
         var cycles = cpu.Step();
 
-        Assert.Equal(noOpInsCycles, cycles);
-        Assert.Equal(startingPc + 1, cpu.Pc);
-        Assert.Equal(startingFlags, cpu.Flags);
-        Assert.Equal(startingSp, cpu.Sp);
-        Assert.Equal(startingRa, cpu.Ra);
-        Assert.Equal(startingRb, cpu.Rb);
-        Assert.Equal(startingRc, cpu.Rc);
-        Assert.Equal(startingRd, cpu.Rd);
-        Assert.Equal(startingRe, cpu.Re);
-        Assert.Equal(startingRh, cpu.Rh);
-        Assert.Equal(startingRl, cpu.Rl);
+        var expectedState = initialState with
+        {
+            Pc = (byte)(initialState.Pc + 1),
+            Rb = initialState.Rc
+        };
+        
+        Assert.Equal(5, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
     }
 }
