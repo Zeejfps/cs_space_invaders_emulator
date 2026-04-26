@@ -31,6 +31,8 @@ public sealed partial class Cpu
         return opCode switch
         {
             0x00 => NoOp(),
+            
+            // Move Bx
             0x40 => MoveBb(),
             0x41 => MoveBc(),
             0x42 => MoveBd(),
@@ -39,6 +41,8 @@ public sealed partial class Cpu
             0x45 => MoveBl(),
             0x46 => MoveBm(),
             0x47 => MoveBa(),
+            
+            // Move Cx
             0x48 => MoveCb(),
             0x49 => MoveCc(),
             0x4A => MoveCd(),
@@ -47,6 +51,8 @@ public sealed partial class Cpu
             0x4D => MoveCl(),
             0x4E => MoveCm(),
             0x4F => MoveCa(),
+            
+            // Move Dx
             0x50 => MoveDb(),
             0x51 => MoveDc(),
             0x52 => MoveDd(),
@@ -55,6 +61,8 @@ public sealed partial class Cpu
             0x55 => MoveDl(),
             0x56 => MoveDm(),
             0x57 => MoveDa(),
+            
+            // Move Ex
             0x58 => MoveEb(),
             0x59 => MoveEc(),
             0x5A => MoveEd(),
@@ -63,6 +71,8 @@ public sealed partial class Cpu
             0x5D => MoveEl(),
             0x5E => MoveEm(),
             0x5F => MoveEa(),
+            
+            // Move Hx
             0x60 => MoveHb(),
             0x61 => MoveHc(),
             0x62 => MoveHd(),
@@ -71,6 +81,8 @@ public sealed partial class Cpu
             0x65 => MoveHl(),
             0x66 => MoveHm(),
             0x67 => MoveHa(),
+            
+            // Move Lx
             0x68 => MoveLb(),
             0x69 => MoveLc(),
             0x6A => MoveLd(),
@@ -79,7 +91,17 @@ public sealed partial class Cpu
             0x6D => MoveLl(),
             0x6E => MoveLm(),
             0x6F => MoveLa(),
+            
+            // Move Mx
             0x70 => MoveMb(),
+            0x71 => MoveMc(),
+            0x72 => MoveMd(),
+            0x73 => MoveMe(),
+            0x74 => MoveMh(),
+            0x75 => MoveMl(),
+            0x77 => MoveMa(),
+            
+            // Move Ax
             0x78 => MoveAb(),
             0x79 => MoveAc(),
             0x7A => MoveAd(),
