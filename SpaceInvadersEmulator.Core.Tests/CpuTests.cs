@@ -240,7 +240,7 @@ public class CpuTests
     [Theory] 
     [InlineData(0x0A, Reg.B)]
     [InlineData(0x1A, Reg.D)]
-    public void TestLdAxR(byte opcode, Reg src)                                                    
+    public void TestLdAx(byte opcode, Reg src)                                                    
     {                                                         
         byte sentinel = 0xAB;
         var initialState = new CpuState                       
@@ -322,4 +322,34 @@ public class CpuTests
         Assert.Equal(expectedState, CpuState.FromCpu(cpu));
         Assert.Equal(sentinel, memValue);
     }
+    
+    [Theory] 
+    [InlineData(0x02, Reg.B)]
+    [InlineData(0x12, Reg.D)]
+    public void TestStAx(byte opcode, Reg src)                                                    
+    {                                                         
+        byte sentinel = 0xAB;
+        var initialState = new CpuState                       
+        {                                                     
+            Pc = 0x10,
+            Ra = sentinel,
+        };
+        initialState.WriteRegPair(src, 0x2030);
+        var address = initialState.ReadRegPair(src);                   
+                                                            
+        var mmu = new Mmu();                                  
+        mmu.Write(initialState.Pc, opcode);
+                                                          
+        var cpu = CreateCpu(mmu, initialState);               
+        var cycles = cpu.Step();
+                                                            
+        var expectedState = initialState;                   
+        expectedState.IncrementPcBy(1);
+   
+        var memValue = mmu.Read(address);
+        
+        Assert.Equal(7, cycles);                              
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu)); 
+        Assert.Equal(sentinel, memValue); 
+    } 
 }
