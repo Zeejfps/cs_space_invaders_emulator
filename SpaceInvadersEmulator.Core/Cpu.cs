@@ -146,6 +146,12 @@ public sealed partial class Cpu
             0x02 => StAb(),
             0x12 => StAd(),
             0x32 => StA(),
+
+            // Load register pair immediate
+            0x01 => LxiB(),
+            0x11 => LxiD(),
+            0x21 => LxiH(),
+            0x31 => LxiSp(),
             
             _ => 1
         };
