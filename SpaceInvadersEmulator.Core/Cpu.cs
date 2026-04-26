@@ -6,7 +6,7 @@ public sealed partial class Cpu
 {
     public CpuFlags Flags { get; set; }
     public ushort Pc { get; set; }
-    public byte Sp { get; set; }
+    public ushort Sp { get; set; }
     public byte Ra { get; set; }
     public byte Rb { get; set; }
     public byte Rc { get; set; }
@@ -14,6 +14,18 @@ public sealed partial class Cpu
     public byte Re { get; set; }
     public byte Rh { get; set; }
     public byte Rl { get; set; }
+
+    private ushort Rbc
+    {
+        get => (ushort)((Rb << 8) | Rc);
+        set { Rb = (byte)(value >> 8); Rc = (byte)(value & 0xFF); }
+    }
+    
+    private ushort Rde
+    {
+        get => (ushort)((Rd << 8) | Re);
+        set { Rd = (byte)(value >> 8); Re = (byte)(value & 0xFF); }
+    }
     
     private ushort Rhl
     {
