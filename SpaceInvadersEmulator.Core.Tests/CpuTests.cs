@@ -21,7 +21,7 @@ public class CpuTests
     {
         var initialState = new CpuState();
         var mmu = new Mmu();
-        mmu.Write(0x0, 0x00);
+        mmu.Write(initialState.Pc, 0x00);
 
         var cpu = CreateCpu(mmu, initialState);
         var cycles = cpu.Step();
@@ -36,7 +36,7 @@ public class CpuTests
         var initialState = new CpuState();
         
         var mmu = new Mmu();
-        mmu.Write(0x0, 0x40);
+        mmu.Write(initialState.Pc, 0x40);
 
         var cpu = CreateCpu(mmu, initialState);
         var cycles = cpu.Step();
@@ -59,7 +59,7 @@ public class CpuTests
         };
         
         var mmu = new Mmu();
-        mmu.Write(0x0, 0x41);
+        mmu.Write(initialState.Pc, 0x41);
 
         var cpu = CreateCpu(mmu, initialState);
         var cycles = cpu.Step();
