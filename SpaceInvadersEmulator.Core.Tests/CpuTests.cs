@@ -31,7 +31,7 @@ public class CpuTests
         var cycles = cpu.Step();
 
         Assert.Equal(4, cycles);
-        Assert.Equal(initialState with { Pc = (byte)(initialState.Pc + 1) }, CpuState.FromCpu(cpu));
+        Assert.Equal(initialState with { Pc = (ushort)(initialState.Pc + 1) }, CpuState.FromCpu(cpu));
     }
 
     [Theory]
@@ -96,7 +96,7 @@ public class CpuTests
         var cpu = CreateCpu(mmu, initialState);
         var cycles = cpu.Step();
 
-        var expectedState = initialState with { Pc = (byte)(initialState.Pc + 1) };
+        var expectedState = initialState with { Pc = (ushort)(initialState.Pc + 1) };
         expectedState.WriteReg(dst, initialState.ReadReg(src));
 
         Assert.Equal(5, cycles);
@@ -194,7 +194,7 @@ public class CpuTests
     
         var mmu = new Mmu();
         mmu.Write(initialState.Pc, opcode);
-        mmu.Write((byte)(initialState.Pc + 1), 0xAB);
+        mmu.Write((ushort)(initialState.Pc + 1), 0xAB);
 
         var cpu = CreateCpu(mmu, initialState);
         var cycles = cpu.Step();

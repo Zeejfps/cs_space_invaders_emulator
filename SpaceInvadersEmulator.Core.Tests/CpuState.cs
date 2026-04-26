@@ -5,7 +5,7 @@ public enum Reg { A, B, C, D, E, H, L }
 public record struct CpuState
 {
     public CpuFlags Flags;
-    public byte Pc;
+    public ushort Pc;
     public ushort Sp;
     public byte Ra;
     public byte Rb;
@@ -19,12 +19,12 @@ public record struct CpuState
     public readonly ushort Rbc => (ushort)((Rb << 8) | Rc);
     public readonly ushort Rhl => (ushort)((Rh << 8) | Rl);
 
-    public void IncrementPcBy(int n) => Pc = (byte)(Pc + n);
+    public void IncrementPcBy(int n) => Pc = (ushort)(Pc + n);
     
     public static CpuState FromCpu(Cpu cpu) => new()
     {
         Flags = cpu.Flags,
-        Pc = (byte)cpu.Pc,
+        Pc = cpu.Pc,
         Sp = cpu.Sp,
         Ra = cpu.Ra,
         Rb = cpu.Rb,
