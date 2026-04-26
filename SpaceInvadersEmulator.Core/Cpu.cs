@@ -33,6 +33,9 @@ public sealed partial class Cpu
             0x41 => MoveBc(),
             0x42 => MoveBd(),
             0x43 => MoveBe(),
+            0x44 => MoveBh(),
+            0x45 => MoveBl(),
+            0x47 => MoveBa(),
             _ => 1
         };
     }

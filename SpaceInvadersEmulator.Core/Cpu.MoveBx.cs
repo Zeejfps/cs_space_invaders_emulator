@@ -30,4 +30,25 @@ public sealed partial class Cpu
         Rb = Re;
         return 5;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int MoveBh()
+    {
+        Rb = Rh;
+        return 5;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int MoveBl()
+    {
+        Rb = Rl;
+        return 5;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int MoveBa()
+    {
+        Rb = Ra;
+        return 5;
+    }
 }

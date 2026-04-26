@@ -39,6 +39,9 @@ public class CpuTests
     [InlineData(0x41, Reg.B, Reg.C)]
     [InlineData(0x42, Reg.B, Reg.D)]
     [InlineData(0x43, Reg.B, Reg.E)]
+    [InlineData(0x44, Reg.B, Reg.H)]
+    [InlineData(0x45, Reg.B, Reg.L)]
+    [InlineData(0x47, Reg.B, Reg.A)]
     public void TestMoveRr(byte opcode, Reg dst, Reg src)
     {
         var initialState = new CpuState { Pc = 0x10 };
