@@ -53,7 +53,7 @@ public sealed partial class Cpu
         return 7;
     }
     
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int MviM()
     {
         var value = Fetch();

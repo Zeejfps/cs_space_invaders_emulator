@@ -24,6 +24,7 @@ public sealed partial class Cpu
         _mmu = mmu;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public int Step()
     {
         var opcode = Fetch();
