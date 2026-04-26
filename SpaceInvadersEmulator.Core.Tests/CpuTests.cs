@@ -23,7 +23,7 @@ public class CpuTests
         {
             Pc = 0x10
         };
-        
+
         var mmu = new Mmu();
         mmu.Write(initialState.Pc, 0x00);
 
@@ -34,101 +34,26 @@ public class CpuTests
         Assert.Equal(initialState with { Pc = (byte)(initialState.Pc + 1) }, CpuState.FromCpu(cpu));
     }
 
-    [Fact]
-    public void TestMoveBb()
+    [Theory]
+    [InlineData(0x40, Reg.B, Reg.B)]
+    [InlineData(0x41, Reg.B, Reg.C)]
+    [InlineData(0x42, Reg.B, Reg.D)]
+    [InlineData(0x43, Reg.B, Reg.E)]
+    public void TestMoveRr(byte opcode, Reg dst, Reg src)
     {
-        var initialState = new CpuState
-        {
-            Rb = 0x50
-        };
-        
+        var initialState = new CpuState { Pc = 0x10 };
+        initialState.WriteReg(dst, 0x11);
+        initialState.WriteReg(src, 0x50);
+
         var mmu = new Mmu();
-        mmu.Write(initialState.Pc, 0x40);
+        mmu.Write(initialState.Pc, opcode);
 
         var cpu = CreateCpu(mmu, initialState);
         var cycles = cpu.Step();
 
-        var expectedState = initialState with
-        {
-            Pc = (byte)(initialState.Pc + 1),
-            Rb = 0x50
-        };
-        
-        Assert.Equal(5, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
-    }
+        var expectedState = initialState with { Pc = (byte)(initialState.Pc + 1) };
+        expectedState.WriteReg(dst, initialState.ReadReg(src));
 
-    [Fact]
-    public void TestMoveBc()
-    {
-        var initialState = new CpuState
-        {
-            Rb = 0x11,
-            Rc = 0x50
-        };
-        
-        var mmu = new Mmu();
-        mmu.Write(initialState.Pc, 0x41);
-
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
-
-        var expectedState = initialState with
-        {
-            Pc = (byte)(initialState.Pc + 1),
-            Rb = initialState.Rc
-        };
-        
-        Assert.Equal(5, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
-    }
-    
-    [Fact]
-    public void TestMoveBd()
-    {
-        var initialState = new CpuState
-        {
-            Rb = 0x11,
-            Rd = 0x50
-        };
-        
-        var mmu = new Mmu();
-        mmu.Write(initialState.Pc, 0x42);
-
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
-
-        var expectedState = initialState with
-        {
-            Pc = (byte)(initialState.Pc + 1),
-            Rb = initialState.Rd
-        };
-        
-        Assert.Equal(5, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
-    }
-    
-    [Fact]
-    public void TestMoveBe()
-    {
-        var initialState = new CpuState
-        {
-            Rb = 0x11,
-            Re = 0x50
-        };
-        
-        var mmu = new Mmu();
-        mmu.Write(initialState.Pc, 0x43);
-
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
-
-        var expectedState = initialState with
-        {
-            Pc = (byte)(initialState.Pc + 1),
-            Rb = initialState.Re
-        };
-        
         Assert.Equal(5, cycles);
         Assert.Equal(expectedState, CpuState.FromCpu(cpu));
     }
