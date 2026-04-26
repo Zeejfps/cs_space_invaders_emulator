@@ -14,6 +14,8 @@ public sealed partial class Cpu
     public byte Re { get; set; }
     public byte Rh { get; set; }
     public byte Rl { get; set; }
+    
+    private ushort Hl => (ushort)((Rh << 8) | Rl);
 
     private readonly Mmu _mmu;
     

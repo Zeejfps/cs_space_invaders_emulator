@@ -55,8 +55,7 @@ public sealed partial class Cpu
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int MoveAm()
     {
-        var address = Rh << 8 | Rl;
-        Ra = _mmu.Read((ushort)address);
+        Ra = _mmu.Read(Hl);
         return 7;
     }
 }
