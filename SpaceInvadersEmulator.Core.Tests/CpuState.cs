@@ -15,7 +15,8 @@ public record struct CpuState
     public byte Rh;
     public byte Rl;
     
-    public ushort Hl => (ushort)((Rh << 8) | Rl);
+    public ushort Rbc => (ushort)((Rb << 8) | Rc);
+    public ushort Rhl => (ushort)((Rh << 8) | Rl);
 
     public void IncrementPcBy(int n) => Pc = (byte)(Pc + n);
     

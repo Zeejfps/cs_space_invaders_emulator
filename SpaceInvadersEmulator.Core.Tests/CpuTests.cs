@@ -168,7 +168,7 @@ public class CpuTests
         expectedState.IncrementPcBy(1);
 
         var expectedValueInMem = initialState.ReadReg(src);
-        var valueInMem = mmu.Read(initialState.Hl);
+        var valueInMem = mmu.Read(initialState.Rhl);
         
         Assert.Equal(7, cycles);
         Assert.Equal(expectedState, CpuState.FromCpu(cpu));
@@ -230,10 +230,39 @@ public class CpuTests
         var expectedState = initialState;
         expectedState.IncrementPcBy(instructionSize);
 
-        var memValue = mmu.Read(expectedState.Hl);
+        var memValue = mmu.Read(expectedState.Rhl);
         
         Assert.Equal(10, cycles);
         Assert.Equal(expectedState, CpuState.FromCpu(cpu));
         Assert.Equal(sentinel, memValue);
     }
+    
+    [Fact]                                                    
+    public void TestLdaxB()                                   
+    {                                                         
+        byte opcode = 0x0A;                                   
+        byte sentinel = 0xAB;
+        var initialState = new CpuState                       
+        {                                                     
+            Pc = 0x10,
+            Rb = 0x20,                                        
+            Rc = 0x30                                       
+        };
+
+        var bcAddress = initialState.Rbc;                   
+                                                            
+        var mmu = new Mmu();                                  
+        mmu.Write(initialState.Pc, opcode);
+        mmu.Write(bcAddress, sentinel);                       
+                                                          
+        var cpu = CreateCpu(mmu, initialState);               
+        var cycles = cpu.Step();
+                                                            
+        var expectedState = initialState;                   
+        expectedState.IncrementPcBy(1);
+        expectedState.Ra = sentinel;                          
+   
+        Assert.Equal(7, cycles);                              
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu)); 
+    }    
 }
