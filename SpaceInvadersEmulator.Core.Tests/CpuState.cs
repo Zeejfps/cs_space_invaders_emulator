@@ -6,7 +6,7 @@ public record struct CpuState
 {
     public CpuFlags Flags;
     public byte Pc;
-    public byte Sp;
+    public ushort Sp;
     public byte Ra;
     public byte Rb;
     public byte Rc;
