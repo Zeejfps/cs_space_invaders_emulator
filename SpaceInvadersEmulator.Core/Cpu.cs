@@ -39,6 +39,7 @@ public sealed partial class Cpu
             0x26 => MviH(),
             0x2E => MviL(),
             0x3E => MviA(),
+            0x36 => MviM(),
 
             // Move Bx
             0x40 => MoveBb(),

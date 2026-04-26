@@ -52,4 +52,12 @@ public sealed partial class Cpu
         Ra = Fetch();
         return 7;
     }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private int MviM()
+    {
+        var value = Fetch();
+        _mmu.Write(Hl, value);
+        return 10;
+    }
 }
