@@ -60,4 +60,33 @@ public class CpuTests
         Assert.Equal(5, cycles);
         Assert.Equal(expectedState, CpuState.FromCpu(cpu));
     }
+
+    [Fact]
+    public void TestMoveBm()
+    {
+        var initialState = new CpuState
+        {
+            Pc = 0x10,
+            Rb = 0x11,
+            Rh = 0x20,
+            Rl = 0x30
+        };
+        var address = (ushort)((initialState.Rh << 8) | initialState.Rl);
+
+        var mmu = new Mmu();
+        mmu.Write(initialState.Pc, 0x46);
+        mmu.Write(address, 0x50);
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState with
+        {
+            Pc = (byte)(initialState.Pc + 1),
+            Rb = 0x50
+        };
+
+        Assert.Equal(7, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
 }
