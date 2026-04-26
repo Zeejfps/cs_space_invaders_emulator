@@ -155,8 +155,10 @@ public class CpuTests
             Rh = 0x20,
             Rl = 0x30
         };
-        initialState.WriteReg(src, 0x50);
-        var address = initialState.Hl;
+        // Keep the sentinel distinct from H and L so a row asserting "wrote H"
+        // can't pass by accidentally writing the sentinel, and vice versa.
+        if (src is not Reg.H and not Reg.L)
+            initialState.WriteReg(src, 0xAB);
 
         var mmu = new Mmu();
         mmu.Write(initialState.Pc, opcode);
@@ -168,10 +170,12 @@ public class CpuTests
         {
             Pc = (byte)(initialState.Pc + 1),
         };
-        var readValue = mmu.Read(address);
+
+        var expectedValueInMem = initialState.ReadReg(src);
+        var valueInMem = mmu.Read(initialState.Hl);
         
         Assert.Equal(7, cycles);
         Assert.Equal(expectedState, CpuState.FromCpu(cpu));
-        Assert.Equal(0x50, readValue);
+        Assert.Equal(expectedValueInMem, valueInMem);
     }
 }
