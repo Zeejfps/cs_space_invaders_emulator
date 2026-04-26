@@ -76,4 +76,31 @@ public sealed partial class Cpu
         _mmu.Write(Sp, (byte)Flags);
         return 11;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int Xthl()
+    {
+        var tempL = Rl;
+        var tempH = Rh;
+        Rl = _mmu.Read(Sp);
+        Rh = _mmu.Read((ushort)(Sp + 1));
+        _mmu.Write(Sp, tempL);
+        _mmu.Write((ushort)(Sp + 1), tempH);
+        return 18;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int Xchg()
+    {
+        (Rh, Rd) = (Rd, Rh);
+        (Rl, Re) = (Re, Rl);
+        return 4;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int Sphl()
+    {
+        Sp = Rhl;
+        return 5;
+    }
 }

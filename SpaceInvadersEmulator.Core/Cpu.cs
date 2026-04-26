@@ -165,7 +165,11 @@ public sealed partial class Cpu
             0xD5 => PushD(),
             0xE5 => PushH(),
             0xF5 => PushPsw(),
-            
+
+            0xE3 => Xthl(),
+            0xEB => Xchg(),
+            0xF9 => Sphl(),
+
             _ => 1
         };
     }
