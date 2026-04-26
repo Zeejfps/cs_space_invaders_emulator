@@ -1,9 +1,11 @@
-﻿namespace SpaceInvadersEmulator.Core;
+﻿using System.Runtime.CompilerServices;
+
+namespace SpaceInvadersEmulator.Core;
 
 public sealed class Cpu
 {
     public CpuFlags Flags { get; set; }
-    public int Pc { get; set; }
+    public ushort Pc { get; set; }
     public byte Sp { get; set; }
     public byte Ra { get; set; }
     public byte Rb { get; set; }
@@ -22,7 +24,32 @@ public sealed class Cpu
 
     public int Step()
     {
+        var opCode = FetchIns();
         Pc++;
+        return opCode switch
+        {
+            0x00 or 0x40 => NoOp(),
+            0x41 => MoveBc(),
+            _ => 1
+        };
+    }
+
+    [MethodImpl( MethodImplOptions.AggressiveInlining)]
+    private int NoOp()
+    {
         return 4;
+    }
+
+    [MethodImpl( MethodImplOptions.AggressiveInlining)]
+    private int MoveBc()
+    {
+        Rb = Rc;
+        return 5;
+    }
+
+    [MethodImpl( MethodImplOptions.AggressiveInlining)]
+    private byte FetchIns()
+    {
+        return _mmu.Read(Pc);
     }
 }

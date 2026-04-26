@@ -1,4 +1,10 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=38d3b580_002Dcb7b_002D4170_002Da37a_002D119c8f7832c1/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="All tests from CpuTests.cs" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
-  &lt;ProjectFile&gt;8A2FF6AF-B544-4E04-B8C9-9E380B255D5B/f:CpuTests.cs&lt;/ProjectFile&gt;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=38d3b580_002Dcb7b_002D4170_002Da37a_002D119c8f7832c1/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="All tests from CpuTests.cs" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;Or&gt;
+    &lt;ProjectFile&gt;8A2FF6AF-B544-4E04-B8C9-9E380B255D5B/f:CpuTests.cs&lt;/ProjectFile&gt;
+    &lt;ProjectFile&gt;8A2FF6AF-B544-4E04-B8C9-9E380B255D5B/f:MmuTests.cs&lt;/ProjectFile&gt;
+  &lt;/Or&gt;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=7ffa758b_002D53e3_002D4c53_002Da451_002Da6998f4622c4/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="All tests from CpuTests.cs #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;Project Location="/Users/zee-seriesai/src/cs/SpaceInvadersEmulator/SpaceInvadersEmulator.Core.Tests" Presentation="&amp;lt;SpaceInvadersEmulator.Core.Tests&amp;gt;" /&gt;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
