@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpaceInvadersEmulator.Core", "SpaceInvadersEmulator.Core\SpaceInvadersEmulator.Core.csproj", "{0757BC01-D8CD-4619-A4ED-C9CDE6C85350}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpaceInvadersEmulator.Core.Tests", "SpaceInvadersEmulator.Core.Tests\SpaceInvadersEmulator.Core.Tests.csproj", "{8A2FF6AF-B544-4E04-B8C9-9E380B255D5B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0757BC01-D8CD-4619-A4ED-C9CDE6C85350}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0757BC01-D8CD-4619-A4ED-C9CDE6C85350}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0757BC01-D8CD-4619-A4ED-C9CDE6C85350}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0757BC01-D8CD-4619-A4ED-C9CDE6C85350}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A2FF6AF-B544-4E04-B8C9-9E380B255D5B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A2FF6AF-B544-4E04-B8C9-9E380B255D5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A2FF6AF-B544-4E04-B8C9-9E380B255D5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A2FF6AF-B544-4E04-B8C9-9E380B255D5B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
