@@ -872,4 +872,204 @@ public class CpuTests
         Assert.Equal(5, cycles);
         Assert.Equal(expectedState, CpuState.FromCpu(cpu));
     }
+
+    [Fact]
+    public void TestJnzTaken()
+    {
+        byte opcode = 0xC2;
+        var initialState = new CpuState
+        {
+            Pc = 0x10,
+            Flags = CpuFlags.S | CpuFlags.C | CpuFlags.P | CpuFlags.A
+        };
+
+        var mmu = new Mmu();
+        mmu.Write(initialState.Pc, opcode);
+        mmu.Write((ushort)(initialState.Pc + 1), 0x30);
+        mmu.Write((ushort)(initialState.Pc + 2), 0x20);
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.Pc = 0x2030;
+
+        Assert.Equal(10, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
+
+    [Fact]
+    public void TestJnzNotTaken()
+    {
+        byte opcode = 0xC2;
+        var initialState = new CpuState
+        {
+            Pc = 0x10,
+            Flags = AllFlags
+        };
+
+        var mmu = new Mmu();
+        mmu.Write(initialState.Pc, opcode);
+        mmu.Write((ushort)(initialState.Pc + 1), 0x30);
+        mmu.Write((ushort)(initialState.Pc + 2), 0x20);
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.IncrementPcBy(3);
+
+        Assert.Equal(10, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
+
+    [Fact]
+    public void TestJncTaken()
+    {
+        byte opcode = 0xD2;
+        var initialState = new CpuState
+        {
+            Pc = 0x10,
+            Flags = CpuFlags.S | CpuFlags.Z | CpuFlags.P | CpuFlags.A
+        };
+
+        var mmu = new Mmu();
+        mmu.Write(initialState.Pc, opcode);
+        mmu.Write((ushort)(initialState.Pc + 1), 0x30);
+        mmu.Write((ushort)(initialState.Pc + 2), 0x20);
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.Pc = 0x2030;
+
+        Assert.Equal(10, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
+
+    [Fact]
+    public void TestJncNotTaken()
+    {
+        byte opcode = 0xD2;
+        var initialState = new CpuState
+        {
+            Pc = 0x10,
+            Flags = AllFlags
+        };
+
+        var mmu = new Mmu();
+        mmu.Write(initialState.Pc, opcode);
+        mmu.Write((ushort)(initialState.Pc + 1), 0x30);
+        mmu.Write((ushort)(initialState.Pc + 2), 0x20);
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.IncrementPcBy(3);
+
+        Assert.Equal(10, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
+
+    [Fact]
+    public void TestJpoTaken()
+    {
+        byte opcode = 0xE2;
+        var initialState = new CpuState
+        {
+            Pc = 0x10,
+            Flags = CpuFlags.S | CpuFlags.Z | CpuFlags.C | CpuFlags.A
+        };
+
+        var mmu = new Mmu();
+        mmu.Write(initialState.Pc, opcode);
+        mmu.Write((ushort)(initialState.Pc + 1), 0x30);
+        mmu.Write((ushort)(initialState.Pc + 2), 0x20);
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.Pc = 0x2030;
+
+        Assert.Equal(10, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
+
+    [Fact]
+    public void TestJpoNotTaken()
+    {
+        byte opcode = 0xE2;
+        var initialState = new CpuState
+        {
+            Pc = 0x10,
+            Flags = AllFlags
+        };
+
+        var mmu = new Mmu();
+        mmu.Write(initialState.Pc, opcode);
+        mmu.Write((ushort)(initialState.Pc + 1), 0x30);
+        mmu.Write((ushort)(initialState.Pc + 2), 0x20);
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.IncrementPcBy(3);
+
+        Assert.Equal(10, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
+
+    [Fact]
+    public void TestJpTaken()
+    {
+        byte opcode = 0xF2;
+        var initialState = new CpuState
+        {
+            Pc = 0x10,
+            Flags = CpuFlags.Z | CpuFlags.C | CpuFlags.P | CpuFlags.A
+        };
+
+        var mmu = new Mmu();
+        mmu.Write(initialState.Pc, opcode);
+        mmu.Write((ushort)(initialState.Pc + 1), 0x30);
+        mmu.Write((ushort)(initialState.Pc + 2), 0x20);
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.Pc = 0x2030;
+
+        Assert.Equal(10, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
+
+    [Fact]
+    public void TestJpNotTaken()
+    {
+        byte opcode = 0xF2;
+        var initialState = new CpuState
+        {
+            Pc = 0x10,
+            Flags = AllFlags
+        };
+
+        var mmu = new Mmu();
+        mmu.Write(initialState.Pc, opcode);
+        mmu.Write((ushort)(initialState.Pc + 1), 0x30);
+        mmu.Write((ushort)(initialState.Pc + 2), 0x20);
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.IncrementPcBy(3);
+
+        Assert.Equal(10, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
 }
