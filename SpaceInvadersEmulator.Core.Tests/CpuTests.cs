@@ -206,4 +206,27 @@ public class CpuTests
         Assert.Equal(7, cycles);
         Assert.Equal(expectedState, CpuState.FromCpu(cpu));
     }
+    
+    public void TestMviM(byte opcode, Reg dst)
+    {
+        var instructionSize = 2;
+        var initialState = new CpuState
+        {
+            Pc = 0x10
+        };
+    
+        var mmu = new Mmu();
+        mmu.Write(initialState.Pc, opcode);
+        mmu.Write((byte)(initialState.Pc + 1), 0xAB);
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.IncrementPcBy(instructionSize);
+        expectedState.WriteReg(dst, 0xAB);
+        
+        Assert.Equal(7, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
 }

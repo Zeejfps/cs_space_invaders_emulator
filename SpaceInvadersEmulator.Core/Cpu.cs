@@ -26,9 +26,8 @@ public sealed partial class Cpu
 
     public int Step()
     {
-        var opCode = FetchIns();
-        Pc++;
-        return opCode switch
+        var opcode = Fetch();
+        return opcode switch
         {
             0x00 => NoOp(),
 
@@ -131,8 +130,8 @@ public sealed partial class Cpu
     }
 
     [MethodImpl( MethodImplOptions.AggressiveInlining)]
-    private byte FetchIns()
+    private byte Fetch()
     {
-        return _mmu.Read(Pc);
+        return _mmu.Read(Pc++);
     }
 }

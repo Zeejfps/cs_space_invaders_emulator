@@ -7,56 +7,49 @@ public sealed partial class Cpu
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int MviB()
     {
-        Rb = FetchIns();
-        Pc++;
+        Rb = Fetch();
         return 7;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int MviC()
     {
-        Rc = FetchIns();
-        Pc++;
+        Rc = Fetch();
         return 7;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int MviD()
     {
-        Rd = FetchIns();
-        Pc++;
+        Rd = Fetch();
         return 7;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int MviE()
     {
-        Re = FetchIns();
-        Pc++;
+        Re = Fetch();
         return 7;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int MviH()
     {
-        Rh = FetchIns();
-        Pc++;
+        Rh = Fetch();
         return 7;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int MviL()
     {
-        Rl = FetchIns();
-        Pc++;
+        Rl = Fetch();
         return 7;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int MviA()
     {
-        Ra = FetchIns();
-        Pc++;
+        Ra = Fetch();
         return 7;
     }
 }
