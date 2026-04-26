@@ -137,6 +137,10 @@ public sealed partial class Cpu
             0x75 => MoveMl(),
             0x77 => MoveMa(),
             
+            // Load
+            0x0A => LdAxB(),
+            0x1A => LdAxD(),
+            
             _ => 1
         };
     }
