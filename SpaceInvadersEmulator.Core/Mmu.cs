@@ -1,9 +1,10 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using SpaceInvadersEmulator.Core.Intel8080;
 
 namespace SpaceInvadersEmulator.Core;
 
-public sealed class Mmu
+public sealed class Mmu : IMmu
 {
     public readonly ushort RomStartAddress = 0x0;
     private const ushort RomEndAddress = 0x2000;
@@ -20,13 +21,6 @@ public sealed class Mmu
     }
     
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    public void Write(ushort address, byte value)
-    {
-        if (address < RomEndAddress) return;
-        Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(_ram), address) = value;
-    }
-    
-    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public void LoadRom(ReadOnlySpan<byte> value)
     {
         ref var dst = ref Unsafe.Add(ref                
@@ -35,6 +29,13 @@ public sealed class Mmu
             MemoryMarshal.GetReference(value);                    
         Unsafe.CopyBlockUnaligned(ref dst, ref src,     
             (uint)value.Length);
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    public void Write(ushort address, byte value)
+    {
+        if (address < RomEndAddress) return;
+        Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(_ram), address) = value;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
