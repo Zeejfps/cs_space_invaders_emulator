@@ -164,6 +164,12 @@ public sealed partial class Cpu
             0x21 => LxiH(),
             0x31 => LxiSp(),
 
+            // DAD
+            0x09 => DadB(),
+            0x19 => DadD(),
+            0x29 => DadH(),
+            0x39 => DadSp(),
+
             // INX
             0x03 => InxB(),
             0x13 => InxD(),

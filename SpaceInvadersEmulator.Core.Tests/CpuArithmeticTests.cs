@@ -873,4 +873,72 @@ public class CpuArithmeticTests
 
         Assert.Equal(expectedState, CpuState.FromCpu(cpu));
     }
+
+    [Theory]
+    [InlineData(0x09, Reg.B,  0x0234, 0x1234)] // DAD B
+    [InlineData(0x19, Reg.D,  0x0234, 0x1234)] // DAD D
+    [InlineData(0x39, Reg.Sp, 0x0234, 0x1234)] // DAD SP
+    public void TestDadRegPair(byte opcode, Reg srcReg, ushort srcValue, ushort expectedHL)
+    {
+        var initialState = new CpuState { Pc = 0x00, Flags = CpuFlags.S | CpuFlags.Z | CpuFlags.P | CpuFlags.A };
+        initialState.WriteRegPair(Reg.H, 0x1000);
+        initialState.WriteRegPair(srcReg, srcValue);
+
+        var mmu = new Mmu();
+        mmu.Write(0x00, opcode);
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.WriteRegPair(Reg.H, expectedHL);
+        expectedState.IncrementPcBy(1);
+
+        Assert.Equal(10, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
+
+    [Fact]
+    public void TestDadH()
+    {
+        var initialState = new CpuState { Pc = 0x00, Flags = CpuFlags.S | CpuFlags.Z | CpuFlags.P | CpuFlags.A };
+        initialState.WriteRegPair(Reg.H, 0x1200);
+
+        var mmu = new Mmu();
+        mmu.Write(0x00, 0x29); // DAD H
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.WriteRegPair(Reg.H, 0x2400);
+        expectedState.IncrementPcBy(1);
+
+        Assert.Equal(10, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
+
+    [Theory]
+    [InlineData(0x8000, 0x8000, CpuFlags.S | CpuFlags.Z, 0x0000, CpuFlags.S | CpuFlags.Z | CpuFlags.C)] // carry set, S|Z preserved
+    [InlineData(0x8000, 0x7FFF, CpuFlags.C,              0xFFFF, CpuFlags.None)]                         // no overflow, C cleared
+    [InlineData(0x0001, 0x0001, CpuFlags.P | CpuFlags.A, 0x0002, CpuFlags.P | CpuFlags.A)]              // P|A preserved, no carry
+    public void TestDadFlags(ushort initialHL, ushort bc, CpuFlags initialFlags, ushort expectedHL, CpuFlags expectedFlags)
+    {
+        var initialState = new CpuState { Pc = 0x00, Flags = initialFlags };
+        initialState.WriteRegPair(Reg.H, initialHL);
+        initialState.WriteRegPair(Reg.B, bc);
+
+        var mmu = new Mmu();
+        mmu.Write(0x00, 0x09); // DAD B
+
+        var cpu = CreateCpu(mmu, initialState);
+        cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.WriteRegPair(Reg.H, expectedHL);
+        expectedState.Flags = expectedFlags;
+        expectedState.IncrementPcBy(1);
+
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
 }
