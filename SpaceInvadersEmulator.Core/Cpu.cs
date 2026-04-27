@@ -405,12 +405,6 @@ public sealed partial class Cpu
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int NoOp()
-    {
-        return 4;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private byte Fetch()
     {
         return _mmu.Read(Pc++);
