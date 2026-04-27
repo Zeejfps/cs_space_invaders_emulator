@@ -123,7 +123,7 @@ public class CpuTests
             Flags = CpuFlags.All
         };
         initialState.WriteReg(dst, 0x11);
-        var address = (ushort)((initialState.Rh << 8) | initialState.Rl);
+        var address = initialState.Rhl;
 
         var mmu = new Mmu();
         mmu.Write(initialState.Pc, opcode);
@@ -661,20 +661,20 @@ public class CpuTests
 
     [Theory]
     [InlineData(0xC0, CpuFlags.S | CpuFlags.C | CpuFlags.P | CpuFlags.A, true)]               // RNZ taken
-    [InlineData(0xC0, CpuFlags.S | CpuFlags.Z | CpuFlags.C | CpuFlags.P | CpuFlags.A, false)] // RNZ not taken
+    [InlineData(0xC0, CpuFlags.All, false)] // RNZ not taken
     [InlineData(0xD0, CpuFlags.S | CpuFlags.Z | CpuFlags.P | CpuFlags.A, true)]               // RNC taken
-    [InlineData(0xD0, CpuFlags.S | CpuFlags.Z | CpuFlags.C | CpuFlags.P | CpuFlags.A, false)] // RNC not taken
+    [InlineData(0xD0, CpuFlags.All, false)] // RNC not taken
     [InlineData(0xE0, CpuFlags.S | CpuFlags.Z | CpuFlags.C | CpuFlags.A, true)]               // RPO taken
-    [InlineData(0xE0, CpuFlags.S | CpuFlags.Z | CpuFlags.C | CpuFlags.P | CpuFlags.A, false)] // RPO not taken
+    [InlineData(0xE0, CpuFlags.All, false)] // RPO not taken
     [InlineData(0xF0, CpuFlags.Z | CpuFlags.C | CpuFlags.P | CpuFlags.A, true)]               // RP taken
-    [InlineData(0xF0, CpuFlags.S | CpuFlags.Z | CpuFlags.C | CpuFlags.P | CpuFlags.A, false)] // RP not taken
-    [InlineData(0xC8, CpuFlags.S | CpuFlags.Z | CpuFlags.C | CpuFlags.P | CpuFlags.A, true)]  // RZ taken
+    [InlineData(0xF0, CpuFlags.All, false)] // RP not taken
+    [InlineData(0xC8, CpuFlags.All, true)]  // RZ taken
     [InlineData(0xC8, CpuFlags.S | CpuFlags.C | CpuFlags.P | CpuFlags.A, false)]               // RZ not taken
-    [InlineData(0xD8, CpuFlags.S | CpuFlags.Z | CpuFlags.C | CpuFlags.P | CpuFlags.A, true)]  // RC taken
+    [InlineData(0xD8, CpuFlags.All, true)]  // RC taken
     [InlineData(0xD8, CpuFlags.S | CpuFlags.Z | CpuFlags.P | CpuFlags.A, false)]               // RC not taken
-    [InlineData(0xE8, CpuFlags.S | CpuFlags.Z | CpuFlags.C | CpuFlags.P | CpuFlags.A, true)]  // RPE taken
+    [InlineData(0xE8, CpuFlags.All, true)]  // RPE taken
     [InlineData(0xE8, CpuFlags.S | CpuFlags.Z | CpuFlags.C | CpuFlags.A, false)]               // RPE not taken
-    [InlineData(0xF8, CpuFlags.S | CpuFlags.Z | CpuFlags.C | CpuFlags.P | CpuFlags.A, true)]  // RM taken
+    [InlineData(0xF8, CpuFlags.All, true)]  // RM taken
     [InlineData(0xF8, CpuFlags.Z | CpuFlags.C | CpuFlags.P | CpuFlags.A, false)]               // RM not taken
     public void TestConditionalReturn(byte opcode, CpuFlags flags, bool taken)
     {
@@ -712,13 +712,13 @@ public class CpuTests
 
     [Theory]
     [InlineData(0xC2, CpuFlags.S | CpuFlags.C | CpuFlags.P | CpuFlags.A, true)]               // JNZ taken
-    [InlineData(0xC2, CpuFlags.S | CpuFlags.Z | CpuFlags.C | CpuFlags.P | CpuFlags.A, false)] // JNZ not taken
+    [InlineData(0xC2, CpuFlags.All, false)] // JNZ not taken
     [InlineData(0xD2, CpuFlags.S | CpuFlags.Z | CpuFlags.P | CpuFlags.A, true)]               // JNC taken
-    [InlineData(0xD2, CpuFlags.S | CpuFlags.Z | CpuFlags.C | CpuFlags.P | CpuFlags.A, false)] // JNC not taken
+    [InlineData(0xD2, CpuFlags.All, false)] // JNC not taken
     [InlineData(0xE2, CpuFlags.S | CpuFlags.Z | CpuFlags.C | CpuFlags.A, true)]               // JPO taken
-    [InlineData(0xE2, CpuFlags.S | CpuFlags.Z | CpuFlags.C | CpuFlags.P | CpuFlags.A, false)] // JPO not taken
+    [InlineData(0xE2, CpuFlags.All, false)] // JPO not taken
     [InlineData(0xF2, CpuFlags.Z | CpuFlags.C | CpuFlags.P | CpuFlags.A, true)]               // JP taken
-    [InlineData(0xF2, CpuFlags.S | CpuFlags.Z | CpuFlags.C | CpuFlags.P | CpuFlags.A, false)] // JP not taken
+    [InlineData(0xF2, CpuFlags.All, false)] // JP not taken
     public void TestConditionalJump(byte opcode, CpuFlags flags, bool taken)
     {
         var initialState = new CpuState
@@ -772,13 +772,13 @@ public class CpuTests
 
     [Theory]
     [InlineData(0xC4, CpuFlags.S | CpuFlags.C | CpuFlags.P | CpuFlags.A, true)]               // CNZ taken
-    [InlineData(0xC4, CpuFlags.S | CpuFlags.Z | CpuFlags.C | CpuFlags.P | CpuFlags.A, false)] // CNZ not taken
+    [InlineData(0xC4, CpuFlags.All, false)] // CNZ not taken
     [InlineData(0xD4, CpuFlags.S | CpuFlags.Z | CpuFlags.P | CpuFlags.A, true)]               // CNC taken
-    [InlineData(0xD4, CpuFlags.S | CpuFlags.Z | CpuFlags.C | CpuFlags.P | CpuFlags.A, false)] // CNC not taken
+    [InlineData(0xD4, CpuFlags.All, false)] // CNC not taken
     [InlineData(0xE4, CpuFlags.S | CpuFlags.Z | CpuFlags.C | CpuFlags.A, true)]               // CPO taken
-    [InlineData(0xE4, CpuFlags.S | CpuFlags.Z | CpuFlags.C | CpuFlags.P | CpuFlags.A, false)] // CPO not taken
+    [InlineData(0xE4, CpuFlags.All, false)] // CPO not taken
     [InlineData(0xF4, CpuFlags.Z | CpuFlags.C | CpuFlags.P | CpuFlags.A, true)]               // CP taken
-    [InlineData(0xF4, CpuFlags.S | CpuFlags.Z | CpuFlags.C | CpuFlags.P | CpuFlags.A, false)] // CP not taken
+    [InlineData(0xF4, CpuFlags.All, false)] // CP not taken
     public void TestConditionalCall(byte opcode, CpuFlags flags, bool taken)
     {
         ushort stackAddr = 0x2002;
