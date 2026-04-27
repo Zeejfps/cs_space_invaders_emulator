@@ -2,8 +2,6 @@ namespace SpaceInvadersEmulator.Core.Tests;
 
 public class CpuTests
 {
-    private static readonly CpuFlags AllFlags = CpuFlags.S | CpuFlags.Z | CpuFlags.C | CpuFlags.P | CpuFlags.A;
-
     private static Cpu CreateCpu(Mmu mmu, CpuState state) => new(mmu)
     {
         Flags = state.Flags,
@@ -24,7 +22,7 @@ public class CpuTests
         var initialState = new CpuState
         {
             Pc = 0x10,
-            Flags = AllFlags
+            Flags = CpuFlags.All
         };
 
         var mmu = new Mmu();
@@ -89,7 +87,7 @@ public class CpuTests
     [InlineData(0x7F, Reg.A, Reg.A)]
     public void TestMoveRr(byte opcode, Reg dst, Reg src)
     {
-        var initialState = new CpuState { Pc = 0x10, Flags = AllFlags };
+        var initialState = new CpuState { Pc = 0x10, Flags = CpuFlags.All };
         initialState.WriteReg(dst, 0x11);
         initialState.WriteReg(src, 0x50);
 
@@ -122,7 +120,7 @@ public class CpuTests
             Pc = 0x10,
             Rh = 0x20,
             Rl = 0x30,
-            Flags = AllFlags
+            Flags = CpuFlags.All
         };
         initialState.WriteReg(dst, 0x11);
         var address = (ushort)((initialState.Rh << 8) | initialState.Rl);
@@ -157,7 +155,7 @@ public class CpuTests
             Pc = 0x10,
             Rh = 0x20,
             Rl = 0x30,
-            Flags = AllFlags
+            Flags = CpuFlags.All
         };
         // Keep the sentinel distinct from H and L so a row asserting "wrote H"
         // can't pass by accidentally writing the sentinel, and vice versa.
@@ -195,7 +193,7 @@ public class CpuTests
         var initialState = new CpuState
         {
             Pc = 0x10,
-            Flags = AllFlags
+            Flags = CpuFlags.All
         };
 
         var mmu = new Mmu();
@@ -224,7 +222,7 @@ public class CpuTests
             Pc = 0x10,
             Rh = 0x20,
             Rl = 0x30,
-            Flags = AllFlags
+            Flags = CpuFlags.All
         };
 
         var mmu = new Mmu();
@@ -253,7 +251,7 @@ public class CpuTests
         var initialState = new CpuState
         {
             Pc = 0x10,
-            Flags = AllFlags
+            Flags = CpuFlags.All
         };
         initialState.WriteRegPair(src, 0x2030);
         var address = initialState.ReadRegPair(src);
@@ -283,7 +281,7 @@ public class CpuTests
         var initialState = new CpuState
         {
             Pc = 0x10,
-            Flags = AllFlags
+            Flags = CpuFlags.All
         };
 
         var mmu = new Mmu();
@@ -313,7 +311,7 @@ public class CpuTests
         {
             Pc = 0x10,
             Ra = sentinel,
-            Flags = AllFlags
+            Flags = CpuFlags.All
         };
 
         var mmu = new Mmu();
@@ -344,7 +342,7 @@ public class CpuTests
             Pc = 0x10,
             Rh = 0x20,
             Rl = 0x30,
-            Flags = AllFlags
+            Flags = CpuFlags.All
         };
 
         var mmu = new Mmu();
@@ -372,7 +370,7 @@ public class CpuTests
         var initialState = new CpuState
         {
             Pc = 0x10,
-            Flags = AllFlags
+            Flags = CpuFlags.All
         };
 
         var mmu = new Mmu();
@@ -403,7 +401,7 @@ public class CpuTests
         {
             Pc = 0x10,
             Ra = sentinel,
-            Flags = AllFlags
+            Flags = CpuFlags.All
         };
         initialState.WriteRegPair(src, 0x2030);
         var address = initialState.ReadRegPair(src);
@@ -433,7 +431,7 @@ public class CpuTests
     {
         ushort immediate = 0x2030;
         var instructionSize = 3;
-        var initialState = new CpuState { Pc = 0x10, Flags = AllFlags };
+        var initialState = new CpuState { Pc = 0x10, Flags = CpuFlags.All };
 
         var mmu = new Mmu();
         mmu.Write(initialState.Pc, opcode);
@@ -461,7 +459,7 @@ public class CpuTests
         {
             Pc = 0x10,
             Sp = stackAddr,
-            Flags = AllFlags
+            Flags = CpuFlags.All
         };
 
         var mmu = new Mmu();
@@ -490,7 +488,7 @@ public class CpuTests
         {
             Pc = 0x10,
             Sp = stackAddr,
-            Flags = AllFlags
+            Flags = CpuFlags.All
         };
 
         var mmu = new Mmu();
@@ -522,7 +520,7 @@ public class CpuTests
         {
             Pc = 0x10,
             Sp = stackAddr,
-            Flags = AllFlags
+            Flags = CpuFlags.All
         };
         initialState.WriteRegPair(src, 0x2030);
 
@@ -582,7 +580,7 @@ public class CpuTests
             Sp = stackAddr,
             Rh = 0x20,
             Rl = 0x30,
-            Flags = AllFlags
+            Flags = CpuFlags.All
         };
 
         var mmu = new Mmu();
@@ -615,7 +613,7 @@ public class CpuTests
             Rl = 0x30,
             Rd = 0x40,
             Re = 0x50,
-            Flags = AllFlags
+            Flags = CpuFlags.All
         };
 
         var mmu = new Mmu();
@@ -644,7 +642,7 @@ public class CpuTests
             Pc = 0x10,
             Rh = 0x20,
             Rl = 0x30,
-            Flags = AllFlags
+            Flags = CpuFlags.All
         };
 
         var mmu = new Mmu();
@@ -754,7 +752,7 @@ public class CpuTests
         var initialState = new CpuState
         {
             Pc = 0x10,
-            Flags = AllFlags
+            Flags = CpuFlags.All
         };
 
         var mmu = new Mmu();
@@ -833,7 +831,7 @@ public class CpuTests
         {
             Pc = 0x10,
             Sp = stackAddr,
-            Flags = AllFlags
+            Flags = CpuFlags.All
         };
 
         var mmu = new Mmu();

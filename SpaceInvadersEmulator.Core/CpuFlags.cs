@@ -9,4 +9,5 @@ public enum CpuFlags : byte
     A = 1 << 4,
     Z = 1 << 6,
     S = 1 << 7,
+    All = S | Z | A | P | C,
 }
