@@ -187,9 +187,13 @@ public sealed partial class Cpu
 
             // Conditional calls
             0xC4 => Cnz(),
+            0xCC => Cz(),
             0xD4 => Cnc(),
+            0xDC => Cc(),
             0xE4 => Cpo(),
+            0xEC => Cpe(),
             0xF4 => Cp(),
+            0xFC => Cm(),
 
             // Restarts
             0xC7 => Rst0(),

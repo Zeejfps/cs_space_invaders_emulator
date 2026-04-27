@@ -220,6 +220,54 @@ public sealed partial class Cpu
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int Cz()
+    {
+        var address = FetchWord();
+        if ((Flags & CpuFlags.Z) == 0)
+            return 11;
+        Sp -= 2;
+        _mmu.WriteWord(Sp, Pc);
+        Pc = address;
+        return 17;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int Cc()
+    {
+        var address = FetchWord();
+        if ((Flags & CpuFlags.C) == 0)
+            return 11;
+        Sp -= 2;
+        _mmu.WriteWord(Sp, Pc);
+        Pc = address;
+        return 17;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int Cpe()
+    {
+        var address = FetchWord();
+        if ((Flags & CpuFlags.P) == 0)
+            return 11;
+        Sp -= 2;
+        _mmu.WriteWord(Sp, Pc);
+        Pc = address;
+        return 17;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int Cm()
+    {
+        var address = FetchWord();
+        if ((Flags & CpuFlags.S) == 0)
+            return 11;
+        Sp -= 2;
+        _mmu.WriteWord(Sp, Pc);
+        Pc = address;
+        return 17;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int Rst(ushort vector)
     {
         Sp -= 2;
