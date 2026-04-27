@@ -5,6 +5,7 @@ namespace SpaceInvadersEmulator.Core;
 
 public sealed class Mmu
 {
+    public readonly ushort RomStartAddress = 0x0;
     private const ushort RomEndAddress = 0x2000;
     private const ushort VRamStartAddress = 0x2400;
     private const ushort VRamEndAddress = 0x3FFF;
@@ -26,11 +27,10 @@ public sealed class Mmu
     }
     
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    public void Write(ushort address, ReadOnlySpan<byte> value)
+    public void LoadRom(ReadOnlySpan<byte> value)
     {
-        if (address < RomEndAddress) return;
         ref var dst = ref Unsafe.Add(ref                
-            MemoryMarshal.GetArrayDataReference(_ram), address);  
+            MemoryMarshal.GetArrayDataReference(_ram), RomStartAddress);  
         ref var src = ref
             MemoryMarshal.GetReference(value);                    
         Unsafe.CopyBlockUnaligned(ref dst, ref src,     

@@ -38,8 +38,8 @@ public sealed class Machine : ICpuIO
     
     public void LoadRom(ReadOnlySpan<byte> rom)
     {
-        _mmu.Write(0x0, rom);
-        _cpu.Pc = 0x0;
+        _mmu.LoadRom(rom);
+        _cpu.Pc = _mmu.RomStartAddress;
     }
     
     public void Start()
