@@ -154,4 +154,97 @@ public class CpuArithmeticTests
         Assert.Equal(4, cycles);
         Assert.Equal(expectedState, CpuState.FromCpu(cpu));
     }
+
+    [Theory]
+    [InlineData(0x90, Reg.B, 0x05, 0x10)] // SUB B
+    [InlineData(0x91, Reg.C, 0x05, 0x10)] // SUB C
+    [InlineData(0x92, Reg.D, 0x05, 0x10)] // SUB D
+    [InlineData(0x93, Reg.E, 0x05, 0x10)] // SUB E
+    [InlineData(0x94, Reg.H, 0x05, 0x10)] // SUB H
+    [InlineData(0x95, Reg.L, 0x05, 0x10)] // SUB L
+    public void TestSubRegister(byte opcode, Reg srcReg, byte srcVal, byte expectedA)
+    {
+        var initialState = new CpuState { Pc = 0x00, Ra = 0x15 };
+        initialState.WriteReg(srcReg, srcVal);
+
+        var mmu = new Mmu();
+        mmu.Write(0x00, opcode);
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.Ra = expectedA;
+        expectedState.IncrementPcBy(1);
+
+        Assert.Equal(4, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
+
+    [Fact]
+    public void TestSubA()
+    {
+        var initialState = new CpuState { Pc = 0x00, Ra = 0x10 };
+
+        var mmu = new Mmu();
+        mmu.Write(0x00, 0x97); // SUB A
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.Ra = 0x00;
+        expectedState.Flags = CpuFlags.Z | CpuFlags.P;
+        expectedState.IncrementPcBy(1);
+
+        Assert.Equal(4, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
+
+    [Fact]
+    public void TestSubM()
+    {
+        ushort addr = 0x2000;
+        var initialState = new CpuState { Pc = 0x00, Ra = 0x15 };
+        initialState.WriteRegPair(Reg.H, addr);
+
+        var mmu = new Mmu();
+        mmu.Write(0x00, 0x96); // SUB M
+        mmu.Write(addr, 0x05);
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.Ra = 0x10;
+        expectedState.IncrementPcBy(1);
+
+        Assert.Equal(7, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
+
+    [Theory]
+    [InlineData(0x11, 0x01, 0x10, CpuFlags.None)]                                        // no flags
+    [InlineData(0x10, 0x05, 0x0B, CpuFlags.A)]                                           // aux borrow
+    [InlineData(0x10, 0x10, 0x00, CpuFlags.Z | CpuFlags.P)]                              // zero+parity
+    [InlineData(0x05, 0x10, 0xF5, CpuFlags.S | CpuFlags.P | CpuFlags.C)]                // borrow+sign+parity
+    [InlineData(0x00, 0x01, 0xFF, CpuFlags.S | CpuFlags.P | CpuFlags.C | CpuFlags.A)]  // all flags
+    public void TestSubFlags(byte a, byte b, byte expectedResult, CpuFlags expectedFlags)
+    {
+        var initialState = new CpuState { Pc = 0x00, Ra = a, Rb = b };
+
+        var mmu = new Mmu();
+        mmu.Write(0x00, 0x90); // SUB B
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.Ra = expectedResult;
+        expectedState.Flags = expectedFlags;
+        expectedState.IncrementPcBy(1);
+
+        Assert.Equal(4, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
 }

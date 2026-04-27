@@ -13,7 +13,7 @@ public sealed partial class Cpu
         return (value & 1) == 0;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     private static CpuFlags ComputeAddFlags(byte a, byte b, int result, int carry = 0)
     {
         var flags = CpuFlags.None;
@@ -104,6 +104,59 @@ public sealed partial class Cpu
         var carry = (Flags & CpuFlags.C) != 0 ? 1 : 0;
         var result = Ra + value + carry;
         Flags = ComputeAddFlags(Ra, value, result, carry);
+        Ra = (byte)result;
+        return 7;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private static CpuFlags ComputeSubFlags(byte a, byte b, int result)
+    {
+        var flags = CpuFlags.None;
+        var byteResult = (byte)result;
+        if (byteResult == 0) flags |= CpuFlags.Z;
+        if ((byteResult & 0x80) != 0) flags |= CpuFlags.S;
+        if (Parity(byteResult)) flags |= CpuFlags.P;
+        if (result < 0) flags |= CpuFlags.C;
+        if ((a & 0xF) < (b & 0xF)) flags |= CpuFlags.A;
+        return flags;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int Sub(byte value)
+    {
+        var result = Ra - value;
+        Flags = ComputeSubFlags(Ra, value, result);
+        Ra = (byte)result;
+        return 4;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int SubB() => Sub(Rb);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int SubC() => Sub(Rc);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int SubD() => Sub(Rd);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int SubE() => Sub(Re);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int SubH() => Sub(Rh);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int SubL() => Sub(Rl);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int SubA() => Sub(Ra);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int SubM()
+    {
+        var value = _mmu.Read(Rhl);
+        var result = Ra - value;
+        Flags = ComputeSubFlags(Ra, value, result);
         Ra = (byte)result;
         return 7;
     }

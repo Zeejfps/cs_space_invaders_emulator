@@ -194,6 +194,16 @@ public sealed partial class Cpu
             0x8E => AdcM(),
             0x8F => AdcA(),
 
+            // SUB
+            0x90 => SubB(),
+            0x91 => SubC(),
+            0x92 => SubD(),
+            0x93 => SubE(),
+            0x94 => SubH(),
+            0x95 => SubL(),
+            0x96 => SubM(),
+            0x97 => SubA(),
+
             // Unconditional return, call, pchl
             0xC9 => Ret(),
             0xD9 => Ret(),  // undocumented alias
