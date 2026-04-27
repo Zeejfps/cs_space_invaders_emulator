@@ -21,7 +21,8 @@ public sealed class Machine
 
     public void LoadRom(ReadOnlySpan<byte> rom)
     {
-        
+        _mmu.Write(0x0, rom);
+        _cpu.Pc = 0x0;
     }
 
     private void OnTick()

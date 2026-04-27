@@ -15,6 +15,18 @@ public sealed class Mmu
         if (address < RomBlock) return;
         Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(_ram), address) = value;
     }
+    
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    public void Write(ushort address, ReadOnlySpan<byte> value)
+    {
+        if (address < RomBlock) return;
+        ref var dst = ref Unsafe.Add(ref                
+            MemoryMarshal.GetArrayDataReference(_ram), address);  
+        ref var src = ref
+            MemoryMarshal.GetReference(value);                    
+        Unsafe.CopyBlockUnaligned(ref dst, ref src,     
+            (uint)value.Length);
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public void WriteWord(ushort address, ushort value)
