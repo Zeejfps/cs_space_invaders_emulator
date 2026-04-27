@@ -129,6 +129,42 @@ public sealed partial class Cpu
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int Jz()
+    {
+        var address = FetchWord();
+        if ((Flags & CpuFlags.Z) != 0)
+            Pc = address;
+        return 10;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int Jc()
+    {
+        var address = FetchWord();
+        if ((Flags & CpuFlags.C) != 0)
+            Pc = address;
+        return 10;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int Jpe()
+    {
+        var address = FetchWord();
+        if ((Flags & CpuFlags.P) != 0)
+            Pc = address;
+        return 10;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int Jm()
+    {
+        var address = FetchWord();
+        if ((Flags & CpuFlags.S) != 0)
+            Pc = address;
+        return 10;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int Jmp()
     {
         Pc = FetchWord();

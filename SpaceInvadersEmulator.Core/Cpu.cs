@@ -179,9 +179,13 @@ public sealed partial class Cpu
             // Jumps
             0xC3 => Jmp(),
             0xC2 => Jnz(),
+            0xCA => Jz(),
             0xD2 => Jnc(),
+            0xDA => Jc(),
             0xE2 => Jpo(),
+            0xEA => Jpe(),
             0xF2 => Jp(),
+            0xFA => Jm(),
 
             // Conditional calls
             0xC4 => Cnz(),
