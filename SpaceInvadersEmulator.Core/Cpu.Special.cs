@@ -24,6 +24,39 @@ public sealed partial class Cpu
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int Rrc()
+    {
+        var carry = (Ra & 0x01) != 0;
+        Ra = (byte)((Ra >> 1) | (carry ? 0x80 : 0));
+        Flags = carry ? (Flags | CpuFlags.C) : (Flags & ~CpuFlags.C);
+        return 4;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int Rar()
+    {
+        var newCarry = (Ra & 0x01) != 0;
+        var oldCarry = (Flags & CpuFlags.C) != 0;
+        Ra = (byte)((Ra >> 1) | (oldCarry ? 0x80 : 0));
+        Flags = newCarry ? (Flags | CpuFlags.C) : (Flags & ~CpuFlags.C);
+        return 4;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int Cma()
+    {
+        Ra = (byte)~Ra;
+        return 4;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int Cmc()
+    {
+        Flags ^= CpuFlags.C;
+        return 4;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int Stc()
     {
         Flags |= CpuFlags.C;

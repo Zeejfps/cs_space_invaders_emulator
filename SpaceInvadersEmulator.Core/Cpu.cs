@@ -297,9 +297,13 @@ public sealed partial class Cpu
 
             // Rotate / special accumulator
             0x07 => Rlc(),
+            0x0F => Rrc(),
             0x17 => Ral(),
+            0x1F => Rar(),
             0x27 => Daa(),
+            0x2F => Cma(),
             0x37 => Stc(),
+            0x3F => Cmc(),
 
             // INR
             0x04 => InrB(),

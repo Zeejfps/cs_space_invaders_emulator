@@ -566,6 +566,102 @@ public class CpuArithmeticTests
     }
 
     [Theory]
+    [InlineData(0xB1, CpuFlags.None,             0xD8, CpuFlags.C)]                         // bit0=1: wraps to bit7, C=1
+    [InlineData(0xB2, CpuFlags.None,             0x59, CpuFlags.None)]                      // bit0=0: C=0
+    [InlineData(0x01, CpuFlags.None,             0x80, CpuFlags.C)]                         // only bit0: wraps to bit7, C=1
+    [InlineData(0x80, CpuFlags.None,             0x40, CpuFlags.None)]                      // only bit7: shifts right, C=0
+    [InlineData(0xB1, CpuFlags.S | CpuFlags.Z,  0xD8, CpuFlags.S | CpuFlags.Z | CpuFlags.C)] // other flags preserved
+    public void TestRrc(byte initial, CpuFlags initialFlags, byte expectedA, CpuFlags expectedFlags)
+    {
+        var initialState = new CpuState { Pc = 0x00, Ra = initial, Flags = initialFlags };
+
+        var mmu = new Mmu();
+        mmu.Write(0x00, 0x0F); // RRC
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.Ra = expectedA;
+        expectedState.Flags = expectedFlags;
+        expectedState.IncrementPcBy(1);
+
+        Assert.Equal(4, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
+
+    [Theory]
+    [InlineData(0xB1, CpuFlags.None,             0x58, CpuFlags.C)]                         // bit0=1, C in=0: bit7=0, C out=1
+    [InlineData(0xB1, CpuFlags.C,                0xD8, CpuFlags.C)]                         // bit0=1, C in=1: bit7=1, C out=1
+    [InlineData(0x01, CpuFlags.C,                0x80, CpuFlags.C)]                         // bit0=1, C in=1: bit7=1, C out=1
+    [InlineData(0x00, CpuFlags.C,                0x80, CpuFlags.None)]                      // bit0=0, C in=1: bit7=1, C out=0
+    [InlineData(0x02, CpuFlags.S | CpuFlags.Z,  0x01, CpuFlags.S | CpuFlags.Z)]            // other flags preserved
+    public void TestRar(byte initial, CpuFlags initialFlags, byte expectedA, CpuFlags expectedFlags)
+    {
+        var initialState = new CpuState { Pc = 0x00, Ra = initial, Flags = initialFlags };
+
+        var mmu = new Mmu();
+        mmu.Write(0x00, 0x1F); // RAR
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.Ra = expectedA;
+        expectedState.Flags = expectedFlags;
+        expectedState.IncrementPcBy(1);
+
+        Assert.Equal(4, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
+
+    [Theory]
+    [InlineData(0xB1, 0x4E)]  // typical complement
+    [InlineData(0x00, 0xFF)]  // zero → all ones
+    [InlineData(0xFF, 0x00)]  // all ones → zero
+    public void TestCma(byte initial, byte expectedA)
+    {
+        var initialFlags = CpuFlags.S | CpuFlags.Z | CpuFlags.P | CpuFlags.A | CpuFlags.C;
+        var initialState = new CpuState { Pc = 0x00, Ra = initial, Flags = initialFlags };
+
+        var mmu = new Mmu();
+        mmu.Write(0x00, 0x2F); // CMA
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.Ra = expectedA;
+        expectedState.IncrementPcBy(1);
+
+        Assert.Equal(4, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
+
+    [Theory]
+    [InlineData(CpuFlags.None,             CpuFlags.C)]                            // C=0 → C=1
+    [InlineData(CpuFlags.C,                CpuFlags.None)]                         // C=1 → C=0
+    [InlineData(CpuFlags.S | CpuFlags.Z,  CpuFlags.S | CpuFlags.Z | CpuFlags.C)] // other flags preserved when setting
+    [InlineData(CpuFlags.S | CpuFlags.Z | CpuFlags.C, CpuFlags.S | CpuFlags.Z)]  // other flags preserved when clearing
+    public void TestCmc(CpuFlags initialFlags, CpuFlags expectedFlags)
+    {
+        var initialState = new CpuState { Pc = 0x00, Flags = initialFlags };
+
+        var mmu = new Mmu();
+        mmu.Write(0x00, 0x3F); // CMC
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.Flags = expectedFlags;
+        expectedState.IncrementPcBy(1);
+
+        Assert.Equal(4, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
+
+    [Theory]
     [InlineData(0x5C, CpuFlags.None,  0x62, CpuFlags.A)]                                        // low nibble > 9: add 6, AC set
     [InlineData(0xAE, CpuFlags.A,     0x14, CpuFlags.P | CpuFlags.A | CpuFlags.C)]              // AC set + high > 9: add 6 and 0x60
     [InlineData(0x0A, CpuFlags.None,  0x10, CpuFlags.A)]                                        // low = 0xA: add 6, AC set
