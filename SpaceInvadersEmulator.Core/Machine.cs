@@ -5,33 +5,55 @@ namespace SpaceInvadersEmulator.Core;
 
 public sealed class Machine : ICpuIO
 {
+    public bool IsRunning { get; private set; }
+    
+    private readonly IClock _clock;
     private readonly Mmu _mmu;
     private readonly Cpu _cpu;
 
     private byte _shiftRegHi;
     private byte _shiftRegLo;
     private byte _shiftRegOffset;
-    
-    private int _cycleCount;
-    
-    public void Start()
-    {
-        
-    }
-    
-    public void Stop()
-    {
-        
-    }
 
+    private long _lastTimestamp;
+    private int _cycleCount;
+
+    public Machine(IClock clock)
+    {
+        _clock = clock;
+    }
+    
     public void LoadRom(ReadOnlySpan<byte> rom)
     {
         _mmu.Write(0x0, rom);
         _cpu.Pc = 0x0;
     }
+    
+    public void Start()
+    {
+        if (IsRunning)
+            throw new InvalidOperationException("Machine is already running");
+        
+        _clock.Ticked += OnTick;
+        _lastTimestamp = _clock.GetTimestamp();
+        IsRunning = true;
+    }
+    
+    public void Stop()
+    {
+        if (!IsRunning)
+            return;
+        
+        IsRunning = false;
+        _clock.Ticked -= OnTick;
+    }
 
     private void OnTick()
     {
+        var timestamp = _clock.GetTimestamp();
+        var elapsedTime = timestamp - _lastTimestamp;
+        _lastTimestamp = timestamp;
+        
         _cycleCount += _cpu.Step();
     }
 
