@@ -335,4 +335,54 @@ public class CpuLogicTests
         Assert.Equal(4, cycles);
         Assert.Equal(expectedState, CpuState.FromCpu(cpu));
     }
+
+    [Theory]
+    [InlineData(0xFF, 0x0F, 0x0F, CpuFlags.P | CpuFlags.A)]              // bit3 in both operands: A set, 4 bits even: P set
+    [InlineData(0xFF, 0xF0, 0xF0, CpuFlags.S | CpuFlags.P | CpuFlags.A)] // sign + parity + A
+    [InlineData(0xF0, 0x00, 0x00, CpuFlags.Z | CpuFlags.P)]              // neither has bit3: A clear, zero
+    [InlineData(0x0F, 0x08, 0x08, CpuFlags.A)]                           // bit3 in Ra: A set
+    public void TestAni(byte a, byte imm, byte expectedA, CpuFlags expectedFlags)
+    {
+        var initialState = new CpuState { Pc = 0x00, Ra = a };
+
+        var mmu = new Mmu();
+        mmu.Write(0x00, 0xE6); // ANI
+        mmu.Write(0x01, imm);
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.Ra = expectedA;
+        expectedState.Flags = expectedFlags;
+        expectedState.IncrementPcBy(2);
+
+        Assert.Equal(7, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
+
+    [Theory]
+    [InlineData(0x10, 0x05, 0x15, CpuFlags.None)]             // basic OR, no flags
+    [InlineData(0xC0, 0x00, 0xC0, CpuFlags.S | CpuFlags.P)]  // sign + parity
+    [InlineData(0x00, 0x00, 0x00, CpuFlags.Z | CpuFlags.P)]  // zero
+    [InlineData(0x01, 0x02, 0x03, CpuFlags.P)]                // parity only
+    public void TestOri(byte a, byte imm, byte expectedA, CpuFlags expectedFlags)
+    {
+        var initialState = new CpuState { Pc = 0x00, Ra = a };
+
+        var mmu = new Mmu();
+        mmu.Write(0x00, 0xF6); // ORI
+        mmu.Write(0x01, imm);
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.Ra = expectedA;
+        expectedState.Flags = expectedFlags;
+        expectedState.IncrementPcBy(2);
+
+        Assert.Equal(7, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
 }

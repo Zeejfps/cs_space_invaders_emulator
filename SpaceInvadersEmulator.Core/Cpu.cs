@@ -295,6 +295,12 @@ public sealed partial class Cpu
             0xF7 => Rst6(),
             0xFF => Rst7(),
 
+            // Immediate arithmetic / logic
+            0xC6 => Adi(),
+            0xD6 => Sui(),
+            0xE6 => Ani(),
+            0xF6 => Ori(),
+
             // Rotate / special accumulator
             0x07 => Rlc(),
             0x0F => Rrc(),

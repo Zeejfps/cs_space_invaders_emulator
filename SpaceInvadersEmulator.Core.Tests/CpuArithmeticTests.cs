@@ -344,6 +344,56 @@ public class CpuArithmeticTests
     }
 
     [Theory]
+    [InlineData(0x10, 0x05, 0x15, CpuFlags.None)]                                  // basic add
+    [InlineData(0xFF, 0x01, 0x00, CpuFlags.Z | CpuFlags.P | CpuFlags.C | CpuFlags.A)] // carry to zero
+    [InlineData(0x7F, 0x01, 0x80, CpuFlags.S | CpuFlags.A)]                        // sign + aux carry
+    [InlineData(0x08, 0x08, 0x10, CpuFlags.A)]                                     // aux carry only
+    public void TestAdi(byte a, byte imm, byte expectedA, CpuFlags expectedFlags)
+    {
+        var initialState = new CpuState { Pc = 0x00, Ra = a };
+
+        var mmu = new Mmu();
+        mmu.Write(0x00, 0xC6); // ADI
+        mmu.Write(0x01, imm);
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.Ra = expectedA;
+        expectedState.Flags = expectedFlags;
+        expectedState.IncrementPcBy(2);
+
+        Assert.Equal(7, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
+
+    [Theory]
+    [InlineData(0x15, 0x05, 0x10, CpuFlags.None)]                                        // basic sub
+    [InlineData(0x10, 0x05, 0x0B, CpuFlags.A)]                                           // aux borrow
+    [InlineData(0x00, 0x01, 0xFF, CpuFlags.S | CpuFlags.P | CpuFlags.C | CpuFlags.A)]   // borrow underflow
+    [InlineData(0x10, 0x10, 0x00, CpuFlags.Z | CpuFlags.P)]                              // zero
+    public void TestSui(byte a, byte imm, byte expectedA, CpuFlags expectedFlags)
+    {
+        var initialState = new CpuState { Pc = 0x00, Ra = a };
+
+        var mmu = new Mmu();
+        mmu.Write(0x00, 0xD6); // SUI
+        mmu.Write(0x01, imm);
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.Ra = expectedA;
+        expectedState.Flags = expectedFlags;
+        expectedState.IncrementPcBy(2);
+
+        Assert.Equal(7, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
+
+    [Theory]
     [InlineData(0x04, Reg.B, 0x01, 0x02)] // INR B
     [InlineData(0x0C, Reg.C, 0x01, 0x02)] // INR C
     [InlineData(0x14, Reg.D, 0x01, 0x02)] // INR D
