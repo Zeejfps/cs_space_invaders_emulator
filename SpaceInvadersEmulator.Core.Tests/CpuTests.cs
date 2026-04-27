@@ -719,6 +719,14 @@ public class CpuTests
     [InlineData(0xE2, CpuFlags.All, false)] // JPO not taken
     [InlineData(0xF2, CpuFlags.Z | CpuFlags.C | CpuFlags.P | CpuFlags.A, true)]               // JP taken
     [InlineData(0xF2, CpuFlags.All, false)] // JP not taken
+    [InlineData(0xCA, CpuFlags.All, true)]                                                     // JZ taken
+    [InlineData(0xCA, CpuFlags.S | CpuFlags.C | CpuFlags.P | CpuFlags.A, false)]              // JZ not taken
+    [InlineData(0xDA, CpuFlags.All, true)]                                                     // JC taken
+    [InlineData(0xDA, CpuFlags.S | CpuFlags.Z | CpuFlags.P | CpuFlags.A, false)]              // JC not taken
+    [InlineData(0xEA, CpuFlags.All, true)]                                                     // JPE taken
+    [InlineData(0xEA, CpuFlags.S | CpuFlags.Z | CpuFlags.C | CpuFlags.A, false)]              // JPE not taken
+    [InlineData(0xFA, CpuFlags.All, true)]                                                     // JM taken
+    [InlineData(0xFA, CpuFlags.Z | CpuFlags.C | CpuFlags.P | CpuFlags.A, false)]              // JM not taken
     public void TestConditionalJump(byte opcode, CpuFlags flags, bool taken)
     {
         var initialState = new CpuState
