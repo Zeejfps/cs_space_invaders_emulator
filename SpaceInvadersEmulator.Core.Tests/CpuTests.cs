@@ -1328,9 +1328,13 @@ public class CpuTests
 
     [Theory]
     [InlineData(0xC7, 0x0000)]
+    [InlineData(0xCF, 0x0008)]
     [InlineData(0xD7, 0x0010)]
+    [InlineData(0xDF, 0x0018)]
     [InlineData(0xE7, 0x0020)]
+    [InlineData(0xEF, 0x0028)]
     [InlineData(0xF7, 0x0030)]
+    [InlineData(0xFF, 0x0038)]
     public void TestRst(byte opcode, ushort target)
     {
         ushort stackAddr = 0x2002;
