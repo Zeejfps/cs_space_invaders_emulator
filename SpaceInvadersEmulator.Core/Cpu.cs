@@ -46,8 +46,6 @@ public sealed partial class Cpu
         var opcode = Fetch();
         return opcode switch
         {
-            0x00 => NoOp(),
-
             // Mvi
             0x06 => MviB(),
             0x0E => MviC(),
@@ -207,7 +205,7 @@ public sealed partial class Cpu
             0xEB => Xchg(),
             0xF9 => Sphl(),
 
-            _ => 1
+            _ => NoOp()
         };
     }
 
