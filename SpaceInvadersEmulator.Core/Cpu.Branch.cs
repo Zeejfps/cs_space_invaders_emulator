@@ -49,6 +49,50 @@ public sealed partial class Cpu
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int Rz()
+    {
+        if ((Flags & CpuFlags.Z) == 0)
+            return 5;
+
+        Pc = _mmu.ReadWord(Sp);
+        Sp += 2;
+        return 11;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int Rcy()
+    {
+        if ((Flags & CpuFlags.C) == 0)
+            return 5;
+
+        Pc = _mmu.ReadWord(Sp);
+        Sp += 2;
+        return 11;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int Rpe()
+    {
+        if ((Flags & CpuFlags.P) == 0)
+            return 5;
+
+        Pc = _mmu.ReadWord(Sp);
+        Sp += 2;
+        return 11;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int Rm()
+    {
+        if ((Flags & CpuFlags.S) == 0)
+            return 5;
+
+        Pc = _mmu.ReadWord(Sp);
+        Sp += 2;
+        return 11;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int Jnz()
     {
         var address = FetchWord();

@@ -168,9 +168,13 @@ public sealed partial class Cpu
 
             // Conditional returns
             0xC0 => Rnz(),
+            0xC8 => Rz(),
             0xD0 => Rnc(),
+            0xD8 => Rcy(),
             0xE0 => Rpo(),
+            0xE8 => Rpe(),
             0xF0 => Rp(),
+            0xF8 => Rm(),
 
             // Jumps
             0xC3 => Jmp(),
