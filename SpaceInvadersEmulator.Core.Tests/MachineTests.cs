@@ -16,12 +16,12 @@ public class MachineTests
         public int UfoHitCallCount;
 
         public void UfoLoop(bool active) { UfoLoopCallCount++; LastUfoLoopActive = active; }
-        public void Shot() => ShotCallCount++;
-        public void PlayerDie() => PlayerDieCallCount++;
-        public void InvaderDie() => InvaderDieCallCount++;
+        public void PlayShot() => ShotCallCount++;
+        public void PlayPlayerDied() => PlayerDieCallCount++;
+        public void PlayInvaderDied() => InvaderDieCallCount++;
         public void ExtendedPlay() => ExtendedPlayCallCount++;
-        public void FleetMove(int step) => FleetMoveSteps.Add(step);
-        public void UfoHit() => UfoHitCallCount++;
+        public void PlayFleetMoved(int step) => FleetMoveSteps.Add(step);
+        public void PlayUfoHit() => UfoHitCallCount++;
     }
 
     private static Machine CreateMachineWithAudio(out FakeClock clock, out FakeAudio audio)

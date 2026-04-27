@@ -184,20 +184,22 @@ public sealed class Machine : ICpuIO
     {
         if (_audio == null) return;
         var value = (Port3)raw;
-        
-        if (Changed(_prevPort3Value, value, Port3.UfoLoop)) 
+        var rising = ~_prevPort3Value & value;
+        var changed = _prevPort3Value ^ value;
+
+        if ((changed & Port3.UfoLoop) != Port3.None)
             _audio.UfoLoop(value.HasFlag(Port3.UfoLoop));
         
-        if (RisingEdge(_prevPort3Value, value, Port3.Shot)) 
-            _audio.Shot();
+        if ((rising & Port3.Shot) != Port3.None)
+            _audio.PlayShot();
         
-        if (RisingEdge(_prevPort3Value, value, Port3.PlayerDie)) 
-            _audio.PlayerDie();
+        if ((rising & Port3.PlayerDie) != Port3.None)
+            _audio.PlayPlayerDied();
         
-        if (RisingEdge(_prevPort3Value, value, Port3.InvaderDie)) 
-            _audio.InvaderDie();
+        if ((rising & Port3.InvaderDie) != Port3.None)
+            _audio.PlayInvaderDied();
         
-        if (RisingEdge(_prevPort3Value, value, Port3.ExtendedPlay)) 
+        if ((rising & Port3.ExtendedPlay) != Port3.None)
             _audio.ExtendedPlay();
         
         _prevPort3Value = value;
@@ -206,35 +208,25 @@ public sealed class Machine : ICpuIO
     private void WritePort5(byte raw)
     {
         if (_audio == null) return;
-        
         var value = (Port5)raw;
+        var rising = ~_prevPort5Value & value;
+
+        if ((rising & Port5.FleetMove1) != Port5.None)
+            _audio.PlayFleetMoved(1);
         
-        if (RisingEdge(_prevPort5Value, value, Port5.FleetMove1)) 
-            _audio.FleetMove(1);
+        if ((rising & Port5.FleetMove2) != Port5.None)
+            _audio.PlayFleetMoved(2);
         
-        if (RisingEdge(_prevPort5Value, value, Port5.FleetMove2)) 
-            _audio.FleetMove(2);
+        if ((rising & Port5.FleetMove3) != Port5.None)
+            _audio.PlayFleetMoved(3);
         
-        if (RisingEdge(_prevPort5Value, value, Port5.FleetMove3)) 
-            _audio.FleetMove(3);
+        if ((rising & Port5.FleetMove4) != Port5.None)
+            _audio.PlayFleetMoved(4);
         
-        if (RisingEdge(_prevPort5Value, value, Port5.FleetMove4)) 
-            _audio.FleetMove(4);
-        
-        if (RisingEdge(_prevPort5Value, value, Port5.UfoHit)) 
-            _audio.UfoHit();
+        if ((rising & Port5.UfoHit) != Port5.None)
+            _audio.PlayUfoHit();
         
         _prevPort5Value = value;
-    }
-
-    private static bool Changed(Port3 prev, Port3 next, Port3 flag) => ((prev ^ next) & flag) != Port3.None;
-
-    private static bool RisingEdge<T>(T prev, T next, T flag) where T : struct, Enum
-    {
-        var p = Unsafe.As<T, byte>(ref prev);
-        var n = Unsafe.As<T, byte>(ref next);
-        var f = Unsafe.As<T, byte>(ref flag);
-        return (p & f) == 0 && (n & f) != 0;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

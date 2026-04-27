@@ -3,10 +3,10 @@ namespace SpaceInvadersEmulator.Core;
 public interface IAudio
 {
     void UfoLoop(bool active);
-    void Shot();
-    void PlayerDie();
-    void InvaderDie();
+    void PlayShot();
+    void PlayPlayerDied();
+    void PlayInvaderDied();
     void ExtendedPlay();
-    void FleetMove(int step);
-    void UfoHit();
+    void PlayFleetMoved(int step);
+    void PlayUfoHit();
 }
