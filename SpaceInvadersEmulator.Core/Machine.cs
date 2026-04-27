@@ -5,6 +5,8 @@ namespace SpaceInvadersEmulator.Core;
 
 public sealed class Machine : ICpuIO
 {
+    private const int CpuFrequency = 2_000_000;
+    
     public bool IsRunning { get; private set; }
     
     private readonly IClock _clock;
@@ -16,11 +18,16 @@ public sealed class Machine : ICpuIO
     private byte _shiftRegOffset;
 
     private long _lastTimestamp;
-    private int _cycleCount;
+    
+    private double _cycleCount;
+    private readonly double _cyclesPerTick;
 
     public Machine(IClock clock)
     {
+        _mmu = new Mmu();
+        _cpu = new Cpu(_mmu, this);
         _clock = clock;
+        _cyclesPerTick = CpuFrequency / (double)_clock.Frequency;
     }
     
     public void LoadRom(ReadOnlySpan<byte> rom)
@@ -54,7 +61,9 @@ public sealed class Machine : ICpuIO
         var elapsedTime = timestamp - _lastTimestamp;
         _lastTimestamp = timestamp;
         
-        _cycleCount += _cpu.Step();
+        _cycleCount += elapsedTime * _cyclesPerTick;
+        while (_cycleCount > 0)
+            _cycleCount -= _cpu.Step();
     }
 
     public void WritePort(byte port, byte value)
@@ -89,7 +98,7 @@ public sealed class Machine : ICpuIO
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void WritePort2(byte value)
     {
-        _shiftRegOffset = (byte)(value * 0x07);
+        _shiftRegOffset = (byte)(value & 0x07);
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
