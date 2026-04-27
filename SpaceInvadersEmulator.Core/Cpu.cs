@@ -14,6 +14,10 @@ public sealed partial class Cpu
     public byte Re { get; set; }
     public byte Rh { get; set; }
     public byte Rl { get; set; }
+    public bool InterruptEnabled { get; set; }
+    
+    private readonly ICpuIO _io;
+    private bool _enableInterruptsOnNextInstruction = false;
 
     private ushort Rbc
     {
@@ -35,14 +39,21 @@ public sealed partial class Cpu
 
     private readonly Mmu _mmu;
     
-    public Cpu(Mmu mmu)
+    public Cpu(Mmu mmu, ICpuIO io)
     {
         _mmu = mmu;
+        _io = io;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public int Step()
     {
+        if (_enableInterruptsOnNextInstruction)
+        {
+            InterruptEnabled = true;
+            _enableInterruptsOnNextInstruction = false;
+        }
+        
         var opcode = Fetch();
         return opcode switch
         {
@@ -294,6 +305,12 @@ public sealed partial class Cpu
             0xEF => Rst5(),
             0xF7 => Rst6(),
             0xFF => Rst7(),
+
+            // I/O and interrupt control
+            0xD3 => Out(),
+            0xDB => In(),
+            0xF3 => Di(),
+            0xFB => Ei(),
 
             // Immediate arithmetic / logic
             0xC6 => Adi(),

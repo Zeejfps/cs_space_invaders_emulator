@@ -2,7 +2,7 @@ namespace SpaceInvadersEmulator.Core.Tests;
 
 static class CpuTestHelper
 {
-    public static Cpu CreateCpu(Mmu mmu, CpuState state) => new(mmu)
+    public static Cpu CreateCpu(Mmu mmu, CpuState state, ICpuIO? io = null) => new(mmu, io ?? new NoOpCpuIO())
     {
         Flags = state.Flags,
         Pc = state.Pc,
@@ -15,4 +15,10 @@ static class CpuTestHelper
         Rh = state.Rh,
         Rl = state.Rl
     };
+}
+
+class NoOpCpuIO : ICpuIO
+{
+    public byte ReadPort(byte port) => 0;
+    public void WritePort(byte port, byte value) { }
 }
