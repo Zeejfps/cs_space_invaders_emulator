@@ -204,6 +204,16 @@ public sealed partial class Cpu
             0x96 => SubM(),
             0x97 => SubA(),
 
+            // SBB
+            0x98 => SbbB(),
+            0x99 => SbbC(),
+            0x9A => SbbD(),
+            0x9B => SbbE(),
+            0x9C => SbbH(),
+            0x9D => SbbL(),
+            0x9E => SbbM(),
+            0x9F => SbbA(),
+
             // Unconditional return, call, pchl
             0xC9 => Ret(),
             0xD9 => Ret(),  // undocumented alias

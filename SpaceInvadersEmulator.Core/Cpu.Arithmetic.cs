@@ -109,7 +109,7 @@ public sealed partial class Cpu
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    private static CpuFlags ComputeSubFlags(byte a, byte b, int result)
+    private static CpuFlags ComputeSubFlags(byte a, byte b, int result, int borrow = 0)
     {
         var flags = CpuFlags.None;
         var byteResult = (byte)result;
@@ -117,7 +117,7 @@ public sealed partial class Cpu
         if ((byteResult & 0x80) != 0) flags |= CpuFlags.S;
         if (Parity(byteResult)) flags |= CpuFlags.P;
         if (result < 0) flags |= CpuFlags.C;
-        if ((a & 0xF) < (b & 0xF)) flags |= CpuFlags.A;
+        if ((a & 0xF) < (b & 0xF) + borrow) flags |= CpuFlags.A;
         return flags;
     }
 
@@ -157,6 +157,48 @@ public sealed partial class Cpu
         var value = _mmu.Read(Rhl);
         var result = Ra - value;
         Flags = ComputeSubFlags(Ra, value, result);
+        Ra = (byte)result;
+        return 7;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int Sbb(byte value)
+    {
+        var borrow = (Flags & CpuFlags.C) != 0 ? 1 : 0;
+        var result = Ra - value - borrow;
+        Flags = ComputeSubFlags(Ra, value, result, borrow);
+        Ra = (byte)result;
+        return 4;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int SbbB() => Sbb(Rb);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int SbbC() => Sbb(Rc);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int SbbD() => Sbb(Rd);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int SbbE() => Sbb(Re);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int SbbH() => Sbb(Rh);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int SbbL() => Sbb(Rl);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int SbbA() => Sbb(Ra);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int SbbM()
+    {
+        var value = _mmu.Read(Rhl);
+        var borrow = (Flags & CpuFlags.C) != 0 ? 1 : 0;
+        var result = Ra - value - borrow;
+        Flags = ComputeSubFlags(Ra, value, result, borrow);
         Ra = (byte)result;
         return 7;
     }

@@ -156,6 +156,101 @@ public class CpuArithmeticTests
     }
 
     [Theory]
+    [InlineData(0x98, Reg.B, 0x10, 0x10, CpuFlags.None)] // SBB B
+    [InlineData(0x99, Reg.C, 0x10, 0x10, CpuFlags.None)] // SBB C
+    [InlineData(0x9A, Reg.D, 0x10, 0x10, CpuFlags.None)] // SBB D
+    [InlineData(0x9B, Reg.E, 0x10, 0x10, CpuFlags.None)] // SBB E
+    [InlineData(0x9C, Reg.H, 0x10, 0x10, CpuFlags.None)] // SBB H
+    [InlineData(0x9D, Reg.L, 0x10, 0x10, CpuFlags.None)] // SBB L
+    public void TestSbbRegister(byte opcode, Reg srcReg, byte srcVal, byte expectedA, CpuFlags expectedFlags)
+    {
+        var initialState = new CpuState { Pc = 0x00, Ra = 0x21, Flags = CpuFlags.C };
+        initialState.WriteReg(srcReg, srcVal);
+
+        var mmu = new Mmu();
+        mmu.Write(0x00, opcode);
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.Ra = expectedA;
+        expectedState.Flags = expectedFlags;
+        expectedState.IncrementPcBy(1);
+
+        Assert.Equal(4, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
+
+    [Fact]
+    public void TestSbbA()
+    {
+        var initialState = new CpuState { Pc = 0x00, Ra = 0x10, Flags = CpuFlags.C };
+
+        var mmu = new Mmu();
+        mmu.Write(0x00, 0x9F); // SBB A
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.Ra = 0xFF;
+        expectedState.Flags = CpuFlags.S | CpuFlags.P | CpuFlags.C | CpuFlags.A;
+        expectedState.IncrementPcBy(1);
+
+        Assert.Equal(4, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
+
+    [Fact]
+    public void TestSbbM()
+    {
+        ushort addr = 0x2000;
+        var initialState = new CpuState { Pc = 0x00, Ra = 0x21, Flags = CpuFlags.C };
+        initialState.WriteRegPair(Reg.H, addr);
+
+        var mmu = new Mmu();
+        mmu.Write(0x00, 0x9E); // SBB M
+        mmu.Write(addr, 0x10);
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.Ra = 0x10;
+        expectedState.Flags = CpuFlags.None;
+        expectedState.IncrementPcBy(1);
+
+        Assert.Equal(7, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
+
+    [Theory]
+    [InlineData(CpuFlags.None, 0x11, 0x01, 0x10, CpuFlags.None)]                                        // carry=0: same as SUB
+    [InlineData(CpuFlags.C,    0x12, 0x01, 0x10, CpuFlags.None)]                                        // carry=1: subtracts extra 1
+    [InlineData(CpuFlags.C,    0x10, 0x00, 0x0F, CpuFlags.P | CpuFlags.A)]                              // carry causes aux borrow
+    [InlineData(CpuFlags.C,    0x00, 0x00, 0xFF, CpuFlags.S | CpuFlags.P | CpuFlags.C | CpuFlags.A)]   // carry causes borrow
+    [InlineData(CpuFlags.None, 0x00, 0x01, 0xFF, CpuFlags.S | CpuFlags.P | CpuFlags.C | CpuFlags.A)]   // borrow from value
+    public void TestSbbFlags(CpuFlags initialFlags, byte a, byte b, byte expectedResult, CpuFlags expectedFlags)
+    {
+        var initialState = new CpuState { Pc = 0x00, Ra = a, Rb = b, Flags = initialFlags };
+
+        var mmu = new Mmu();
+        mmu.Write(0x00, 0x98); // SBB B
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.Ra = expectedResult;
+        expectedState.Flags = expectedFlags;
+        expectedState.IncrementPcBy(1);
+
+        Assert.Equal(4, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
+
+    [Theory]
     [InlineData(0x90, Reg.B, 0x05, 0x10)] // SUB B
     [InlineData(0x91, Reg.C, 0x05, 0x10)] // SUB C
     [InlineData(0x92, Reg.D, 0x05, 0x10)] // SUB D
