@@ -36,7 +36,7 @@ public sealed partial class Cpu
     }
 
     private bool _isInterruptPending;
-    private int _pendingInterruptOpcode;
+    private byte _pendingInterruptOpcode;
     private int _enableInterruptsTimer;
     private readonly ICpuIO _io;
     private readonly Mmu _mmu;
@@ -57,6 +57,14 @@ public sealed partial class Cpu
                 InterruptEnabled = true;
         }
 
+        if (InterruptEnabled && _isInterruptPending)
+        {
+            InterruptEnabled = false;
+            Halted = false;
+            _isInterruptPending = false;
+            Execute(_pendingInterruptOpcode);
+        }
+
         if (Halted)
             return 4;
 
@@ -64,7 +72,7 @@ public sealed partial class Cpu
         return Execute(opcode);
     }
 
-    public void Interrupt(int opcode)
+    public void Interrupt(byte opcode)
     {
         _isInterruptPending = true;
         _pendingInterruptOpcode = opcode;
