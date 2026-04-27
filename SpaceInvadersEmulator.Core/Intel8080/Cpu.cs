@@ -50,27 +50,38 @@ public sealed partial class Cpu
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public int Step()
     {
-        if (_enableInterruptsTimer > 0)
+        if (TryExecuteInterrupt(out var cycles))
         {
-            _enableInterruptsTimer--;
-            if (_enableInterruptsTimer == 0)
-                InterruptEnabled = true;
+            return cycles;
         }
 
-        if (TryExecuteInterrupt(out var cycles))
-            return cycles;
-
         if (Halted)
+        {
+            UpdateInterruptTimer();
             return 4;
+        }
 
         var opcode = Fetch();
-        return Execute(opcode);
+        cycles = Execute(opcode);
+        UpdateInterruptTimer();
+        return cycles;
     }
 
     public void Interrupt(byte opcode)
     {
         _isInterruptPending = true;
         _pendingInterruptOpcode = opcode;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void UpdateInterruptTimer()
+    {
+        if (_enableInterruptsTimer <= 0) 
+            return;
+        
+        _enableInterruptsTimer--;
+        if (_enableInterruptsTimer == 0)
+            InterruptEnabled = true;
     }
 
     private bool TryExecuteInterrupt(out int cycles)
