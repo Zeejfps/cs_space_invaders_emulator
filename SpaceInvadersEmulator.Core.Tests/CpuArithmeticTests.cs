@@ -787,4 +787,90 @@ public class CpuArithmeticTests
         Assert.Equal(7, cycles);
         Assert.Equal(expectedState, CpuState.FromCpu(cpu));
     }
+
+    [Theory]
+    [InlineData(0x03, Reg.B,  0x1234, 0x1235)] // INX B
+    [InlineData(0x13, Reg.D,  0x1234, 0x1235)] // INX D
+    [InlineData(0x23, Reg.H,  0x1234, 0x1235)] // INX H
+    [InlineData(0x33, Reg.Sp, 0x1234, 0x1235)] // INX SP
+    public void TestInxRegPair(byte opcode, Reg reg, ushort initialPair, ushort expectedPair)
+    {
+        var initialState = new CpuState { Pc = 0x00, Flags = CpuFlags.All };
+        initialState.WriteRegPair(reg, initialPair);
+
+        var mmu = new Mmu();
+        mmu.Write(0x00, opcode);
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.WriteRegPair(reg, expectedPair);
+        expectedState.IncrementPcBy(1);
+
+        Assert.Equal(5, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
+
+    [Fact]
+    public void TestInxNoFlagsOnOverflow()
+    {
+        var initialState = new CpuState { Pc = 0x00, Flags = CpuFlags.None };
+        initialState.WriteRegPair(Reg.B, 0xFFFF);
+
+        var mmu = new Mmu();
+        mmu.Write(0x00, 0x03); // INX B
+
+        var cpu = CreateCpu(mmu, initialState);
+        cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.WriteRegPair(Reg.B, 0x0000);
+        expectedState.IncrementPcBy(1);
+
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
+
+    [Theory]
+    [InlineData(0x0B, Reg.B,  0x1235, 0x1234)] // DCX B
+    [InlineData(0x1B, Reg.D,  0x1235, 0x1234)] // DCX D
+    [InlineData(0x2B, Reg.H,  0x1235, 0x1234)] // DCX H
+    [InlineData(0x3B, Reg.Sp, 0x1235, 0x1234)] // DCX SP
+    public void TestDcxRegPair(byte opcode, Reg reg, ushort initialPair, ushort expectedPair)
+    {
+        var initialState = new CpuState { Pc = 0x00, Flags = CpuFlags.All };
+        initialState.WriteRegPair(reg, initialPair);
+
+        var mmu = new Mmu();
+        mmu.Write(0x00, opcode);
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.WriteRegPair(reg, expectedPair);
+        expectedState.IncrementPcBy(1);
+
+        Assert.Equal(5, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
+
+    [Fact]
+    public void TestDcxNoFlagsOnUnderflow()
+    {
+        var initialState = new CpuState { Pc = 0x00, Flags = CpuFlags.None };
+        initialState.WriteRegPair(Reg.B, 0x0000);
+
+        var mmu = new Mmu();
+        mmu.Write(0x00, 0x0B); // DCX B
+
+        var cpu = CreateCpu(mmu, initialState);
+        cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.WriteRegPair(Reg.B, 0xFFFF);
+        expectedState.IncrementPcBy(1);
+
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
 }

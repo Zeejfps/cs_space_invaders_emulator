@@ -163,6 +163,18 @@ public sealed partial class Cpu
             0x11 => LxiD(),
             0x21 => LxiH(),
             0x31 => LxiSp(),
+
+            // INX
+            0x03 => InxB(),
+            0x13 => InxD(),
+            0x23 => InxH(),
+            0x33 => InxSp(),
+
+            // DCX
+            0x0B => DcxB(),
+            0x1B => DcxD(),
+            0x2B => DcxH(),
+            0x3B => DcxSp(),
             
             // Stack operations
             0xC1 => PopB(),
