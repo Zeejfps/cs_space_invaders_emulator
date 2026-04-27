@@ -15,11 +15,11 @@ public class MachineTests
         public List<int> FleetMoveSteps = [];
         public int UfoHitCallCount;
 
-        public void UfoLoop(bool active) { UfoLoopCallCount++; LastUfoLoopActive = active; }
+        public void SetUfoLoopActive(bool active) { UfoLoopCallCount++; LastUfoLoopActive = active; }
         public void PlayShot() => ShotCallCount++;
         public void PlayPlayerDied() => PlayerDieCallCount++;
         public void PlayInvaderDied() => InvaderDieCallCount++;
-        public void ExtendedPlay() => ExtendedPlayCallCount++;
+        public void PlayExtraLifeGained() => ExtendedPlayCallCount++;
         public void PlayFleetMoved(int step) => FleetMoveSteps.Add(step);
         public void PlayUfoHit() => UfoHitCallCount++;
     }

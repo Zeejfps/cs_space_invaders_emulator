@@ -2,11 +2,11 @@ namespace SpaceInvadersEmulator.Core;
 
 public interface IAudio
 {
-    void UfoLoop(bool active);
+    void SetUfoLoopActive(bool active);
     void PlayShot();
     void PlayPlayerDied();
     void PlayInvaderDied();
-    void ExtendedPlay();
+    void PlayExtraLifeGained();
     void PlayFleetMoved(int step);
     void PlayUfoHit();
 }

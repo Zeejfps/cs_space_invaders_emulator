@@ -182,13 +182,15 @@ public sealed class Machine : ICpuIO
 
     private void WritePort3(byte raw)
     {
-        if (_audio == null) return;
+        if (_audio == null)
+            return;
+        
         var value = (Port3)raw;
         var rising = ~_prevPort3Value & value;
         var changed = _prevPort3Value ^ value;
 
         if ((changed & Port3.UfoLoop) != Port3.None)
-            _audio.UfoLoop(value.HasFlag(Port3.UfoLoop));
+            _audio.SetUfoLoopActive(value.HasFlag(Port3.UfoLoop));
         
         if ((rising & Port3.Shot) != Port3.None)
             _audio.PlayShot();
@@ -200,14 +202,16 @@ public sealed class Machine : ICpuIO
             _audio.PlayInvaderDied();
         
         if ((rising & Port3.ExtendedPlay) != Port3.None)
-            _audio.ExtendedPlay();
+            _audio.PlayExtraLifeGained();
         
         _prevPort3Value = value;
     }
 
     private void WritePort5(byte raw)
     {
-        if (_audio == null) return;
+        if (_audio == null) 
+            return;
+        
         var value = (Port5)raw;
         var rising = ~_prevPort5Value & value;
 
