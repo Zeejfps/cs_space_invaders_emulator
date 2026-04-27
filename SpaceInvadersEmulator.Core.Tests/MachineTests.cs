@@ -4,6 +4,33 @@ namespace SpaceInvadersEmulator.Core.Tests;
 
 public class MachineTests
 {
+    private sealed class FakeAudio : IAudio
+    {
+        public int UfoLoopCallCount;
+        public bool? LastUfoLoopActive;
+        public int ShotCallCount;
+        public int PlayerDieCallCount;
+        public int InvaderDieCallCount;
+        public int ExtendedPlayCallCount;
+        public List<int> FleetMoveSteps = [];
+        public int UfoHitCallCount;
+
+        public void UfoLoop(bool active) { UfoLoopCallCount++; LastUfoLoopActive = active; }
+        public void Shot() => ShotCallCount++;
+        public void PlayerDie() => PlayerDieCallCount++;
+        public void InvaderDie() => InvaderDieCallCount++;
+        public void ExtendedPlay() => ExtendedPlayCallCount++;
+        public void FleetMove(int step) => FleetMoveSteps.Add(step);
+        public void UfoHit() => UfoHitCallCount++;
+    }
+
+    private static Machine CreateMachineWithAudio(out FakeClock clock, out FakeAudio audio)
+    {
+        clock = new FakeClock();
+        audio = new FakeAudio();
+        return new Machine(clock, audio);
+    }
+
     private sealed class FakeClock : IClock
     {
         public event Action? Ticked;
@@ -285,5 +312,213 @@ public class MachineTests
         machine.WriteP2Right(true);
         machine.WriteP2Right(false);
         Assert.Equal(0, machine.ReadPort(2) & 0x40);
+    }
+
+    // --- Port 3: Sound triggers ---
+
+    [Fact]
+    public void WritePort3_Shot_WhenBitGoesHigh_CallsShot()
+    {
+        var machine = CreateMachineWithAudio(out _, out var audio);
+        machine.WritePort(3, 0x02);
+        Assert.Equal(1, audio.ShotCallCount);
+    }
+
+    [Fact]
+    public void WritePort3_Shot_WhenBitStaysHigh_DoesNotCallShotAgain()
+    {
+        var machine = CreateMachineWithAudio(out _, out var audio);
+        machine.WritePort(3, 0x02);
+        machine.WritePort(3, 0x02);
+        Assert.Equal(1, audio.ShotCallCount);
+    }
+
+    [Fact]
+    public void WritePort3_Shot_WhenBitGoesLow_DoesNotCallShot()
+    {
+        var machine = CreateMachineWithAudio(out _, out var audio);
+        machine.WritePort(3, 0x02);
+        machine.WritePort(3, 0x00);
+        Assert.Equal(1, audio.ShotCallCount);
+    }
+
+    [Fact]
+    public void WritePort3_PlayerDie_WhenBitGoesHigh_CallsPlayerDie()
+    {
+        var machine = CreateMachineWithAudio(out _, out var audio);
+        machine.WritePort(3, 0x04);
+        Assert.Equal(1, audio.PlayerDieCallCount);
+    }
+
+    [Fact]
+    public void WritePort3_PlayerDie_WhenBitStaysHigh_DoesNotCallAgain()
+    {
+        var machine = CreateMachineWithAudio(out _, out var audio);
+        machine.WritePort(3, 0x04);
+        machine.WritePort(3, 0x04);
+        Assert.Equal(1, audio.PlayerDieCallCount);
+    }
+
+    [Fact]
+    public void WritePort3_PlayerDie_WhenBitGoesLow_DoesNotCallPlayerDie()
+    {
+        var machine = CreateMachineWithAudio(out _, out var audio);
+        machine.WritePort(3, 0x04);
+        machine.WritePort(3, 0x00);
+        Assert.Equal(1, audio.PlayerDieCallCount);
+    }
+
+    [Fact]
+    public void WritePort3_InvaderDie_WhenBitGoesHigh_CallsInvaderDie()
+    {
+        var machine = CreateMachineWithAudio(out _, out var audio);
+        machine.WritePort(3, 0x08);
+        Assert.Equal(1, audio.InvaderDieCallCount);
+    }
+
+    [Fact]
+    public void WritePort3_InvaderDie_WhenBitStaysHigh_DoesNotCallAgain()
+    {
+        var machine = CreateMachineWithAudio(out _, out var audio);
+        machine.WritePort(3, 0x08);
+        machine.WritePort(3, 0x08);
+        Assert.Equal(1, audio.InvaderDieCallCount);
+    }
+
+    [Fact]
+    public void WritePort3_InvaderDie_WhenBitGoesLow_DoesNotCallInvaderDie()
+    {
+        var machine = CreateMachineWithAudio(out _, out var audio);
+        machine.WritePort(3, 0x08);
+        machine.WritePort(3, 0x00);
+        Assert.Equal(1, audio.InvaderDieCallCount);
+    }
+
+    [Fact]
+    public void WritePort3_ExtendedPlay_WhenBitGoesHigh_CallsExtendedPlay()
+    {
+        var machine = CreateMachineWithAudio(out _, out var audio);
+        machine.WritePort(3, 0x10);
+        Assert.Equal(1, audio.ExtendedPlayCallCount);
+    }
+
+    [Fact]
+    public void WritePort3_ExtendedPlay_WhenBitStaysHigh_DoesNotCallAgain()
+    {
+        var machine = CreateMachineWithAudio(out _, out var audio);
+        machine.WritePort(3, 0x10);
+        machine.WritePort(3, 0x10);
+        Assert.Equal(1, audio.ExtendedPlayCallCount);
+    }
+
+    [Fact]
+    public void WritePort3_ExtendedPlay_WhenBitGoesLow_DoesNotCallExtendedPlay()
+    {
+        var machine = CreateMachineWithAudio(out _, out var audio);
+        machine.WritePort(3, 0x10);
+        machine.WritePort(3, 0x00);
+        Assert.Equal(1, audio.ExtendedPlayCallCount);
+    }
+
+    [Fact]
+    public void WritePort3_UfoLoop_WhenBitGoesHigh_CallsUfoLoopTrue()
+    {
+        var machine = CreateMachineWithAudio(out _, out var audio);
+        machine.WritePort(3, 0x01);
+        Assert.Equal(1, audio.UfoLoopCallCount);
+        Assert.True(audio.LastUfoLoopActive);
+    }
+
+    [Fact]
+    public void WritePort3_UfoLoop_WhenBitGoesLow_CallsUfoLoopFalse()
+    {
+        var machine = CreateMachineWithAudio(out _, out var audio);
+        machine.WritePort(3, 0x01);
+        machine.WritePort(3, 0x00);
+        Assert.Equal(2, audio.UfoLoopCallCount);
+        Assert.False(audio.LastUfoLoopActive);
+    }
+
+    [Fact]
+    public void WritePort3_UfoLoop_WhenBitStaysHigh_DoesNotCallAgain()
+    {
+        var machine = CreateMachineWithAudio(out _, out var audio);
+        machine.WritePort(3, 0x01);
+        machine.WritePort(3, 0x01);
+        Assert.Equal(1, audio.UfoLoopCallCount);
+    }
+
+    [Fact]
+    public void WritePort3_WhenNoAudio_DoesNotThrow()
+    {
+        var machine = CreateMachine(out _);
+        machine.WritePort(3, 0xFF);
+    }
+
+    // --- Port 5: Sound triggers ---
+
+    [Fact]
+    public void WritePort5_FleetMove1_WhenBitGoesHigh_CallsFleetMove1()
+    {
+        var machine = CreateMachineWithAudio(out _, out var audio);
+        machine.WritePort(5, 0x01);
+        Assert.Equal([1], audio.FleetMoveSteps);
+    }
+
+    [Fact]
+    public void WritePort5_FleetMove2_WhenBitGoesHigh_CallsFleetMove2()
+    {
+        var machine = CreateMachineWithAudio(out _, out var audio);
+        machine.WritePort(5, 0x02);
+        Assert.Equal([2], audio.FleetMoveSteps);
+    }
+
+    [Fact]
+    public void WritePort5_FleetMove3_WhenBitGoesHigh_CallsFleetMove3()
+    {
+        var machine = CreateMachineWithAudio(out _, out var audio);
+        machine.WritePort(5, 0x04);
+        Assert.Equal([3], audio.FleetMoveSteps);
+    }
+
+    [Fact]
+    public void WritePort5_FleetMove4_WhenBitGoesHigh_CallsFleetMove4()
+    {
+        var machine = CreateMachineWithAudio(out _, out var audio);
+        machine.WritePort(5, 0x08);
+        Assert.Equal([4], audio.FleetMoveSteps);
+    }
+
+    [Fact]
+    public void WritePort5_FleetMove_WhenBitStaysHigh_DoesNotCallAgain()
+    {
+        var machine = CreateMachineWithAudio(out _, out var audio);
+        machine.WritePort(5, 0x01);
+        machine.WritePort(5, 0x01);
+        Assert.Equal([1], audio.FleetMoveSteps);
+    }
+
+    [Fact]
+    public void WritePort5_UfoHit_WhenBitGoesHigh_CallsUfoHit()
+    {
+        var machine = CreateMachineWithAudio(out _, out var audio);
+        machine.WritePort(5, 0x10);
+        Assert.Equal(1, audio.UfoHitCallCount);
+    }
+
+    [Fact]
+    public void WritePort5_UfoHit_WhenBitStaysHigh_DoesNotCallAgain()
+    {
+        var machine = CreateMachineWithAudio(out _, out var audio);
+        machine.WritePort(5, 0x10);
+        machine.WritePort(5, 0x10);
+        Assert.Equal(1, audio.UfoHitCallCount);
+    }
+
+    [Fact]
+    public void WritePort5_WhenNoAudio_DoesNotThrow()
+    {
+        var machine = CreateMachine(out _);
+        machine.WritePort(5, 0xFF);
     }
 }
