@@ -1325,4 +1325,35 @@ public class CpuTests
         Assert.Equal(11, cycles);
         Assert.Equal(expectedState, CpuState.FromCpu(cpu));
     }
+
+    [Theory]
+    [InlineData(0xC7, 0x0000)]
+    [InlineData(0xD7, 0x0010)]
+    [InlineData(0xE7, 0x0020)]
+    [InlineData(0xF7, 0x0030)]
+    public void TestRst(byte opcode, ushort target)
+    {
+        ushort stackAddr = 0x2002;
+        var initialState = new CpuState
+        {
+            Pc = 0x10,
+            Sp = stackAddr,
+            Flags = AllFlags
+        };
+
+        var mmu = new Mmu();
+        mmu.Write(initialState.Pc, opcode);
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.Pc = target;
+        expectedState.Sp = (ushort)(stackAddr - 2);
+
+        Assert.Equal(11, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+        Assert.Equal(0x11, mmu.Read((ushort)(stackAddr - 2)));
+        Assert.Equal(0x00, mmu.Read((ushort)(stackAddr - 1)));
+    }
 }
