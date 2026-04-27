@@ -185,6 +185,16 @@ public sealed partial class Cpu
             0xE4 => Cpo(),
             0xF4 => Cp(),
 
+            // Restarts
+            0xC7 => Rst0(),
+            0xCF => Rst1(),
+            0xD7 => Rst2(),
+            0xDF => Rst3(),
+            0xE7 => Rst4(),
+            0xEF => Rst5(),
+            0xF7 => Rst6(),
+            0xFF => Rst7(),
+
             0xE3 => Xthl(),
             0xEB => Xchg(),
             0xF9 => Sphl(),

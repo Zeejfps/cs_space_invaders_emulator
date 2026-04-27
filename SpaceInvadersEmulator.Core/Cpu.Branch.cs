@@ -138,4 +138,37 @@ public sealed partial class Cpu
         Pc = address;
         return 17;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int Rst(ushort vector)
+    {
+        Sp -= 2;
+        _mmu.WriteWord(Sp, Pc);
+        Pc = vector;
+        return 11;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] 
+    private int Rst0() => Rst(0x0000);
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] 
+    private int Rst1() => Rst(0x0008);
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] 
+    private int Rst2() => Rst(0x0010);
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int Rst3() => Rst(0x0018);
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] 
+    private int Rst4() => Rst(0x0020);
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] 
+    private int Rst5() => Rst(0x0028);
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] 
+    private int Rst6() => Rst(0x0030);
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] 
+    private int Rst7() => Rst(0x0038);
 }
