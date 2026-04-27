@@ -787,6 +787,14 @@ public class CpuTests
     [InlineData(0xE4, CpuFlags.All, false)] // CPO not taken
     [InlineData(0xF4, CpuFlags.Z | CpuFlags.C | CpuFlags.P | CpuFlags.A, true)]               // CP taken
     [InlineData(0xF4, CpuFlags.All, false)] // CP not taken
+    [InlineData(0xCC, CpuFlags.All, true)]                                                     // CZ taken
+    [InlineData(0xCC, CpuFlags.S | CpuFlags.C | CpuFlags.P | CpuFlags.A, false)]              // CZ not taken
+    [InlineData(0xDC, CpuFlags.All, true)]                                                     // CC taken
+    [InlineData(0xDC, CpuFlags.S | CpuFlags.Z | CpuFlags.P | CpuFlags.A, false)]              // CC not taken
+    [InlineData(0xEC, CpuFlags.All, true)]                                                     // CPE taken
+    [InlineData(0xEC, CpuFlags.S | CpuFlags.Z | CpuFlags.C | CpuFlags.A, false)]              // CPE not taken
+    [InlineData(0xFC, CpuFlags.All, true)]                                                     // CM taken
+    [InlineData(0xFC, CpuFlags.Z | CpuFlags.C | CpuFlags.P | CpuFlags.A, false)]              // CM not taken
     public void TestConditionalCall(byte opcode, CpuFlags flags, bool taken)
     {
         ushort stackAddr = 0x2002;
