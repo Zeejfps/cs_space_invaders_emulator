@@ -170,4 +170,169 @@ public class CpuLogicTests
         Assert.Equal(4, cycles);
         Assert.Equal(expectedState, CpuState.FromCpu(cpu));
     }
+
+    [Theory]
+    [InlineData(0xB0, Reg.B, 0x10, 0x10)] // ORA B
+    [InlineData(0xB1, Reg.C, 0x10, 0x10)] // ORA C
+    [InlineData(0xB2, Reg.D, 0x10, 0x10)] // ORA D
+    [InlineData(0xB3, Reg.E, 0x10, 0x10)] // ORA E
+    [InlineData(0xB4, Reg.H, 0x10, 0x10)] // ORA H
+    [InlineData(0xB5, Reg.L, 0x10, 0x10)] // ORA L
+    [InlineData(0xB7, Reg.A, 0x10, 0x10)] // ORA A
+    public void TestOraRegister(byte opcode, Reg srcReg, byte srcVal, byte expectedA)
+    {
+        var initialState = new CpuState { Pc = 0x00, Ra = 0x10 };
+        initialState.WriteReg(srcReg, srcVal);
+
+        var mmu = new Mmu();
+        mmu.Write(0x00, opcode);
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.Ra = expectedA;
+        expectedState.IncrementPcBy(1);
+
+        Assert.Equal(4, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
+
+    [Fact]
+    public void TestOraM()
+    {
+        ushort addr = 0x2000;
+        var initialState = new CpuState { Pc = 0x00, Ra = 0x10 };
+        initialState.WriteRegPair(Reg.H, addr);
+
+        var mmu = new Mmu();
+        mmu.Write(0x00, 0xB6); // ORA M
+        mmu.Write(addr, 0x10);
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.Ra = 0x10;
+        expectedState.IncrementPcBy(1);
+
+        Assert.Equal(7, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
+
+    [Theory]
+    [InlineData(0x10, 0x10, 0x10, CpuFlags.None)]                   // no flags
+    [InlineData(0xF0, 0x0F, 0xFF, CpuFlags.S | CpuFlags.P)]         // sign+parity
+    [InlineData(0x00, 0x00, 0x00, CpuFlags.Z | CpuFlags.P)]         // zero
+    [InlineData(0x80, 0x80, 0x80, CpuFlags.S)]                      // sign only
+    [InlineData(0x01, 0x02, 0x03, CpuFlags.P)]                      // parity only
+    public void TestOraFlags(byte a, byte b, byte expectedResult, CpuFlags expectedFlags)
+    {
+        var initialState = new CpuState { Pc = 0x00, Ra = a, Rb = b };
+
+        var mmu = new Mmu();
+        mmu.Write(0x00, 0xB0); // ORA B
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.Ra = expectedResult;
+        expectedState.Flags = expectedFlags;
+        expectedState.IncrementPcBy(1);
+
+        Assert.Equal(4, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
+
+    [Theory]
+    [InlineData(0xB8, Reg.B, 0x01, CpuFlags.None)] // CMP B
+    [InlineData(0xB9, Reg.C, 0x01, CpuFlags.None)] // CMP C
+    [InlineData(0xBA, Reg.D, 0x01, CpuFlags.None)] // CMP D
+    [InlineData(0xBB, Reg.E, 0x01, CpuFlags.None)] // CMP E
+    [InlineData(0xBC, Reg.H, 0x01, CpuFlags.None)] // CMP H
+    [InlineData(0xBD, Reg.L, 0x01, CpuFlags.None)] // CMP L
+    public void TestCmpRegister(byte opcode, Reg srcReg, byte srcVal, CpuFlags expectedFlags)
+    {
+        var initialState = new CpuState { Pc = 0x00, Ra = 0x11 };
+        initialState.WriteReg(srcReg, srcVal);
+
+        var mmu = new Mmu();
+        mmu.Write(0x00, opcode);
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.Flags = expectedFlags;
+        expectedState.IncrementPcBy(1);
+
+        Assert.Equal(4, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
+
+    [Fact]
+    public void TestCmpA()
+    {
+        var initialState = new CpuState { Pc = 0x00, Ra = 0x10 };
+
+        var mmu = new Mmu();
+        mmu.Write(0x00, 0xBF); // CMP A
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.Flags = CpuFlags.Z | CpuFlags.P;
+        expectedState.IncrementPcBy(1);
+
+        Assert.Equal(4, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
+
+    [Fact]
+    public void TestCmpM()
+    {
+        ushort addr = 0x2000;
+        var initialState = new CpuState { Pc = 0x00, Ra = 0x11 };
+        initialState.WriteRegPair(Reg.H, addr);
+
+        var mmu = new Mmu();
+        mmu.Write(0x00, 0xBE); // CMP M
+        mmu.Write(addr, 0x01);
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.Flags = CpuFlags.None;
+        expectedState.IncrementPcBy(1);
+
+        Assert.Equal(7, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
+
+    [Theory]
+    [InlineData(0x11, 0x01, CpuFlags.None)]                                        // no flags
+    [InlineData(0x10, 0x05, CpuFlags.A)]                                           // aux borrow
+    [InlineData(0x10, 0x10, CpuFlags.Z | CpuFlags.P)]                              // equal
+    [InlineData(0x05, 0x10, CpuFlags.S | CpuFlags.P | CpuFlags.C)]                // less than
+    [InlineData(0x00, 0x01, CpuFlags.S | CpuFlags.P | CpuFlags.C | CpuFlags.A)]  // all flags
+    public void TestCmpFlags(byte a, byte b, CpuFlags expectedFlags)
+    {
+        var initialState = new CpuState { Pc = 0x00, Ra = a, Rb = b };
+
+        var mmu = new Mmu();
+        mmu.Write(0x00, 0xB8); // CMP B
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.Flags = expectedFlags;
+        expectedState.IncrementPcBy(1);
+
+        Assert.Equal(4, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
 }

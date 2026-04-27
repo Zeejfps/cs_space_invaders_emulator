@@ -234,6 +234,26 @@ public sealed partial class Cpu
             0xAE => XraM(),
             0xAF => XraA(),
 
+            // ORA
+            0xB0 => OraB(),
+            0xB1 => OraC(),
+            0xB2 => OraD(),
+            0xB3 => OraE(),
+            0xB4 => OraH(),
+            0xB5 => OraL(),
+            0xB6 => OraM(),
+            0xB7 => OraA(),
+
+            // CMP
+            0xB8 => CmpB(),
+            0xB9 => CmpC(),
+            0xBA => CmpD(),
+            0xBB => CmpE(),
+            0xBC => CmpH(),
+            0xBD => CmpL(),
+            0xBE => CmpM(),
+            0xBF => CmpA(),
+
             // Unconditional return, call, pchl
             0xC9 => Ret(),
             0xD9 => Ret(),  // undocumented alias

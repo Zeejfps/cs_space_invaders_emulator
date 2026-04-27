@@ -16,7 +16,7 @@ public sealed partial class Cpu
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    private static CpuFlags ComputeXraFlags(byte result)
+    private static CpuFlags ComputeLogicalFlags(byte result)
     {
         var flags = CpuFlags.None;
         if (result == 0) flags |= CpuFlags.Z;
@@ -38,7 +38,7 @@ public sealed partial class Cpu
     private int Xra(byte value)
     {
         var result = (byte)(Ra ^ value);
-        Flags = ComputeXraFlags(result);
+        Flags = ComputeLogicalFlags(result);
         Ra = result;
         return 4;
     }
@@ -100,8 +100,86 @@ public sealed partial class Cpu
     {
         var value = _mmu.Read(Rhl);
         var result = (byte)(Ra ^ value);
-        Flags = ComputeXraFlags(result);
+        Flags = ComputeLogicalFlags(result);
         Ra = result;
+        return 7;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int Ora(byte value)
+    {
+        var result = (byte)(Ra | value);
+        Flags = ComputeLogicalFlags(result);
+        Ra = result;
+        return 4;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int OraB() => Ora(Rb);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int OraC() => Ora(Rc);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int OraD() => Ora(Rd);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int OraE() => Ora(Re);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int OraH() => Ora(Rh);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int OraL() => Ora(Rl);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int OraA() => Ora(Ra);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int OraM()
+    {
+        var value = _mmu.Read(Rhl);
+        var result = (byte)(Ra | value);
+        Flags = ComputeLogicalFlags(result);
+        Ra = result;
+        return 7;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int Cmp(byte value)
+    {
+        var result = Ra - value;
+        Flags = ComputeSubFlags(Ra, value, result);
+        return 4;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int CmpB() => Cmp(Rb);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int CmpC() => Cmp(Rc);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int CmpD() => Cmp(Rd);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int CmpE() => Cmp(Re);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int CmpH() => Cmp(Rh);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int CmpL() => Cmp(Rl);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int CmpA() => Cmp(Ra);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int CmpM()
+    {
+        var value = _mmu.Read(Rhl);
+        var result = Ra - value;
+        Flags = ComputeSubFlags(Ra, value, result);
         return 7;
     }
 }
