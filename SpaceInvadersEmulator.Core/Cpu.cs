@@ -62,7 +62,7 @@ public sealed partial class Cpu
             InterruptEnabled = false;
             Halted = false;
             _isInterruptPending = false;
-            Execute(_pendingInterruptOpcode);
+            return Execute(_pendingInterruptOpcode);
         }
 
         if (Halted)
