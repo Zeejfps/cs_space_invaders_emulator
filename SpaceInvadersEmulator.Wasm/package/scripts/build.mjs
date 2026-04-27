@@ -16,12 +16,16 @@ const KEEP = new Set(['.js', '.wasm', '.dll', '.json', '.map', '.d.ts']);
 console.log('Publishing C# project…');
 execSync(`dotnet publish "${PROJECT_DIR}" -c Release -o "${TMP}"`, { stdio: 'inherit' });
 
+// Copy dotnet.d.ts from TMP to src/ before cleanup so tsc always has up-to-date runtime types.
+cpSync(join(TMP, 'dotnet.d.ts'), join(PACKAGE_DIR, 'src', 'dotnet.d.ts'));
+console.log('Updated src/dotnet.d.ts from published runtime.');
+
 rmSync(DIST, { recursive: true, force: true });
 mkdirSync(DIST, { recursive: true });
 
 const copiedFiles = [];
 for (const entry of readdirSync(TMP, { withFileTypes: true })) {
-  if (!entry.isFile() || !KEEP.has(extname(entry.name))) continue;
+  if (!entry.isFile() || !KEEP.has(entry.name.endsWith('.d.ts') ? '.d.ts' : extname(entry.name))) continue;
   cpSync(join(TMP, entry.name), join(DIST, entry.name));
   copiedFiles.push(entry.name);
 }
