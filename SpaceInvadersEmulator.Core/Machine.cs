@@ -9,9 +9,9 @@ public sealed class Machine : ICpuIO
     private const double CyclesPerHalfFrame = CpuFrequency / 60.0 / 2.0;
 
     public ReadOnlyMemory<byte> VRam => _mmu.VRam;
-    
+
     public bool IsRunning { get; private set; }
-    
+
     private readonly IClock _clock;
     private readonly Mmu _mmu;
     private readonly Cpu _cpu;
@@ -41,33 +41,55 @@ public sealed class Machine : ICpuIO
         _clock = clock;
         _cyclesPerTick = CpuFrequency / (double)_clock.Frequency;
     }
-    
+
     public void LoadRom(ReadOnlySpan<byte> rom)
     {
         _mmu.LoadRom(rom);
         _cpu.Pc = _mmu.RomStartAddress;
     }
-    
+
     public void Start()
     {
         if (IsRunning)
             throw new InvalidOperationException("Machine is already running");
-        
-        _clock.Ticked += OnTick;
+
+        _clock.Ticked += Clock_OnTick;
         _lastTimestamp = _clock.GetTimestamp();
         IsRunning = true;
     }
-    
+
     public void Stop()
     {
         if (!IsRunning)
             return;
-        
+
         IsRunning = false;
-        _clock.Ticked -= OnTick;
+        _clock.Ticked -= Clock_OnTick;
     }
-    
-    private void OnTick()
+
+    public void WriteCoin(bool pressed) => WritePort1Input(Port1.InsertCoin, pressed);
+    public void WriteP1Start(bool pressed) => WritePort1Input(Port1.Player1Start, pressed);
+    public void WriteP2Start(bool pressed) => WritePort1Input(Port1.Player2Start, pressed);
+    public void WriteP1Fire(bool pressed) => WritePort1Input(Port1.Player1Fire, pressed);
+    public void WriteP1Left(bool pressed) => WritePort1Input(Port1.Player1Left, pressed);
+    public void WriteP1Right(bool pressed) => WritePort1Input(Port1.Player1Right, pressed);
+    public void WriteP2Fire(bool pressed) => WritePort2Input(Port2.Player2Fire, pressed);
+    public void WriteP2Left(bool pressed) => WritePort2Input(Port2.Player2Left, pressed);
+    public void WriteP2Right(bool pressed) => WritePort2Input(Port2.Player2Right, pressed);
+
+    private void WritePort1Input(Port1 flag, bool pressed)
+    {
+        if (pressed) _port1 |= flag;
+        else _port1 &= ~flag;
+    }
+
+    private void WritePort2Input(Port2 flag, bool pressed)
+    {
+        if (pressed) _port2 |= flag;
+        else _port2 &= ~flag;
+    }
+
+    private void Clock_OnTick()
     {
         var timestamp = _clock.GetTimestamp();
         var elapsedTime = timestamp - _lastTimestamp;
@@ -127,7 +149,7 @@ public sealed class Machine : ICpuIO
     {
         _shiftRegOffset = (byte)(value & 0x07);
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private byte ReadPort3()
     {
