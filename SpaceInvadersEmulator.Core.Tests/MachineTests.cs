@@ -124,11 +124,166 @@ public class MachineTests
 
     [Theory]
     [InlineData(0)]
-    [InlineData(1)]
-    [InlineData(2)]
     public void ReadPort_UnknownPort_ReturnsZero(byte port)
     {
         var machine = CreateMachine(out _);
         Assert.Equal(0, machine.ReadPort(port));
+    }
+
+    // --- Port 1: Coin + player inputs ---
+
+    [Fact]
+    public void WriteCoin_WhenPressed_SetsBitInPort1()
+    {
+        var machine = CreateMachine(out _);
+        machine.WriteCoin(true);
+        Assert.Equal(0x01, machine.ReadPort(1) & 0x01);
+    }
+
+    [Fact]
+    public void WriteCoin_WhenReleased_ClearsBitInPort1()
+    {
+        var machine = CreateMachine(out _);
+        machine.WriteCoin(true);
+        machine.WriteCoin(false);
+        Assert.Equal(0, machine.ReadPort(1) & 0x01);
+    }
+
+    [Fact]
+    public void WriteP1Start_WhenPressed_SetsBitInPort1()
+    {
+        var machine = CreateMachine(out _);
+        machine.WriteP1Start(true);
+        Assert.Equal(0x04, machine.ReadPort(1) & 0x04);
+    }
+
+    [Fact]
+    public void WriteP1Start_WhenReleased_ClearsBitInPort1()
+    {
+        var machine = CreateMachine(out _);
+        machine.WriteP1Start(true);
+        machine.WriteP1Start(false);
+        Assert.Equal(0, machine.ReadPort(1) & 0x04);
+    }
+
+    [Fact]
+    public void WriteP2Start_WhenPressed_SetsBitInPort1()
+    {
+        var machine = CreateMachine(out _);
+        machine.WriteP2Start(true);
+        Assert.Equal(0x02, machine.ReadPort(1) & 0x02);
+    }
+
+    [Fact]
+    public void WriteP2Start_WhenReleased_ClearsBitInPort1()
+    {
+        var machine = CreateMachine(out _);
+        machine.WriteP2Start(true);
+        machine.WriteP2Start(false);
+        Assert.Equal(0, machine.ReadPort(1) & 0x02);
+    }
+
+    [Fact]
+    public void WriteP1Fire_WhenPressed_SetsBitInPort1()
+    {
+        var machine = CreateMachine(out _);
+        machine.WriteP1Fire(true);
+        Assert.Equal(0x10, machine.ReadPort(1) & 0x10);
+    }
+
+    [Fact]
+    public void WriteP1Fire_WhenReleased_ClearsBitInPort1()
+    {
+        var machine = CreateMachine(out _);
+        machine.WriteP1Fire(true);
+        machine.WriteP1Fire(false);
+        Assert.Equal(0, machine.ReadPort(1) & 0x10);
+    }
+
+    [Fact]
+    public void WriteP1Left_WhenPressed_SetsBitInPort1()
+    {
+        var machine = CreateMachine(out _);
+        machine.WriteP1Left(true);
+        Assert.Equal(0x20, machine.ReadPort(1) & 0x20);
+    }
+
+    [Fact]
+    public void WriteP1Left_WhenReleased_ClearsBitInPort1()
+    {
+        var machine = CreateMachine(out _);
+        machine.WriteP1Left(true);
+        machine.WriteP1Left(false);
+        Assert.Equal(0, machine.ReadPort(1) & 0x20);
+    }
+
+    [Fact]
+    public void WriteP1Right_WhenPressed_SetsBitInPort1()
+    {
+        var machine = CreateMachine(out _);
+        machine.WriteP1Right(true);
+        Assert.Equal(0x40, machine.ReadPort(1) & 0x40);
+    }
+
+    [Fact]
+    public void WriteP1Right_WhenReleased_ClearsBitInPort1()
+    {
+        var machine = CreateMachine(out _);
+        machine.WriteP1Right(true);
+        machine.WriteP1Right(false);
+        Assert.Equal(0, machine.ReadPort(1) & 0x40);
+    }
+
+    // --- Port 2: Player 2 inputs ---
+
+    [Fact]
+    public void WriteP2Fire_WhenPressed_SetsBitInPort2()
+    {
+        var machine = CreateMachine(out _);
+        machine.WriteP2Fire(true);
+        Assert.Equal(0x10, machine.ReadPort(2) & 0x10);
+    }
+
+    [Fact]
+    public void WriteP2Fire_WhenReleased_ClearsBitInPort2()
+    {
+        var machine = CreateMachine(out _);
+        machine.WriteP2Fire(true);
+        machine.WriteP2Fire(false);
+        Assert.Equal(0, machine.ReadPort(2) & 0x10);
+    }
+
+    [Fact]
+    public void WriteP2Left_WhenPressed_SetsBitInPort2()
+    {
+        var machine = CreateMachine(out _);
+        machine.WriteP2Left(true);
+        Assert.Equal(0x20, machine.ReadPort(2) & 0x20);
+    }
+
+    [Fact]
+    public void WriteP2Left_WhenReleased_ClearsBitInPort2()
+    {
+        var machine = CreateMachine(out _);
+        machine.WriteP2Left(true);
+        machine.WriteP2Left(false);
+        Assert.Equal(0, machine.ReadPort(2) & 0x20);
+    }
+
+    [Fact]
+    public void WriteP2Right_WhenPressed_SetsBitInPort2()
+    {
+        var machine = CreateMachine(out _);
+        machine.WriteP2Right(true);
+        Assert.Equal(0x40, machine.ReadPort(2) & 0x40);
+    }
+
+    [Fact]
+    public void WriteP2Right_WhenReleased_ClearsBitInPort2()
+    {
+        var machine = CreateMachine(out _);
+        machine.WriteP2Right(true);
+        machine.WriteP2Right(false);
+        Assert.Equal(0, machine.ReadPort(2) & 0x40);
     }
 }
