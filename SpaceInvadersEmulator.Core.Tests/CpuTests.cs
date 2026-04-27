@@ -661,219 +661,15 @@ public class CpuTests
         Assert.Equal(expectedState, CpuState.FromCpu(cpu));
     }
 
-    [Fact]
-    public void TestRnzTaken()
-    {
-        byte opcode = 0xC0;
-        ushort stackAddr = 0x2002;
-        var initialState = new CpuState
-        {
-            Pc = 0x10,
-            Sp = stackAddr,
-            Flags = CpuFlags.S | CpuFlags.C | CpuFlags.P | CpuFlags.A
-        };
-
-        var mmu = new Mmu();
-        mmu.Write(initialState.Pc, opcode);
-        mmu.Write(stackAddr, 0x30);
-        mmu.Write((ushort)(stackAddr + 1), 0x20);
-
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
-
-        var expectedState = initialState;
-        expectedState.Pc = 0x2030;
-        expectedState.Sp = (ushort)(stackAddr + 2);
-
-        Assert.Equal(11, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
-    }
-
-    [Fact]
-    public void TestRnzNotTaken()
-    {
-        byte opcode = 0xC0;
-        ushort stackAddr = 0x2002;
-        var initialState = new CpuState
-        {
-            Pc = 0x10,
-            Sp = stackAddr,
-            Flags = AllFlags
-        };
-
-        var mmu = new Mmu();
-        mmu.Write(initialState.Pc, opcode);
-
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
-
-        var expectedState = initialState;
-        expectedState.IncrementPcBy(1);
-
-        Assert.Equal(5, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
-    }
-
-    [Fact]
-    public void TestRncTaken()
-    {
-        byte opcode = 0xD0;
-        ushort stackAddr = 0x2002;
-        var initialState = new CpuState
-        {
-            Pc = 0x10,
-            Sp = stackAddr,
-            Flags = CpuFlags.S | CpuFlags.Z | CpuFlags.P | CpuFlags.A
-        };
-
-        var mmu = new Mmu();
-        mmu.Write(initialState.Pc, opcode);
-        mmu.Write(stackAddr, 0x30);
-        mmu.Write((ushort)(stackAddr + 1), 0x20);
-
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
-
-        var expectedState = initialState;
-        expectedState.Pc = 0x2030;
-        expectedState.Sp = (ushort)(stackAddr + 2);
-
-        Assert.Equal(11, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
-    }
-
-    [Fact]
-    public void TestRncNotTaken()
-    {
-        byte opcode = 0xD0;
-        ushort stackAddr = 0x2002;
-        var initialState = new CpuState
-        {
-            Pc = 0x10,
-            Sp = stackAddr,
-            Flags = AllFlags
-        };
-
-        var mmu = new Mmu();
-        mmu.Write(initialState.Pc, opcode);
-
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
-
-        var expectedState = initialState;
-        expectedState.IncrementPcBy(1);
-
-        Assert.Equal(5, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
-    }
-
-    [Fact]
-    public void TestRpoTaken()
-    {
-        byte opcode = 0xE0;
-        ushort stackAddr = 0x2002;
-        var initialState = new CpuState
-        {
-            Pc = 0x10,
-            Sp = stackAddr,
-            Flags = CpuFlags.S | CpuFlags.Z | CpuFlags.C | CpuFlags.A
-        };
-
-        var mmu = new Mmu();
-        mmu.Write(initialState.Pc, opcode);
-        mmu.Write(stackAddr, 0x30);
-        mmu.Write((ushort)(stackAddr + 1), 0x20);
-
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
-
-        var expectedState = initialState;
-        expectedState.Pc = 0x2030;
-        expectedState.Sp = (ushort)(stackAddr + 2);
-
-        Assert.Equal(11, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
-    }
-
-    [Fact]
-    public void TestRpoNotTaken()
-    {
-        byte opcode = 0xE0;
-        ushort stackAddr = 0x2002;
-        var initialState = new CpuState
-        {
-            Pc = 0x10,
-            Sp = stackAddr,
-            Flags = AllFlags
-        };
-
-        var mmu = new Mmu();
-        mmu.Write(initialState.Pc, opcode);
-
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
-
-        var expectedState = initialState;
-        expectedState.IncrementPcBy(1);
-
-        Assert.Equal(5, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
-    }
-
-    [Fact]
-    public void TestRpTaken()
-    {
-        byte opcode = 0xF0;
-        ushort stackAddr = 0x2002;
-        var initialState = new CpuState
-        {
-            Pc = 0x10,
-            Sp = stackAddr,
-            Flags = CpuFlags.Z | CpuFlags.C | CpuFlags.P | CpuFlags.A
-        };
-
-        var mmu = new Mmu();
-        mmu.Write(initialState.Pc, opcode);
-        mmu.Write(stackAddr, 0x30);
-        mmu.Write((ushort)(stackAddr + 1), 0x20);
-
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
-
-        var expectedState = initialState;
-        expectedState.Pc = 0x2030;
-        expectedState.Sp = (ushort)(stackAddr + 2);
-
-        Assert.Equal(11, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
-    }
-
-    [Fact]
-    public void TestRpNotTaken()
-    {
-        byte opcode = 0xF0;
-        ushort stackAddr = 0x2002;
-        var initialState = new CpuState
-        {
-            Pc = 0x10,
-            Sp = stackAddr,
-            Flags = AllFlags
-        };
-
-        var mmu = new Mmu();
-        mmu.Write(initialState.Pc, opcode);
-
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
-
-        var expectedState = initialState;
-        expectedState.IncrementPcBy(1);
-
-        Assert.Equal(5, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
-    }
-
     [Theory]
+    [InlineData(0xC0, CpuFlags.S | CpuFlags.C | CpuFlags.P | CpuFlags.A, true)]               // RNZ taken
+    [InlineData(0xC0, CpuFlags.S | CpuFlags.Z | CpuFlags.C | CpuFlags.P | CpuFlags.A, false)] // RNZ not taken
+    [InlineData(0xD0, CpuFlags.S | CpuFlags.Z | CpuFlags.P | CpuFlags.A, true)]               // RNC taken
+    [InlineData(0xD0, CpuFlags.S | CpuFlags.Z | CpuFlags.C | CpuFlags.P | CpuFlags.A, false)] // RNC not taken
+    [InlineData(0xE0, CpuFlags.S | CpuFlags.Z | CpuFlags.C | CpuFlags.A, true)]               // RPO taken
+    [InlineData(0xE0, CpuFlags.S | CpuFlags.Z | CpuFlags.C | CpuFlags.P | CpuFlags.A, false)] // RPO not taken
+    [InlineData(0xF0, CpuFlags.Z | CpuFlags.C | CpuFlags.P | CpuFlags.A, true)]               // RP taken
+    [InlineData(0xF0, CpuFlags.S | CpuFlags.Z | CpuFlags.C | CpuFlags.P | CpuFlags.A, false)] // RP not taken
     [InlineData(0xC8, CpuFlags.S | CpuFlags.Z | CpuFlags.C | CpuFlags.P | CpuFlags.A, true)]  // RZ taken
     [InlineData(0xC8, CpuFlags.S | CpuFlags.C | CpuFlags.P | CpuFlags.A, false)]               // RZ not taken
     [InlineData(0xD8, CpuFlags.S | CpuFlags.Z | CpuFlags.C | CpuFlags.P | CpuFlags.A, true)]  // RC taken
@@ -916,14 +712,21 @@ public class CpuTests
         Assert.Equal(expectedState, CpuState.FromCpu(cpu));
     }
 
-    [Fact]
-    public void TestJnzTaken()
+    [Theory]
+    [InlineData(0xC2, CpuFlags.S | CpuFlags.C | CpuFlags.P | CpuFlags.A, true)]               // JNZ taken
+    [InlineData(0xC2, CpuFlags.S | CpuFlags.Z | CpuFlags.C | CpuFlags.P | CpuFlags.A, false)] // JNZ not taken
+    [InlineData(0xD2, CpuFlags.S | CpuFlags.Z | CpuFlags.P | CpuFlags.A, true)]               // JNC taken
+    [InlineData(0xD2, CpuFlags.S | CpuFlags.Z | CpuFlags.C | CpuFlags.P | CpuFlags.A, false)] // JNC not taken
+    [InlineData(0xE2, CpuFlags.S | CpuFlags.Z | CpuFlags.C | CpuFlags.A, true)]               // JPO taken
+    [InlineData(0xE2, CpuFlags.S | CpuFlags.Z | CpuFlags.C | CpuFlags.P | CpuFlags.A, false)] // JPO not taken
+    [InlineData(0xF2, CpuFlags.Z | CpuFlags.C | CpuFlags.P | CpuFlags.A, true)]               // JP taken
+    [InlineData(0xF2, CpuFlags.S | CpuFlags.Z | CpuFlags.C | CpuFlags.P | CpuFlags.A, false)] // JP not taken
+    public void TestConditionalJump(byte opcode, CpuFlags flags, bool taken)
     {
-        byte opcode = 0xC2;
         var initialState = new CpuState
         {
             Pc = 0x10,
-            Flags = CpuFlags.S | CpuFlags.C | CpuFlags.P | CpuFlags.A
+            Flags = flags
         };
 
         var mmu = new Mmu();
@@ -935,182 +738,10 @@ public class CpuTests
         var cycles = cpu.Step();
 
         var expectedState = initialState;
-        expectedState.Pc = 0x2030;
-
-        Assert.Equal(10, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
-    }
-
-    [Fact]
-    public void TestJnzNotTaken()
-    {
-        byte opcode = 0xC2;
-        var initialState = new CpuState
-        {
-            Pc = 0x10,
-            Flags = AllFlags
-        };
-
-        var mmu = new Mmu();
-        mmu.Write(initialState.Pc, opcode);
-        mmu.Write((ushort)(initialState.Pc + 1), 0x30);
-        mmu.Write((ushort)(initialState.Pc + 2), 0x20);
-
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
-
-        var expectedState = initialState;
-        expectedState.IncrementPcBy(3);
-
-        Assert.Equal(10, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
-    }
-
-    [Fact]
-    public void TestJncTaken()
-    {
-        byte opcode = 0xD2;
-        var initialState = new CpuState
-        {
-            Pc = 0x10,
-            Flags = CpuFlags.S | CpuFlags.Z | CpuFlags.P | CpuFlags.A
-        };
-
-        var mmu = new Mmu();
-        mmu.Write(initialState.Pc, opcode);
-        mmu.Write((ushort)(initialState.Pc + 1), 0x30);
-        mmu.Write((ushort)(initialState.Pc + 2), 0x20);
-
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
-
-        var expectedState = initialState;
-        expectedState.Pc = 0x2030;
-
-        Assert.Equal(10, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
-    }
-
-    [Fact]
-    public void TestJncNotTaken()
-    {
-        byte opcode = 0xD2;
-        var initialState = new CpuState
-        {
-            Pc = 0x10,
-            Flags = AllFlags
-        };
-
-        var mmu = new Mmu();
-        mmu.Write(initialState.Pc, opcode);
-        mmu.Write((ushort)(initialState.Pc + 1), 0x30);
-        mmu.Write((ushort)(initialState.Pc + 2), 0x20);
-
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
-
-        var expectedState = initialState;
-        expectedState.IncrementPcBy(3);
-
-        Assert.Equal(10, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
-    }
-
-    [Fact]
-    public void TestJpoTaken()
-    {
-        byte opcode = 0xE2;
-        var initialState = new CpuState
-        {
-            Pc = 0x10,
-            Flags = CpuFlags.S | CpuFlags.Z | CpuFlags.C | CpuFlags.A
-        };
-
-        var mmu = new Mmu();
-        mmu.Write(initialState.Pc, opcode);
-        mmu.Write((ushort)(initialState.Pc + 1), 0x30);
-        mmu.Write((ushort)(initialState.Pc + 2), 0x20);
-
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
-
-        var expectedState = initialState;
-        expectedState.Pc = 0x2030;
-
-        Assert.Equal(10, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
-    }
-
-    [Fact]
-    public void TestJpoNotTaken()
-    {
-        byte opcode = 0xE2;
-        var initialState = new CpuState
-        {
-            Pc = 0x10,
-            Flags = AllFlags
-        };
-
-        var mmu = new Mmu();
-        mmu.Write(initialState.Pc, opcode);
-        mmu.Write((ushort)(initialState.Pc + 1), 0x30);
-        mmu.Write((ushort)(initialState.Pc + 2), 0x20);
-
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
-
-        var expectedState = initialState;
-        expectedState.IncrementPcBy(3);
-
-        Assert.Equal(10, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
-    }
-
-    [Fact]
-    public void TestJpTaken()
-    {
-        byte opcode = 0xF2;
-        var initialState = new CpuState
-        {
-            Pc = 0x10,
-            Flags = CpuFlags.Z | CpuFlags.C | CpuFlags.P | CpuFlags.A
-        };
-
-        var mmu = new Mmu();
-        mmu.Write(initialState.Pc, opcode);
-        mmu.Write((ushort)(initialState.Pc + 1), 0x30);
-        mmu.Write((ushort)(initialState.Pc + 2), 0x20);
-
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
-
-        var expectedState = initialState;
-        expectedState.Pc = 0x2030;
-
-        Assert.Equal(10, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
-    }
-
-    [Fact]
-    public void TestJpNotTaken()
-    {
-        byte opcode = 0xF2;
-        var initialState = new CpuState
-        {
-            Pc = 0x10,
-            Flags = AllFlags
-        };
-
-        var mmu = new Mmu();
-        mmu.Write(initialState.Pc, opcode);
-        mmu.Write((ushort)(initialState.Pc + 1), 0x30);
-        mmu.Write((ushort)(initialState.Pc + 2), 0x20);
-
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
-
-        var expectedState = initialState;
-        expectedState.IncrementPcBy(3);
+        if (taken)
+            expectedState.Pc = 0x2030;
+        else
+            expectedState.IncrementPcBy(3);
 
         Assert.Equal(10, cycles);
         Assert.Equal(expectedState, CpuState.FromCpu(cpu));
@@ -1141,16 +772,23 @@ public class CpuTests
         Assert.Equal(expectedState, CpuState.FromCpu(cpu));
     }
 
-    [Fact]
-    public void TestCnzTaken()
+    [Theory]
+    [InlineData(0xC4, CpuFlags.S | CpuFlags.C | CpuFlags.P | CpuFlags.A, true)]               // CNZ taken
+    [InlineData(0xC4, CpuFlags.S | CpuFlags.Z | CpuFlags.C | CpuFlags.P | CpuFlags.A, false)] // CNZ not taken
+    [InlineData(0xD4, CpuFlags.S | CpuFlags.Z | CpuFlags.P | CpuFlags.A, true)]               // CNC taken
+    [InlineData(0xD4, CpuFlags.S | CpuFlags.Z | CpuFlags.C | CpuFlags.P | CpuFlags.A, false)] // CNC not taken
+    [InlineData(0xE4, CpuFlags.S | CpuFlags.Z | CpuFlags.C | CpuFlags.A, true)]               // CPO taken
+    [InlineData(0xE4, CpuFlags.S | CpuFlags.Z | CpuFlags.C | CpuFlags.P | CpuFlags.A, false)] // CPO not taken
+    [InlineData(0xF4, CpuFlags.Z | CpuFlags.C | CpuFlags.P | CpuFlags.A, true)]               // CP taken
+    [InlineData(0xF4, CpuFlags.S | CpuFlags.Z | CpuFlags.C | CpuFlags.P | CpuFlags.A, false)] // CP not taken
+    public void TestConditionalCall(byte opcode, CpuFlags flags, bool taken)
     {
-        byte opcode = 0xC4;
         ushort stackAddr = 0x2002;
         var initialState = new CpuState
         {
             Pc = 0x10,
             Sp = stackAddr,
-            Flags = CpuFlags.S | CpuFlags.C | CpuFlags.P | CpuFlags.A
+            Flags = flags
         };
 
         var mmu = new Mmu();
@@ -1162,211 +800,21 @@ public class CpuTests
         var cycles = cpu.Step();
 
         var expectedState = initialState;
-        expectedState.Pc = 0x2030;
-        expectedState.Sp = (ushort)(stackAddr - 2);
-
-        Assert.Equal(17, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
-        Assert.Equal(0x13, mmu.Read((ushort)(stackAddr - 2)));
-        Assert.Equal(0x00, mmu.Read((ushort)(stackAddr - 1)));
-    }
-
-    [Fact]
-    public void TestCnzNotTaken()
-    {
-        byte opcode = 0xC4;
-        ushort stackAddr = 0x2002;
-        var initialState = new CpuState
+        if (taken)
         {
-            Pc = 0x10,
-            Sp = stackAddr,
-            Flags = AllFlags
-        };
-
-        var mmu = new Mmu();
-        mmu.Write(initialState.Pc, opcode);
-        mmu.Write((ushort)(initialState.Pc + 1), 0x30);
-        mmu.Write((ushort)(initialState.Pc + 2), 0x20);
-
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
-
-        var expectedState = initialState;
-        expectedState.IncrementPcBy(3);
-
-        Assert.Equal(11, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
-    }
-
-    [Fact]
-    public void TestCncTaken()
-    {
-        byte opcode = 0xD4;
-        ushort stackAddr = 0x2002;
-        var initialState = new CpuState
+            expectedState.Pc = 0x2030;
+            expectedState.Sp = (ushort)(stackAddr - 2);
+            Assert.Equal(17, cycles);
+            Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+            Assert.Equal(0x13, mmu.Read((ushort)(stackAddr - 2)));
+            Assert.Equal(0x00, mmu.Read((ushort)(stackAddr - 1)));
+        }
+        else
         {
-            Pc = 0x10,
-            Sp = stackAddr,
-            Flags = CpuFlags.S | CpuFlags.Z | CpuFlags.P | CpuFlags.A
-        };
-
-        var mmu = new Mmu();
-        mmu.Write(initialState.Pc, opcode);
-        mmu.Write((ushort)(initialState.Pc + 1), 0x30);
-        mmu.Write((ushort)(initialState.Pc + 2), 0x20);
-
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
-
-        var expectedState = initialState;
-        expectedState.Pc = 0x2030;
-        expectedState.Sp = (ushort)(stackAddr - 2);
-
-        Assert.Equal(17, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
-        Assert.Equal(0x13, mmu.Read((ushort)(stackAddr - 2)));
-        Assert.Equal(0x00, mmu.Read((ushort)(stackAddr - 1)));
-    }
-
-    [Fact]
-    public void TestCncNotTaken()
-    {
-        byte opcode = 0xD4;
-        ushort stackAddr = 0x2002;
-        var initialState = new CpuState
-        {
-            Pc = 0x10,
-            Sp = stackAddr,
-            Flags = AllFlags
-        };
-
-        var mmu = new Mmu();
-        mmu.Write(initialState.Pc, opcode);
-        mmu.Write((ushort)(initialState.Pc + 1), 0x30);
-        mmu.Write((ushort)(initialState.Pc + 2), 0x20);
-
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
-
-        var expectedState = initialState;
-        expectedState.IncrementPcBy(3);
-
-        Assert.Equal(11, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
-    }
-
-    [Fact]
-    public void TestCpoTaken()
-    {
-        byte opcode = 0xE4;
-        ushort stackAddr = 0x2002;
-        var initialState = new CpuState
-        {
-            Pc = 0x10,
-            Sp = stackAddr,
-            Flags = CpuFlags.S | CpuFlags.Z | CpuFlags.C | CpuFlags.A
-        };
-
-        var mmu = new Mmu();
-        mmu.Write(initialState.Pc, opcode);
-        mmu.Write((ushort)(initialState.Pc + 1), 0x30);
-        mmu.Write((ushort)(initialState.Pc + 2), 0x20);
-
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
-
-        var expectedState = initialState;
-        expectedState.Pc = 0x2030;
-        expectedState.Sp = (ushort)(stackAddr - 2);
-
-        Assert.Equal(17, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
-        Assert.Equal(0x13, mmu.Read((ushort)(stackAddr - 2)));
-        Assert.Equal(0x00, mmu.Read((ushort)(stackAddr - 1)));
-    }
-
-    [Fact]
-    public void TestCpoNotTaken()
-    {
-        byte opcode = 0xE4;
-        ushort stackAddr = 0x2002;
-        var initialState = new CpuState
-        {
-            Pc = 0x10,
-            Sp = stackAddr,
-            Flags = AllFlags
-        };
-
-        var mmu = new Mmu();
-        mmu.Write(initialState.Pc, opcode);
-        mmu.Write((ushort)(initialState.Pc + 1), 0x30);
-        mmu.Write((ushort)(initialState.Pc + 2), 0x20);
-
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
-
-        var expectedState = initialState;
-        expectedState.IncrementPcBy(3);
-
-        Assert.Equal(11, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
-    }
-
-    [Fact]
-    public void TestCpTaken()
-    {
-        byte opcode = 0xF4;
-        ushort stackAddr = 0x2002;
-        var initialState = new CpuState
-        {
-            Pc = 0x10,
-            Sp = stackAddr,
-            Flags = CpuFlags.Z | CpuFlags.C | CpuFlags.P | CpuFlags.A
-        };
-
-        var mmu = new Mmu();
-        mmu.Write(initialState.Pc, opcode);
-        mmu.Write((ushort)(initialState.Pc + 1), 0x30);
-        mmu.Write((ushort)(initialState.Pc + 2), 0x20);
-
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
-
-        var expectedState = initialState;
-        expectedState.Pc = 0x2030;
-        expectedState.Sp = (ushort)(stackAddr - 2);
-
-        Assert.Equal(17, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
-        Assert.Equal(0x13, mmu.Read((ushort)(stackAddr - 2)));
-        Assert.Equal(0x00, mmu.Read((ushort)(stackAddr - 1)));
-    }
-
-    [Fact]
-    public void TestCpNotTaken()
-    {
-        byte opcode = 0xF4;
-        ushort stackAddr = 0x2002;
-        var initialState = new CpuState
-        {
-            Pc = 0x10,
-            Sp = stackAddr,
-            Flags = AllFlags
-        };
-
-        var mmu = new Mmu();
-        mmu.Write(initialState.Pc, opcode);
-        mmu.Write((ushort)(initialState.Pc + 1), 0x30);
-        mmu.Write((ushort)(initialState.Pc + 2), 0x20);
-
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
-
-        var expectedState = initialState;
-        expectedState.IncrementPcBy(3);
-
-        Assert.Equal(11, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+            expectedState.IncrementPcBy(3);
+            Assert.Equal(11, cycles);
+            Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+        }
     }
 
     [Theory]
