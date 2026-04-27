@@ -337,6 +337,56 @@ public class CpuLogicTests
     }
 
     [Theory]
+    [InlineData(0xFF, 0xFF, 0x00, CpuFlags.Z | CpuFlags.P)]  // XOR with self: zero
+    [InlineData(0xFF, 0x0F, 0xF0, CpuFlags.S | CpuFlags.P)]  // sign + parity
+    [InlineData(0x80, 0x00, 0x80, CpuFlags.S)]               // sign only
+    [InlineData(0x01, 0x02, 0x03, CpuFlags.P)]               // parity only
+    public void TestXri(byte a, byte imm, byte expectedA, CpuFlags expectedFlags)
+    {
+        var initialState = new CpuState { Pc = 0x00, Ra = a };
+
+        var mmu = new Mmu();
+        mmu.Write(0x00, 0xEE); // XRI
+        mmu.Write(0x01, imm);
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.Ra = expectedA;
+        expectedState.Flags = expectedFlags;
+        expectedState.IncrementPcBy(2);
+
+        Assert.Equal(7, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
+
+    [Theory]
+    [InlineData(0x11, 0x01, CpuFlags.None)]                                        // a > imm: no flags
+    [InlineData(0x10, 0x05, CpuFlags.A)]                                           // aux borrow
+    [InlineData(0x10, 0x10, CpuFlags.Z | CpuFlags.P)]                              // equal
+    [InlineData(0x05, 0x10, CpuFlags.S | CpuFlags.P | CpuFlags.C)]                // less than
+    [InlineData(0x00, 0x01, CpuFlags.S | CpuFlags.P | CpuFlags.C | CpuFlags.A)]  // all flags
+    public void TestCpi(byte a, byte imm, CpuFlags expectedFlags)
+    {
+        var initialState = new CpuState { Pc = 0x00, Ra = a };
+
+        var mmu = new Mmu();
+        mmu.Write(0x00, 0xFE); // CPI
+        mmu.Write(0x01, imm);
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.Flags = expectedFlags;
+        expectedState.IncrementPcBy(2);
+
+        Assert.Equal(7, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
+
+    [Theory]
     [InlineData(0xFF, 0x0F, 0x0F, CpuFlags.P | CpuFlags.A)]              // bit3 in both operands: A set, 4 bits even: P set
     [InlineData(0xFF, 0xF0, 0xF0, CpuFlags.S | CpuFlags.P | CpuFlags.A)] // sign + parity + A
     [InlineData(0xF0, 0x00, 0x00, CpuFlags.Z | CpuFlags.P)]              // neither has bit3: A clear, zero

@@ -297,9 +297,13 @@ public sealed partial class Cpu
 
             // Immediate arithmetic / logic
             0xC6 => Adi(),
+            0xCE => Aci(),
             0xD6 => Sui(),
+            0xDE => Sbi(),
             0xE6 => Ani(),
+            0xEE => Xri(),
             0xF6 => Ori(),
+            0xFE => Cpi(),
 
             // Rotate / special accumulator
             0x07 => Rlc(),
