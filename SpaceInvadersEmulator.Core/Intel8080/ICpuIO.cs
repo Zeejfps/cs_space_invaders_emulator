@@ -1,4 +1,4 @@
-namespace SpaceInvadersEmulator.Core;
+namespace SpaceInvadersEmulator.Core.Intel8080;
 
 public interface ICpuIO
 {

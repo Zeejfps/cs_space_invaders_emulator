@@ -1,34 +1,36 @@
 using System.Runtime.CompilerServices;
 
-namespace SpaceInvadersEmulator.Core;
+namespace SpaceInvadersEmulator.Core.Intel8080;
 
 public sealed partial class Cpu
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int LxiB()
+    private int Di()
     {
-        Rbc = FetchWord();
+        InterruptEnabled = false;
+        return 4;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int Ei()
+    {
+        _enableInterruptsTimer = 2;
+        return 4;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int In()
+    {
+        var port = Fetch();
+        Ra = _io.ReadPort(port);
         return 10;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int LxiD()
+    private int Out()
     {
-        Rde = FetchWord();
-        return 10;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int LxiH()
-    {
-        Rhl = FetchWord();
-        return 10;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int LxiSp()
-    {
-        Sp = FetchWord();
+        var port = Fetch();
+        _io.WritePort(port, Ra);
         return 10;
     }
 }

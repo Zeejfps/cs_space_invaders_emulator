@@ -1,3 +1,4 @@
+using SpaceInvadersEmulator.Core.Intel8080;
 using static SpaceInvadersEmulator.Core.Tests.CpuTestHelper;
 
 namespace SpaceInvadersEmulator.Core.Tests;

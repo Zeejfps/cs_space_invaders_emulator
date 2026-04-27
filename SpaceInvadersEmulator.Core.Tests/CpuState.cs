@@ -1,3 +1,5 @@
+using SpaceInvadersEmulator.Core.Intel8080;
+
 namespace SpaceInvadersEmulator.Core.Tests;
 
 public enum Reg { A, B, C, D, E, H, L, Sp }
