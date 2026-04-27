@@ -25,7 +25,10 @@ public sealed class Machine : ICpuIO
     public Machine(IClock clock)
     {
         _mmu = new Mmu();
-        _cpu = new Cpu(_mmu, this);
+        _cpu = new Cpu(_mmu, this)
+        {
+            InterruptEnabled = true
+        };
         _clock = clock;
         _cyclesPerTick = CpuFrequency / (double)_clock.Frequency;
     }
@@ -64,8 +67,13 @@ public sealed class Machine : ICpuIO
         _cycleCount += elapsedTime * _cyclesPerTick;
         while (_cycleCount > 0)
             _cycleCount -= _cpu.Step();
+        
+        //TODO: Interrupts
+        //_cpu.Interrupt(0xCF);
+        //_cpu.Interrupt(0xD7);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public void WritePort(byte port, byte value)
     {
         switch (port)
@@ -79,6 +87,7 @@ public sealed class Machine : ICpuIO
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public byte ReadPort(byte port)
     {
         return port switch
