@@ -15,7 +15,8 @@ public sealed partial class Cpu
     public byte Rh { get; set; }
     public byte Rl { get; set; }
     public bool InterruptEnabled { get; set; }
-    
+    public bool Halted { get; private set; }
+
     private readonly ICpuIO _io;
     private bool _enableInterruptsOnNextInstruction = false;
 
@@ -53,10 +54,23 @@ public sealed partial class Cpu
             InterruptEnabled = true;
             _enableInterruptsOnNextInstruction = false;
         }
-        
+
+        if (Halted)
+            return 4;
+
         var opcode = Fetch();
         return opcode switch
         {
+            // NOP (primary + undocumented aliases)
+            0x00 => Nop(),
+            0x08 => Nop(),
+            0x10 => Nop(),
+            0x18 => Nop(),
+            0x20 => Nop(),
+            0x28 => Nop(),
+            0x30 => Nop(),
+            0x38 => Nop(),
+
             // Mvi
             0x06 => MviB(),
             0x0E => MviC(),
@@ -144,6 +158,7 @@ public sealed partial class Cpu
             0x73 => MoveMe(),
             0x74 => MoveMh(),
             0x75 => MoveMl(),
+            0x76 => Hlt(),
             0x77 => MoveMa(),
             
             // Load
@@ -373,12 +388,23 @@ public sealed partial class Cpu
             0xE3 => Xthl(),
             0xEB => Xchg(),
             0xF9 => Sphl(),
-
-            _ => NoOp()
         };
     }
 
-    [MethodImpl( MethodImplOptions.AggressiveInlining)]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int Nop()
+    {
+        return 4;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int Hlt()
+    {
+        Halted = true;
+        return 7;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int NoOp()
     {
         return 4;
