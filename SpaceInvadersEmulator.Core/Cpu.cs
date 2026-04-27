@@ -214,6 +214,26 @@ public sealed partial class Cpu
             0x9E => SbbM(),
             0x9F => SbbA(),
 
+            // ANA
+            0xA0 => AnaB(),
+            0xA1 => AnaC(),
+            0xA2 => AnaD(),
+            0xA3 => AnaE(),
+            0xA4 => AnaH(),
+            0xA5 => AnaL(),
+            0xA6 => AnaM(),
+            0xA7 => AnaA(),
+
+            // XRA
+            0xA8 => XraB(),
+            0xA9 => XraC(),
+            0xAA => XraD(),
+            0xAB => XraE(),
+            0xAC => XraH(),
+            0xAD => XraL(),
+            0xAE => XraM(),
+            0xAF => XraA(),
+
             // Unconditional return, call, pchl
             0xC9 => Ret(),
             0xD9 => Ret(),  // undocumented alias
