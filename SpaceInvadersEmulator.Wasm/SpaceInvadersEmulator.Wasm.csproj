@@ -18,4 +18,8 @@
     <ProjectReference Include="../SpaceInvadersEmulator.Core/SpaceInvadersEmulator.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="package\dist\" />
+  </ItemGroup>
+  
 </Project>
