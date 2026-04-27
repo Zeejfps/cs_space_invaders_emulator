@@ -47,4 +47,40 @@ public sealed partial class Cpu
         Sp += 2;
         return 11;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int Jnz()
+    {
+        var address = FetchWord();
+        if ((Flags & CpuFlags.Z) == 0)
+            Pc = address;
+        return 10;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int Jnc()
+    {
+        var address = FetchWord();
+        if ((Flags & CpuFlags.C) == 0)
+            Pc = address;
+        return 10;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int Jpo()
+    {
+        var address = FetchWord();
+        if ((Flags & CpuFlags.P) == 0)
+            Pc = address;
+        return 10;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int Jp()
+    {
+        var address = FetchWord();
+        if ((Flags & CpuFlags.S) == 0)
+            Pc = address;
+        return 10;
+    }
 }

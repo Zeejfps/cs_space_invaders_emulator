@@ -172,6 +172,12 @@ public sealed partial class Cpu
             0xE0 => Rpo(),
             0xF0 => Rp(),
 
+            // Conditional jumps
+            0xC2 => Jnz(),
+            0xD2 => Jnc(),
+            0xE2 => Jpo(),
+            0xF2 => Jp(),
+
             0xE3 => Xthl(),
             0xEB => Xchg(),
             0xF9 => Sphl(),
