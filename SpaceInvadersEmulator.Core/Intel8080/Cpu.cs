@@ -57,13 +57,8 @@ public sealed partial class Cpu
                 InterruptEnabled = true;
         }
 
-        if (InterruptEnabled && _isInterruptPending)
-        {
-            InterruptEnabled = false;
-            Halted = false;
-            _isInterruptPending = false;
-            return Execute(_pendingInterruptOpcode);
-        }
+        if (TryExecuteInterrupt(out var cycles))
+            return cycles;
 
         if (Halted)
             return 4;
@@ -76,6 +71,21 @@ public sealed partial class Cpu
     {
         _isInterruptPending = true;
         _pendingInterruptOpcode = opcode;
+    }
+
+    private bool TryExecuteInterrupt(out int cycles)
+    {
+        if (InterruptEnabled && _isInterruptPending)
+        {
+            InterruptEnabled = false;
+            Halted = false;
+            _isInterruptPending = false;
+            cycles = Execute(_pendingInterruptOpcode);
+            return true;
+        }
+
+        cycles = 0;
+        return false;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]

@@ -54,6 +54,9 @@ public class CpuIoTests : CpuTestBase
 
         Cpu.WriteState(new CpuState { Pc = 0x00 });
         Cpu.Step(); // EI
+        
+        Assert.False(Cpu.InterruptEnabled);
+        
         Cpu.Step(); // next instruction — interrupts enabled at start of this step
 
         Assert.True(Cpu.InterruptEnabled);
