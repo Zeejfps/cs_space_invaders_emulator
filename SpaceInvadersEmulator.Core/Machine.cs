@@ -7,10 +7,27 @@ public sealed class Machine : ICpuIO
 {
     private const int CpuFrequency = 2_000_000;
     private const double CyclesPerHalfFrame = CpuFrequency / 60.0 / 2.0;
+    private const Port2 ShipsMask = Port2.ShipsBit0 | Port2.ShipsBit1;
 
     public ReadOnlyMemory<byte> VRam => _mmu.VRam;
 
     public bool IsRunning { get; private set; }
+
+    public ShipCount Ships
+    {
+        get => (ShipCount)((int)(_port2 & ShipsMask) + 3);
+        set => _port2 = (_port2 & ~ShipsMask) | (Port2)((int)value - 3);
+    }
+
+    public BonusLifeThreshold BonusLife
+    {
+        get => _port2.HasFlag(Port2.BonusAt1000) ? BonusLifeThreshold.At1000 : BonusLifeThreshold.At1500;
+        set
+        {
+            if (value == BonusLifeThreshold.At1000) _port2 |= Port2.BonusAt1000;
+            else _port2 &= ~Port2.BonusAt1000;
+        }
+    }
 
     private readonly IClock _clock;
     private readonly Mmu _mmu;
