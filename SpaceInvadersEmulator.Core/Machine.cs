@@ -6,7 +6,8 @@ namespace SpaceInvadersEmulator.Core;
 public sealed class Machine : ICpuIO
 {
     private const int CpuFrequency = 2_000_000;
- 
+    private const double CyclesPerHalfFrame = CpuFrequency / 60.0 / 2.0;
+
     public ReadOnlyMemory<byte> VRam => _mmu.VRam;
     
     public bool IsRunning { get; private set; }
@@ -26,6 +27,9 @@ public sealed class Machine : ICpuIO
 
     private double _frameCycles;
     private byte _nextInterrupt = 0xCF;
+
+    private Port1 _port1;
+    private Port2 _port2;
 
     public Machine(IClock clock)
     {
@@ -62,9 +66,7 @@ public sealed class Machine : ICpuIO
         IsRunning = false;
         _clock.Ticked -= OnTick;
     }
-
-    private const double CyclesPerHalfFrame = CpuFrequency / 60.0 / 2.0;
-
+    
     private void OnTick()
     {
         var timestamp = _clock.GetTimestamp();
@@ -106,6 +108,8 @@ public sealed class Machine : ICpuIO
     {
         return port switch
         {
+            1 => (byte)_port1,
+            2 => (byte)_port2,
             3 => ReadPort3(),
             _ => 0
         };
