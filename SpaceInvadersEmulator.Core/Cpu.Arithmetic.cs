@@ -202,4 +202,87 @@ public sealed partial class Cpu
         Ra = (byte)result;
         return 7;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    private static CpuFlags ComputeInrDcrFlags(byte result, bool auxCarry, CpuFlags currentFlags)
+    {
+        var flags = CpuFlags.None;
+        if (result == 0) flags |= CpuFlags.Z;
+        if ((result & 0x80) != 0) flags |= CpuFlags.S;
+        if (Parity(result)) flags |= CpuFlags.P;
+        if (auxCarry) flags |= CpuFlags.A;
+        return flags | (currentFlags & CpuFlags.C);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private byte Inr(byte value)
+    {
+        var result = (byte)(value + 1);
+        Flags = ComputeInrDcrFlags(result, (value & 0xF) == 0xF, Flags);
+        return result;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int InrB() { Rb = Inr(Rb); return 5; }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int InrC() { Rc = Inr(Rc); return 5; }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int InrD() { Rd = Inr(Rd); return 5; }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int InrE() { Re = Inr(Re); return 5; }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int InrH() { Rh = Inr(Rh); return 5; }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int InrL() { Rl = Inr(Rl); return 5; }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int InrA() { Ra = Inr(Ra); return 5; }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int InrM()
+    {
+        _mmu.Write(Rhl, Inr(_mmu.Read(Rhl)));
+        return 10;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private byte Dcr(byte value)
+    {
+        var result = (byte)(value - 1);
+        Flags = ComputeInrDcrFlags(result, (value & 0xF) == 0x0, Flags);
+        return result;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int DcrB() { Rb = Dcr(Rb); return 5; }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int DcrC() { Rc = Dcr(Rc); return 5; }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int DcrD() { Rd = Dcr(Rd); return 5; }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int DcrE() { Re = Dcr(Re); return 5; }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int DcrH() { Rh = Dcr(Rh); return 5; }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int DcrL() { Rl = Dcr(Rl); return 5; }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int DcrA() { Ra = Dcr(Ra); return 5; }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int DcrM()
+    {
+        _mmu.Write(Rhl, Dcr(_mmu.Read(Rhl)));
+        return 10;
+    }
 }

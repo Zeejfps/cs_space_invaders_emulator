@@ -295,6 +295,26 @@ public sealed partial class Cpu
             0xF7 => Rst6(),
             0xFF => Rst7(),
 
+            // INR
+            0x04 => InrB(),
+            0x0C => InrC(),
+            0x14 => InrD(),
+            0x1C => InrE(),
+            0x24 => InrH(),
+            0x2C => InrL(),
+            0x34 => InrM(),
+            0x3C => InrA(),
+
+            // DCR
+            0x05 => DcrB(),
+            0x0D => DcrC(),
+            0x15 => DcrD(),
+            0x1D => DcrE(),
+            0x25 => DcrH(),
+            0x2D => DcrL(),
+            0x35 => DcrM(),
+            0x3D => DcrA(),
+
             0xE3 => Xthl(),
             0xEB => Xchg(),
             0xF9 => Sphl(),
