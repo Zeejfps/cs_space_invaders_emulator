@@ -94,18 +94,21 @@ public sealed class Machine : ICpuIO
     public void WriteP2Left(bool pressed) => WritePort2Input(Port2.Player2Left, pressed);
     public void WriteP2Right(bool pressed) => WritePort2Input(Port2.Player2Right, pressed);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void WritePort1Input(Port1 flag, bool pressed)
     {
         if (pressed) _port1 |= flag;
         else _port1 &= ~flag;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void WritePort2Input(Port2 flag, bool pressed)
     {
         if (pressed) _port2 |= flag;
         else _port2 &= ~flag;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private void Clock_OnTick()
     {
         var timestamp = _clock.GetTimestamp();
