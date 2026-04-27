@@ -1019,4 +1019,79 @@ public class CpuTests
         Assert.Equal(4, cycles);
         Assert.Equal(expectedState, CpuState.FromCpu(cpu));
     }
+
+    [Theory]
+    [InlineData(0x88, Reg.B, 0x05, 0x16, CpuFlags.None)] // ADC B
+    [InlineData(0x89, Reg.C, 0x05, 0x16, CpuFlags.None)] // ADC C
+    [InlineData(0x8A, Reg.D, 0x05, 0x16, CpuFlags.None)] // ADC D
+    [InlineData(0x8B, Reg.E, 0x05, 0x16, CpuFlags.None)] // ADC E
+    [InlineData(0x8C, Reg.H, 0x05, 0x16, CpuFlags.None)] // ADC H
+    [InlineData(0x8D, Reg.L, 0x05, 0x16, CpuFlags.None)] // ADC L
+    [InlineData(0x8F, Reg.A, 0x10, 0x21, CpuFlags.P)]    // ADC A: 0x10 + 0x10 + 1 = 0x21
+    public void TestAdcRegister(byte opcode, Reg srcReg, byte srcVal, byte expectedA, CpuFlags expectedFlags)
+    {
+        var initialState = new CpuState { Pc = 0x00, Ra = 0x10, Flags = CpuFlags.C };
+        initialState.WriteReg(srcReg, srcVal);
+
+        var mmu = new Mmu();
+        mmu.Write(0x00, opcode);
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.Ra = expectedA;
+        expectedState.Flags = expectedFlags;
+        expectedState.IncrementPcBy(1);
+
+        Assert.Equal(4, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
+
+    [Fact]
+    public void TestAdcM()
+    {
+        ushort addr = 0x2000;
+        var initialState = new CpuState { Pc = 0x00, Ra = 0x10, Flags = CpuFlags.C };
+        initialState.WriteRegPair(Reg.H, addr);
+
+        var mmu = new Mmu();
+        mmu.Write(0x00, 0x8E);
+        mmu.Write(addr, 0x05);
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.Ra = 0x16;
+        expectedState.Flags = CpuFlags.None;
+        expectedState.IncrementPcBy(1);
+
+        Assert.Equal(7, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
+
+    [Theory]
+    [InlineData(CpuFlags.None, 0x10, 0x05, 0x15, CpuFlags.None)]                                  // carry=0: no effect
+    [InlineData(CpuFlags.C,    0x10, 0x05, 0x16, CpuFlags.None)]                                  // carry=1: adds 1 to result
+    [InlineData(CpuFlags.C,    0xFF, 0x00, 0x00, CpuFlags.Z | CpuFlags.P | CpuFlags.C | CpuFlags.A)] // carry causes overflow
+    [InlineData(CpuFlags.None, 0xFF, 0x00, 0xFF, CpuFlags.S | CpuFlags.P)]                        // no carry, no overflow
+    public void TestAdcFlags(CpuFlags initialFlags, byte a, byte b, byte expectedResult, CpuFlags expectedFlags)
+    {
+        var initialState = new CpuState { Pc = 0x00, Ra = a, Rb = b, Flags = initialFlags };
+
+        var mmu = new Mmu();
+        mmu.Write(0x00, 0x88); // ADC B
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.Ra = expectedResult;
+        expectedState.Flags = expectedFlags;
+        expectedState.IncrementPcBy(1);
+
+        Assert.Equal(4, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
 }
