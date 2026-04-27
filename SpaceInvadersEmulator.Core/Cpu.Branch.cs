@@ -83,4 +83,59 @@ public sealed partial class Cpu
             Pc = address;
         return 10;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int Jmp()
+    {
+        Pc = FetchWord();
+        return 10;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int Cnz()
+    {
+        var address = FetchWord();
+        if ((Flags & CpuFlags.Z) != 0)
+            return 11;
+        Sp -= 2;
+        _mmu.WriteWord(Sp, Pc);
+        Pc = address;
+        return 17;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int Cnc()
+    {
+        var address = FetchWord();
+        if ((Flags & CpuFlags.C) != 0)
+            return 11;
+        Sp -= 2;
+        _mmu.WriteWord(Sp, Pc);
+        Pc = address;
+        return 17;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int Cpo()
+    {
+        var address = FetchWord();
+        if ((Flags & CpuFlags.P) != 0)
+            return 11;
+        Sp -= 2;
+        _mmu.WriteWord(Sp, Pc);
+        Pc = address;
+        return 17;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int Cp()
+    {
+        var address = FetchWord();
+        if ((Flags & CpuFlags.S) != 0)
+            return 11;
+        Sp -= 2;
+        _mmu.WriteWord(Sp, Pc);
+        Pc = address;
+        return 17;
+    }
 }
