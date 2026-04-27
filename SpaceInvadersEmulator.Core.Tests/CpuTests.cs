@@ -868,4 +868,79 @@ public class CpuTests
         Assert.Equal(0x11, mmu.Read((ushort)(stackAddr - 2)));
         Assert.Equal(0x00, mmu.Read((ushort)(stackAddr - 1)));
     }
+
+    [Fact]
+    public void TestRet()
+    {
+        ushort stackAddr = 0x2002;
+        var initialState = new CpuState
+        {
+            Pc = 0x10,
+            Sp = stackAddr,
+            Flags = CpuFlags.All
+        };
+
+        var mmu = new Mmu();
+        mmu.Write(initialState.Pc, 0xC9);
+        mmu.Write(stackAddr, 0x30);
+        mmu.Write((ushort)(stackAddr + 1), 0x20);
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.Pc = 0x2030;
+        expectedState.Sp = (ushort)(stackAddr + 2);
+
+        Assert.Equal(10, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
+
+    [Fact]
+    public void TestPchl()
+    {
+        var initialState = new CpuState { Pc = 0x10 };
+        initialState.WriteRegPair(Reg.H, 0x2030);
+
+        var mmu = new Mmu();
+        mmu.Write(initialState.Pc, 0xE9);
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.Pc = 0x2030;
+
+        Assert.Equal(5, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
+
+    [Fact]
+    public void TestCall()
+    {
+        ushort stackAddr = 0x2002;
+        var initialState = new CpuState
+        {
+            Pc = 0x10,
+            Sp = stackAddr,
+            Flags = CpuFlags.All
+        };
+
+        var mmu = new Mmu();
+        mmu.Write(initialState.Pc, 0xCD);
+        mmu.Write((ushort)(initialState.Pc + 1), 0x30);
+        mmu.Write((ushort)(initialState.Pc + 2), 0x20);
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.Pc = 0x2030;
+        expectedState.Sp = (ushort)(stackAddr - 2);
+
+        Assert.Equal(17, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+        Assert.Equal(0x13, mmu.Read((ushort)(stackAddr - 2)));
+        Assert.Equal(0x00, mmu.Read((ushort)(stackAddr - 1)));
+    }
 }

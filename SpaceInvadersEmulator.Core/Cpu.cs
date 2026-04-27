@@ -174,6 +174,11 @@ public sealed partial class Cpu
             0xF0 => Rp(),
             0xF8 => Rm(),
 
+            // Unconditional return, call, pchl
+            0xC9 => Ret(),
+            0xCD => Call(),
+            0xE9 => Pchl(),
+
             // Jumps
             0xC3 => Jmp(),
             0xC2 => Jnz(),

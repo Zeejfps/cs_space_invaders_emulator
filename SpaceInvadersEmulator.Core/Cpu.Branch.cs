@@ -165,6 +165,31 @@ public sealed partial class Cpu
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int Ret()
+    {
+        Pc = _mmu.ReadWord(Sp);
+        Sp += 2;
+        return 10;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int Pchl()
+    {
+        Pc = Rhl;
+        return 5;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int Call()
+    {
+        var address = FetchWord();
+        Sp -= 2;
+        _mmu.WriteWord(Sp, Pc);
+        Pc = address;
+        return 17;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int Jmp()
     {
         Pc = FetchWord();
