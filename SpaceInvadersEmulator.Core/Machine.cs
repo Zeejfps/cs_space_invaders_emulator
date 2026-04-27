@@ -6,6 +6,8 @@ namespace SpaceInvadersEmulator.Core;
 public sealed class Machine : ICpuIO
 {
     private const int CpuFrequency = 2_000_000;
+ 
+    public ReadOnlyMemory<byte> VRam => _mmu.VRam;
     
     public bool IsRunning { get; private set; }
     
