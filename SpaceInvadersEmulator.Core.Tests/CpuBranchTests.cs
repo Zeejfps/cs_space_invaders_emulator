@@ -1,9 +1,8 @@
 using SpaceInvadersEmulator.Core.Intel8080;
-using static SpaceInvadersEmulator.Core.Tests.CpuTestHelper;
 
 namespace SpaceInvadersEmulator.Core.Tests;
 
-public class CpuBranchTests
+public class CpuBranchTests : CpuTestBase
 {
     [Theory]
     [InlineData(0xC0, CpuFlags.S | CpuFlags.C | CpuFlags.P | CpuFlags.A, true)]               // RNZ taken
@@ -32,13 +31,12 @@ public class CpuBranchTests
             Flags = flags
         };
 
-        var mmu = new Mmu();
-        mmu.Write(initialState.Pc, opcode);
-        mmu.Write(stackAddr, 0x30);
-        mmu.Write((ushort)(stackAddr + 1), 0x20);
+        Mmu.Write(initialState.Pc, opcode);
+        Mmu.Write(stackAddr, 0x30);
+        Mmu.Write((ushort)(stackAddr + 1), 0x20);
 
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
+        Cpu.WriteState(initialState);
+        var cycles = Cpu.Step();
 
         var expectedState = initialState;
         if (taken)
@@ -53,7 +51,7 @@ public class CpuBranchTests
             Assert.Equal(5, cycles);
         }
 
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+        Assert.Equal(expectedState, Cpu.ReadState());
     }
 
     [Theory]
@@ -81,13 +79,12 @@ public class CpuBranchTests
             Flags = flags
         };
 
-        var mmu = new Mmu();
-        mmu.Write(initialState.Pc, opcode);
-        mmu.Write((ushort)(initialState.Pc + 1), 0x30);
-        mmu.Write((ushort)(initialState.Pc + 2), 0x20);
+        Mmu.Write(initialState.Pc, opcode);
+        Mmu.Write((ushort)(initialState.Pc + 1), 0x30);
+        Mmu.Write((ushort)(initialState.Pc + 2), 0x20);
 
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
+        Cpu.WriteState(initialState);
+        var cycles = Cpu.Step();
 
         var expectedState = initialState;
         if (taken)
@@ -96,7 +93,7 @@ public class CpuBranchTests
             expectedState.IncrementPcBy(3);
 
         Assert.Equal(10, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+        Assert.Equal(expectedState, Cpu.ReadState());
     }
 
     [Fact]
@@ -109,19 +106,18 @@ public class CpuBranchTests
             Flags = CpuFlags.All
         };
 
-        var mmu = new Mmu();
-        mmu.Write(initialState.Pc, opcode);
-        mmu.Write((ushort)(initialState.Pc + 1), 0x30);
-        mmu.Write((ushort)(initialState.Pc + 2), 0x20);
+        Mmu.Write(initialState.Pc, opcode);
+        Mmu.Write((ushort)(initialState.Pc + 1), 0x30);
+        Mmu.Write((ushort)(initialState.Pc + 2), 0x20);
 
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
+        Cpu.WriteState(initialState);
+        var cycles = Cpu.Step();
 
         var expectedState = initialState;
         expectedState.Pc = 0x2030;
 
         Assert.Equal(10, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+        Assert.Equal(expectedState, Cpu.ReadState());
     }
 
     [Theory]
@@ -151,13 +147,12 @@ public class CpuBranchTests
             Flags = flags
         };
 
-        var mmu = new Mmu();
-        mmu.Write(initialState.Pc, opcode);
-        mmu.Write((ushort)(initialState.Pc + 1), 0x30);
-        mmu.Write((ushort)(initialState.Pc + 2), 0x20);
+        Mmu.Write(initialState.Pc, opcode);
+        Mmu.Write((ushort)(initialState.Pc + 1), 0x30);
+        Mmu.Write((ushort)(initialState.Pc + 2), 0x20);
 
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
+        Cpu.WriteState(initialState);
+        var cycles = Cpu.Step();
 
         var expectedState = initialState;
         if (taken)
@@ -172,11 +167,11 @@ public class CpuBranchTests
             Assert.Equal(11, cycles);
         }
 
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+        Assert.Equal(expectedState, Cpu.ReadState());
         if (taken)
         {
-            Assert.Equal(0x13, mmu.Read((ushort)(stackAddr - 2)));
-            Assert.Equal(0x00, mmu.Read((ushort)(stackAddr - 1)));
+            Assert.Equal(0x13, Mmu.Read((ushort)(stackAddr - 2)));
+            Assert.Equal(0x00, Mmu.Read((ushort)(stackAddr - 1)));
         }
     }
 
@@ -199,20 +194,19 @@ public class CpuBranchTests
             Flags = CpuFlags.All
         };
 
-        var mmu = new Mmu();
-        mmu.Write(initialState.Pc, opcode);
+        Mmu.Write(initialState.Pc, opcode);
 
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
+        Cpu.WriteState(initialState);
+        var cycles = Cpu.Step();
 
         var expectedState = initialState;
         expectedState.Pc = target;
         expectedState.Sp = (ushort)(stackAddr - 2);
 
         Assert.Equal(11, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
-        Assert.Equal(0x11, mmu.Read((ushort)(stackAddr - 2)));
-        Assert.Equal(0x00, mmu.Read((ushort)(stackAddr - 1)));
+        Assert.Equal(expectedState, Cpu.ReadState());
+        Assert.Equal(0x11, Mmu.Read((ushort)(stackAddr - 2)));
+        Assert.Equal(0x00, Mmu.Read((ushort)(stackAddr - 1)));
     }
 
     [Fact]
@@ -226,20 +220,19 @@ public class CpuBranchTests
             Flags = CpuFlags.All
         };
 
-        var mmu = new Mmu();
-        mmu.Write(initialState.Pc, 0xC9);
-        mmu.Write(stackAddr, 0x30);
-        mmu.Write((ushort)(stackAddr + 1), 0x20);
+        Mmu.Write(initialState.Pc, 0xC9);
+        Mmu.Write(stackAddr, 0x30);
+        Mmu.Write((ushort)(stackAddr + 1), 0x20);
 
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
+        Cpu.WriteState(initialState);
+        var cycles = Cpu.Step();
 
         var expectedState = initialState;
         expectedState.Pc = 0x2030;
         expectedState.Sp = (ushort)(stackAddr + 2);
 
         Assert.Equal(10, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+        Assert.Equal(expectedState, Cpu.ReadState());
     }
 
     [Fact]
@@ -248,17 +241,16 @@ public class CpuBranchTests
         var initialState = new CpuState { Pc = 0x10 };
         initialState.WriteRegPair(Reg.H, 0x2030);
 
-        var mmu = new Mmu();
-        mmu.Write(initialState.Pc, 0xE9);
+        Mmu.Write(initialState.Pc, 0xE9);
 
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
+        Cpu.WriteState(initialState);
+        var cycles = Cpu.Step();
 
         var expectedState = initialState;
         expectedState.Pc = 0x2030;
 
         Assert.Equal(5, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+        Assert.Equal(expectedState, Cpu.ReadState());
     }
 
     [Fact]
@@ -272,21 +264,20 @@ public class CpuBranchTests
             Flags = CpuFlags.All
         };
 
-        var mmu = new Mmu();
-        mmu.Write(initialState.Pc, 0xCD);
-        mmu.Write((ushort)(initialState.Pc + 1), 0x30);
-        mmu.Write((ushort)(initialState.Pc + 2), 0x20);
+        Mmu.Write(initialState.Pc, 0xCD);
+        Mmu.Write((ushort)(initialState.Pc + 1), 0x30);
+        Mmu.Write((ushort)(initialState.Pc + 2), 0x20);
 
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
+        Cpu.WriteState(initialState);
+        var cycles = Cpu.Step();
 
         var expectedState = initialState;
         expectedState.Pc = 0x2030;
         expectedState.Sp = (ushort)(stackAddr - 2);
 
         Assert.Equal(17, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
-        Assert.Equal(0x13, mmu.Read((ushort)(stackAddr - 2)));
-        Assert.Equal(0x00, mmu.Read((ushort)(stackAddr - 1)));
+        Assert.Equal(expectedState, Cpu.ReadState());
+        Assert.Equal(0x13, Mmu.Read((ushort)(stackAddr - 2)));
+        Assert.Equal(0x00, Mmu.Read((ushort)(stackAddr - 1)));
     }
 }

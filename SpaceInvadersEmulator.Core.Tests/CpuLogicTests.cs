@@ -1,9 +1,8 @@
 using SpaceInvadersEmulator.Core.Intel8080;
-using static SpaceInvadersEmulator.Core.Tests.CpuTestHelper;
 
 namespace SpaceInvadersEmulator.Core.Tests;
 
-public class CpuLogicTests
+public class CpuLogicTests : CpuTestBase
 {
     [Theory]
     [InlineData(0xA0, Reg.B, 0x15, 0x15)] // ANA B
@@ -18,18 +17,17 @@ public class CpuLogicTests
         var initialState = new CpuState { Pc = 0x00, Ra = 0x15 };
         initialState.WriteReg(srcReg, srcVal);
 
-        var mmu = new Mmu();
-        mmu.Write(0x00, opcode);
+        Mmu.Write(0x00, opcode);
 
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
+        Cpu.WriteState(initialState);
+        var cycles = Cpu.Step();
 
         var expectedState = initialState;
         expectedState.Ra = expectedA;
         expectedState.IncrementPcBy(1);
 
         Assert.Equal(4, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+        Assert.Equal(expectedState, Cpu.ReadState());
     }
 
     [Fact]
@@ -39,19 +37,18 @@ public class CpuLogicTests
         var initialState = new CpuState { Pc = 0x00, Ra = 0x15 };
         initialState.WriteRegPair(Reg.H, addr);
 
-        var mmu = new Mmu();
-        mmu.Write(0x00, 0xA6); // ANA M
-        mmu.Write(addr, 0x15);
+        Mmu.Write(0x00, 0xA6); // ANA M
+        Mmu.Write(addr, 0x15);
 
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
+        Cpu.WriteState(initialState);
+        var cycles = Cpu.Step();
 
         var expectedState = initialState;
         expectedState.Ra = 0x15;
         expectedState.IncrementPcBy(1);
 
         Assert.Equal(7, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+        Assert.Equal(expectedState, Cpu.ReadState());
     }
 
     [Theory]
@@ -64,11 +61,10 @@ public class CpuLogicTests
     {
         var initialState = new CpuState { Pc = 0x00, Ra = a, Rb = b };
 
-        var mmu = new Mmu();
-        mmu.Write(0x00, 0xA0); // ANA B
+        Mmu.Write(0x00, 0xA0); // ANA B
 
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
+        Cpu.WriteState(initialState);
+        var cycles = Cpu.Step();
 
         var expectedState = initialState;
         expectedState.Ra = expectedResult;
@@ -76,7 +72,7 @@ public class CpuLogicTests
         expectedState.IncrementPcBy(1);
 
         Assert.Equal(4, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+        Assert.Equal(expectedState, Cpu.ReadState());
     }
 
     [Theory]
@@ -91,18 +87,17 @@ public class CpuLogicTests
         var initialState = new CpuState { Pc = 0x00, Ra = 0x0F };
         initialState.WriteReg(srcReg, srcVal);
 
-        var mmu = new Mmu();
-        mmu.Write(0x00, opcode);
+        Mmu.Write(0x00, opcode);
 
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
+        Cpu.WriteState(initialState);
+        var cycles = Cpu.Step();
 
         var expectedState = initialState;
         expectedState.Ra = expectedA;
         expectedState.IncrementPcBy(1);
 
         Assert.Equal(4, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+        Assert.Equal(expectedState, Cpu.ReadState());
     }
 
     [Fact]
@@ -110,11 +105,10 @@ public class CpuLogicTests
     {
         var initialState = new CpuState { Pc = 0x00, Ra = 0x10 };
 
-        var mmu = new Mmu();
-        mmu.Write(0x00, 0xAF); // XRA A
+        Mmu.Write(0x00, 0xAF); // XRA A
 
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
+        Cpu.WriteState(initialState);
+        var cycles = Cpu.Step();
 
         var expectedState = initialState;
         expectedState.Ra = 0x00;
@@ -122,7 +116,7 @@ public class CpuLogicTests
         expectedState.IncrementPcBy(1);
 
         Assert.Equal(4, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+        Assert.Equal(expectedState, Cpu.ReadState());
     }
 
     [Fact]
@@ -132,19 +126,18 @@ public class CpuLogicTests
         var initialState = new CpuState { Pc = 0x00, Ra = 0x0F };
         initialState.WriteRegPair(Reg.H, addr);
 
-        var mmu = new Mmu();
-        mmu.Write(0x00, 0xAE); // XRA M
-        mmu.Write(addr, 0x07);
+        Mmu.Write(0x00, 0xAE); // XRA M
+        Mmu.Write(addr, 0x07);
 
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
+        Cpu.WriteState(initialState);
+        var cycles = Cpu.Step();
 
         var expectedState = initialState;
         expectedState.Ra = 0x08;
         expectedState.IncrementPcBy(1);
 
         Assert.Equal(7, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+        Assert.Equal(expectedState, Cpu.ReadState());
     }
 
     [Theory]
@@ -157,11 +150,10 @@ public class CpuLogicTests
     {
         var initialState = new CpuState { Pc = 0x00, Ra = a, Rb = b };
 
-        var mmu = new Mmu();
-        mmu.Write(0x00, 0xA8); // XRA B
+        Mmu.Write(0x00, 0xA8); // XRA B
 
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
+        Cpu.WriteState(initialState);
+        var cycles = Cpu.Step();
 
         var expectedState = initialState;
         expectedState.Ra = expectedResult;
@@ -169,7 +161,7 @@ public class CpuLogicTests
         expectedState.IncrementPcBy(1);
 
         Assert.Equal(4, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+        Assert.Equal(expectedState, Cpu.ReadState());
     }
 
     [Theory]
@@ -185,18 +177,17 @@ public class CpuLogicTests
         var initialState = new CpuState { Pc = 0x00, Ra = 0x10 };
         initialState.WriteReg(srcReg, srcVal);
 
-        var mmu = new Mmu();
-        mmu.Write(0x00, opcode);
+        Mmu.Write(0x00, opcode);
 
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
+        Cpu.WriteState(initialState);
+        var cycles = Cpu.Step();
 
         var expectedState = initialState;
         expectedState.Ra = expectedA;
         expectedState.IncrementPcBy(1);
 
         Assert.Equal(4, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+        Assert.Equal(expectedState, Cpu.ReadState());
     }
 
     [Fact]
@@ -206,19 +197,18 @@ public class CpuLogicTests
         var initialState = new CpuState { Pc = 0x00, Ra = 0x10 };
         initialState.WriteRegPair(Reg.H, addr);
 
-        var mmu = new Mmu();
-        mmu.Write(0x00, 0xB6); // ORA M
-        mmu.Write(addr, 0x10);
+        Mmu.Write(0x00, 0xB6); // ORA M
+        Mmu.Write(addr, 0x10);
 
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
+        Cpu.WriteState(initialState);
+        var cycles = Cpu.Step();
 
         var expectedState = initialState;
         expectedState.Ra = 0x10;
         expectedState.IncrementPcBy(1);
 
         Assert.Equal(7, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+        Assert.Equal(expectedState, Cpu.ReadState());
     }
 
     [Theory]
@@ -231,11 +221,10 @@ public class CpuLogicTests
     {
         var initialState = new CpuState { Pc = 0x00, Ra = a, Rb = b };
 
-        var mmu = new Mmu();
-        mmu.Write(0x00, 0xB0); // ORA B
+        Mmu.Write(0x00, 0xB0); // ORA B
 
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
+        Cpu.WriteState(initialState);
+        var cycles = Cpu.Step();
 
         var expectedState = initialState;
         expectedState.Ra = expectedResult;
@@ -243,7 +232,7 @@ public class CpuLogicTests
         expectedState.IncrementPcBy(1);
 
         Assert.Equal(4, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+        Assert.Equal(expectedState, Cpu.ReadState());
     }
 
     [Theory]
@@ -258,18 +247,17 @@ public class CpuLogicTests
         var initialState = new CpuState { Pc = 0x00, Ra = 0x11 };
         initialState.WriteReg(srcReg, srcVal);
 
-        var mmu = new Mmu();
-        mmu.Write(0x00, opcode);
+        Mmu.Write(0x00, opcode);
 
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
+        Cpu.WriteState(initialState);
+        var cycles = Cpu.Step();
 
         var expectedState = initialState;
         expectedState.Flags = expectedFlags;
         expectedState.IncrementPcBy(1);
 
         Assert.Equal(4, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+        Assert.Equal(expectedState, Cpu.ReadState());
     }
 
     [Fact]
@@ -277,18 +265,17 @@ public class CpuLogicTests
     {
         var initialState = new CpuState { Pc = 0x00, Ra = 0x10 };
 
-        var mmu = new Mmu();
-        mmu.Write(0x00, 0xBF); // CMP A
+        Mmu.Write(0x00, 0xBF); // CMP A
 
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
+        Cpu.WriteState(initialState);
+        var cycles = Cpu.Step();
 
         var expectedState = initialState;
         expectedState.Flags = CpuFlags.Z | CpuFlags.P;
         expectedState.IncrementPcBy(1);
 
         Assert.Equal(4, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+        Assert.Equal(expectedState, Cpu.ReadState());
     }
 
     [Fact]
@@ -298,19 +285,18 @@ public class CpuLogicTests
         var initialState = new CpuState { Pc = 0x00, Ra = 0x11 };
         initialState.WriteRegPair(Reg.H, addr);
 
-        var mmu = new Mmu();
-        mmu.Write(0x00, 0xBE); // CMP M
-        mmu.Write(addr, 0x01);
+        Mmu.Write(0x00, 0xBE); // CMP M
+        Mmu.Write(addr, 0x01);
 
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
+        Cpu.WriteState(initialState);
+        var cycles = Cpu.Step();
 
         var expectedState = initialState;
         expectedState.Flags = CpuFlags.None;
         expectedState.IncrementPcBy(1);
 
         Assert.Equal(7, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+        Assert.Equal(expectedState, Cpu.ReadState());
     }
 
     [Theory]
@@ -323,18 +309,17 @@ public class CpuLogicTests
     {
         var initialState = new CpuState { Pc = 0x00, Ra = a, Rb = b };
 
-        var mmu = new Mmu();
-        mmu.Write(0x00, 0xB8); // CMP B
+        Mmu.Write(0x00, 0xB8); // CMP B
 
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
+        Cpu.WriteState(initialState);
+        var cycles = Cpu.Step();
 
         var expectedState = initialState;
         expectedState.Flags = expectedFlags;
         expectedState.IncrementPcBy(1);
 
         Assert.Equal(4, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+        Assert.Equal(expectedState, Cpu.ReadState());
     }
 
     [Theory]
@@ -346,12 +331,11 @@ public class CpuLogicTests
     {
         var initialState = new CpuState { Pc = 0x00, Ra = a };
 
-        var mmu = new Mmu();
-        mmu.Write(0x00, 0xEE); // XRI
-        mmu.Write(0x01, imm);
+        Mmu.Write(0x00, 0xEE); // XRI
+        Mmu.Write(0x01, imm);
 
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
+        Cpu.WriteState(initialState);
+        var cycles = Cpu.Step();
 
         var expectedState = initialState;
         expectedState.Ra = expectedA;
@@ -359,7 +343,7 @@ public class CpuLogicTests
         expectedState.IncrementPcBy(2);
 
         Assert.Equal(7, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+        Assert.Equal(expectedState, Cpu.ReadState());
     }
 
     [Theory]
@@ -372,19 +356,18 @@ public class CpuLogicTests
     {
         var initialState = new CpuState { Pc = 0x00, Ra = a };
 
-        var mmu = new Mmu();
-        mmu.Write(0x00, 0xFE); // CPI
-        mmu.Write(0x01, imm);
+        Mmu.Write(0x00, 0xFE); // CPI
+        Mmu.Write(0x01, imm);
 
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
+        Cpu.WriteState(initialState);
+        var cycles = Cpu.Step();
 
         var expectedState = initialState;
         expectedState.Flags = expectedFlags;
         expectedState.IncrementPcBy(2);
 
         Assert.Equal(7, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+        Assert.Equal(expectedState, Cpu.ReadState());
     }
 
     [Theory]
@@ -396,12 +379,11 @@ public class CpuLogicTests
     {
         var initialState = new CpuState { Pc = 0x00, Ra = a };
 
-        var mmu = new Mmu();
-        mmu.Write(0x00, 0xE6); // ANI
-        mmu.Write(0x01, imm);
+        Mmu.Write(0x00, 0xE6); // ANI
+        Mmu.Write(0x01, imm);
 
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
+        Cpu.WriteState(initialState);
+        var cycles = Cpu.Step();
 
         var expectedState = initialState;
         expectedState.Ra = expectedA;
@@ -409,7 +391,7 @@ public class CpuLogicTests
         expectedState.IncrementPcBy(2);
 
         Assert.Equal(7, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+        Assert.Equal(expectedState, Cpu.ReadState());
     }
 
     [Theory]
@@ -421,12 +403,11 @@ public class CpuLogicTests
     {
         var initialState = new CpuState { Pc = 0x00, Ra = a };
 
-        var mmu = new Mmu();
-        mmu.Write(0x00, 0xF6); // ORI
-        mmu.Write(0x01, imm);
+        Mmu.Write(0x00, 0xF6); // ORI
+        Mmu.Write(0x01, imm);
 
-        var cpu = CreateCpu(mmu, initialState);
-        var cycles = cpu.Step();
+        Cpu.WriteState(initialState);
+        var cycles = Cpu.Step();
 
         var expectedState = initialState;
         expectedState.Ra = expectedA;
@@ -434,6 +415,6 @@ public class CpuLogicTests
         expectedState.IncrementPcBy(2);
 
         Assert.Equal(7, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+        Assert.Equal(expectedState, Cpu.ReadState());
     }
 }

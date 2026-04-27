@@ -1,79 +1,73 @@
 using SpaceInvadersEmulator.Core.Intel8080;
-using static SpaceInvadersEmulator.Core.Tests.CpuTestHelper;
 
 namespace SpaceInvadersEmulator.Core.Tests;
 
-public class CpuIoTests
+public class CpuIoTests : CpuTestBase
 {
     [Fact]
     public void TestDi()
     {
         var initialState = new CpuState { Pc = 0x00 };
-        var mmu = new Mmu();
-        mmu.Write(0x00, 0xF3); // DI
+        Mmu.Write(0x00, 0xF3); // DI
 
-        var cpu = CreateCpu(mmu, initialState);
-        cpu.InterruptEnabled = true;
-        var cycles = cpu.Step();
+        Cpu.WriteState(initialState);
+        Cpu.InterruptEnabled = true;
+        var cycles = Cpu.Step();
 
         var expectedState = initialState;
         expectedState.IncrementPcBy(1);
 
         Assert.Equal(4, cycles);
-        Assert.False(cpu.InterruptEnabled);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+        Assert.False(Cpu.InterruptEnabled);
+        Assert.Equal(expectedState, Cpu.ReadState());
     }
 
     [Fact]
     public void TestDiIsIdempotentWhenAlreadyDisabled()
     {
-        var mmu = new Mmu();
-        mmu.Write(0x00, 0xF3); // DI
+        Mmu.Write(0x00, 0xF3); // DI
 
-        var cpu = CreateCpu(mmu, new CpuState { Pc = 0x00 });
-        cpu.InterruptEnabled = false;
-        cpu.Step();
+        Cpu.WriteState(new CpuState { Pc = 0x00 });
+        Cpu.InterruptEnabled = false;
+        Cpu.Step();
 
-        Assert.False(cpu.InterruptEnabled);
+        Assert.False(Cpu.InterruptEnabled);
     }
 
     [Fact]
     public void TestEiDoesNotEnableImmediately()
     {
-        var mmu = new Mmu();
-        mmu.Write(0x00, 0xFB); // EI
+        Mmu.Write(0x00, 0xFB); // EI
 
-        var cpu = CreateCpu(mmu, new CpuState { Pc = 0x00 });
-        var cycles = cpu.Step();
+        Cpu.WriteState(new CpuState { Pc = 0x00 });
+        var cycles = Cpu.Step();
 
         Assert.Equal(4, cycles);
-        Assert.False(cpu.InterruptEnabled); // still disabled right after EI
+        Assert.False(Cpu.InterruptEnabled); // still disabled right after EI
     }
 
     [Fact]
     public void TestEiEnablesOnFollowingStep()
     {
-        var mmu = new Mmu();
-        mmu.Write(0x00, 0xFB); // EI
-        mmu.Write(0x01, 0x00); // NOP
+        Mmu.Write(0x00, 0xFB); // EI
+        Mmu.Write(0x01, 0x00); // NOP
 
-        var cpu = CreateCpu(mmu, new CpuState { Pc = 0x00 });
-        cpu.Step(); // EI
-        cpu.Step(); // next instruction — interrupts enabled at start of this step
+        Cpu.WriteState(new CpuState { Pc = 0x00 });
+        Cpu.Step(); // EI
+        Cpu.Step(); // next instruction — interrupts enabled at start of this step
 
-        Assert.True(cpu.InterruptEnabled);
+        Assert.True(Cpu.InterruptEnabled);
     }
 
     [Fact]
     public void TestIn()
     {
         var initialState = new CpuState { Pc = 0x00 };
-        var mmu = new Mmu();
-        mmu.Write(0x00, 0xDB); // IN
-        mmu.Write(0x01, 0x42); // port number
+        Mmu.Write(0x00, 0xDB); // IN
+        Mmu.Write(0x01, 0x42); // port number
 
         var io = new StubCpuIO(readValue: 0xAB, expectedPort: 0x42);
-        var cpu = CreateCpu(mmu, initialState, io);
+        var cpu = CreateCpu(initialState, io);
         var cycles = cpu.Step();
 
         var expectedState = initialState;
@@ -81,32 +75,30 @@ public class CpuIoTests
         expectedState.IncrementPcBy(2);
 
         Assert.Equal(10, cycles);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+        Assert.Equal(expectedState, cpu.ReadState());
     }
 
     [Fact]
     public void TestInReturnsZeroWhenNoPortBusAttached()
     {
-        var mmu = new Mmu();
-        mmu.Write(0x00, 0xDB); // IN
-        mmu.Write(0x01, 0x01);
+        Mmu.Write(0x00, 0xDB); // IN
+        Mmu.Write(0x01, 0x01);
 
-        var cpu = CreateCpu(mmu, new CpuState { Pc = 0x00 }); // uses NoOpCpuIO
-        cpu.Step();
+        Cpu.WriteState(new CpuState { Pc = 0x00 });
+        Cpu.Step();
 
-        Assert.Equal(0x00, cpu.Ra);
+        Assert.Equal(0x00, Cpu.Ra);
     }
 
     [Fact]
     public void TestOut()
     {
         var initialState = new CpuState { Pc = 0x00, Ra = 0x55 };
-        var mmu = new Mmu();
-        mmu.Write(0x00, 0xD3); // OUT
-        mmu.Write(0x01, 0x42); // port number
+        Mmu.Write(0x00, 0xD3); // OUT
+        Mmu.Write(0x01, 0x42); // port number
 
         var io = new CapturingCpuIO();
-        var cpu = CreateCpu(mmu, initialState, io);
+        var cpu = CreateCpu(initialState, io);
         var cycles = cpu.Step();
 
         var expectedState = initialState;
@@ -115,24 +107,23 @@ public class CpuIoTests
         Assert.Equal(10, cycles);
         Assert.Equal(0x42, io.LastPort);
         Assert.Equal(0x55, io.LastValue);
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+        Assert.Equal(expectedState, cpu.ReadState());
     }
 
     [Fact]
     public void TestOutDoesNotModifyRegistersOrFlags()
     {
         var initialState = new CpuState { Pc = 0x00, Ra = 0x77, Flags = CpuFlags.C | CpuFlags.Z };
-        var mmu = new Mmu();
-        mmu.Write(0x00, 0xD3); // OUT
-        mmu.Write(0x01, 0x00);
+        Mmu.Write(0x00, 0xD3); // OUT
+        Mmu.Write(0x01, 0x00);
 
-        var cpu = CreateCpu(mmu, initialState, new CapturingCpuIO());
+        var cpu = CreateCpu(initialState, new CapturingCpuIO());
         cpu.Step();
 
         var expectedState = initialState;
         expectedState.IncrementPcBy(2);
 
-        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+        Assert.Equal(expectedState, cpu.ReadState());
     }
 }
 
