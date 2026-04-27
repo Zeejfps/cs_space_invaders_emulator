@@ -803,15 +803,18 @@ public class CpuTests
             expectedState.Pc = 0x2030;
             expectedState.Sp = (ushort)(stackAddr - 2);
             Assert.Equal(17, cycles);
-            Assert.Equal(expectedState, CpuState.FromCpu(cpu));
-            Assert.Equal(0x13, mmu.Read((ushort)(stackAddr - 2)));
-            Assert.Equal(0x00, mmu.Read((ushort)(stackAddr - 1)));
         }
         else
         {
             expectedState.IncrementPcBy(3);
             Assert.Equal(11, cycles);
-            Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+        }
+
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+        if (taken)
+        {
+            Assert.Equal(0x13, mmu.Read((ushort)(stackAddr - 2)));
+            Assert.Equal(0x00, mmu.Read((ushort)(stackAddr - 1)));
         }
     }
 
