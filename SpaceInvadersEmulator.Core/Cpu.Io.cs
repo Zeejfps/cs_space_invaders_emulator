@@ -14,7 +14,7 @@ public sealed partial class Cpu
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int Ei()
     {
-        _enableInterruptsOnNextInstruction = true;
+        _enableInterruptsTimer = 2;
         return 4;
     }
 
