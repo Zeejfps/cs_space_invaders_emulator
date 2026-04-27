@@ -943,4 +943,80 @@ public class CpuTests
         Assert.Equal(0x13, mmu.Read((ushort)(stackAddr - 2)));
         Assert.Equal(0x00, mmu.Read((ushort)(stackAddr - 1)));
     }
+
+    [Theory]
+    [InlineData(0x80, Reg.B, 0x05, 0x15)] // ADD B
+    [InlineData(0x81, Reg.C, 0x05, 0x15)] // ADD C
+    [InlineData(0x82, Reg.D, 0x05, 0x15)] // ADD D
+    [InlineData(0x83, Reg.E, 0x05, 0x15)] // ADD E
+    [InlineData(0x84, Reg.H, 0x05, 0x15)] // ADD H
+    [InlineData(0x85, Reg.L, 0x05, 0x15)] // ADD L
+    [InlineData(0x87, Reg.A, 0x10, 0x20)] // ADD A
+    public void TestAddRegister(byte opcode, Reg srcReg, byte srcVal, byte expectedA)
+    {
+        var initialState = new CpuState { Pc = 0x00, Ra = 0x10 };
+        initialState.WriteReg(srcReg, srcVal);
+
+        var mmu = new Mmu();
+        mmu.Write(0x00, opcode);
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.Ra = expectedA;
+        expectedState.IncrementPcBy(1);
+
+        Assert.Equal(4, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
+
+    [Fact]
+    public void TestAddM()
+    {
+        ushort addr = 0x2000;
+        var initialState = new CpuState { Pc = 0x00, Ra = 0x10 };
+        initialState.WriteRegPair(Reg.H, addr);
+
+        var mmu = new Mmu();
+        mmu.Write(0x00, 0x86);
+        mmu.Write(addr, 0x05);
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.Ra = 0x15;
+        expectedState.IncrementPcBy(1);
+
+        Assert.Equal(7, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
+
+    [Theory]
+    [InlineData(0x01, 0x01, 0x02, CpuFlags.None)]                                  // no flags
+    [InlineData(0xFF, 0x01, 0x00, CpuFlags.Z | CpuFlags.P | CpuFlags.C | CpuFlags.A)] // carry to zero
+    [InlineData(0x7F, 0x01, 0x80, CpuFlags.S | CpuFlags.A)]                        // sign + aux carry
+    [InlineData(0x01, 0x02, 0x03, CpuFlags.P)]                                     // parity only
+    [InlineData(0xF0, 0x10, 0x00, CpuFlags.Z | CpuFlags.P | CpuFlags.C)]           // carry+zero, no aux carry
+    [InlineData(0x70, 0x10, 0x80, CpuFlags.S)]                                     // sign only
+    [InlineData(0x08, 0x08, 0x10, CpuFlags.A)]                                     // aux carry only
+    public void TestAddFlags(byte a, byte b, byte expectedResult, CpuFlags expectedFlags)
+    {
+        var initialState = new CpuState { Pc = 0x00, Ra = a, Rb = b };
+
+        var mmu = new Mmu();
+        mmu.Write(0x00, 0x80); // ADD B
+
+        var cpu = CreateCpu(mmu, initialState);
+        var cycles = cpu.Step();
+
+        var expectedState = initialState;
+        expectedState.Ra = expectedResult;
+        expectedState.Flags = expectedFlags;
+        expectedState.IncrementPcBy(1);
+
+        Assert.Equal(4, cycles);
+        Assert.Equal(expectedState, CpuState.FromCpu(cpu));
+    }
 }

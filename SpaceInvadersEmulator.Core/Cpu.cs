@@ -174,6 +174,16 @@ public sealed partial class Cpu
             0xF0 => Rp(),
             0xF8 => Rm(),
 
+            // ADD
+            0x80 => AddB(),
+            0x81 => AddC(),
+            0x82 => AddD(),
+            0x83 => AddE(),
+            0x84 => AddH(),
+            0x85 => AddL(),
+            0x86 => AddM(),
+            0x87 => AddA(),
+
             // Unconditional return, call, pchl
             0xC9 => Ret(),
             0xD9 => Ret(),  // undocumented alias
