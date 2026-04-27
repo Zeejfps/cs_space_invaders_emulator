@@ -1,0 +1,11 @@
+{
+  "name": "space-invaders-emulator",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
