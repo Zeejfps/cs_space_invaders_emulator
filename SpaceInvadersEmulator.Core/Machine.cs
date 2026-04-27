@@ -18,9 +18,12 @@ public sealed class Machine : ICpuIO
     private byte _shiftRegOffset;
 
     private long _lastTimestamp;
-    
+
     private double _cycleCount;
     private readonly double _cyclesPerTick;
+
+    private double _frameCycles;
+    private byte _nextInterrupt = 0xCF;
 
     public Machine(IClock clock)
     {
@@ -58,19 +61,28 @@ public sealed class Machine : ICpuIO
         _clock.Ticked -= OnTick;
     }
 
+    private const double CyclesPerHalfFrame = CpuFrequency / 60.0 / 2.0;
+
     private void OnTick()
     {
         var timestamp = _clock.GetTimestamp();
         var elapsedTime = timestamp - _lastTimestamp;
         _lastTimestamp = timestamp;
-        
+
         _cycleCount += elapsedTime * _cyclesPerTick;
         while (_cycleCount > 0)
-            _cycleCount -= _cpu.Step();
-        
-        //TODO: Interrupts
-        //_cpu.Interrupt(0xCF);
-        //_cpu.Interrupt(0xD7);
+        {
+            var cycles = _cpu.Step();
+            _cycleCount -= cycles;
+            _frameCycles += cycles;
+
+            if (_frameCycles >= CyclesPerHalfFrame)
+            {
+                _frameCycles -= CyclesPerHalfFrame;
+                _cpu.Interrupt(_nextInterrupt);
+                _nextInterrupt = _nextInterrupt == 0xCF ? (byte)0xD7 : (byte)0xCF;
+            }
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
