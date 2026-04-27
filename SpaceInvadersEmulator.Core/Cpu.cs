@@ -176,11 +176,16 @@ public sealed partial class Cpu
 
             // Unconditional return, call, pchl
             0xC9 => Ret(),
+            0xD9 => Ret(),  // undocumented alias
             0xCD => Call(),
+            0xDD => Call(), // undocumented alias
+            0xED => Call(), // undocumented alias
+            0xFD => Call(), // undocumented alias
             0xE9 => Pchl(),
 
             // Jumps
             0xC3 => Jmp(),
+            0xCB => Jmp(),  // undocumented alias
             0xC2 => Jnz(),
             0xCA => Jz(),
             0xD2 => Jnc(),
