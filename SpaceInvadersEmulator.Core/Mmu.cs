@@ -17,7 +17,7 @@ public sealed class Mmu : IMmu
 
     public Mmu()
     {
-        VRam = _ram.AsMemory(VRamStartAddress, VRamEndAddress - VRamStartAddress);
+        VRam = _ram.AsMemory(VRamStartAddress, VRamEndAddress - VRamStartAddress + 1);
     }
     
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
