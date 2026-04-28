@@ -60,7 +60,6 @@ export const GAMES: GameDef[] = [
     ],
     defaultDipswitches: { ships: 3, bonusLifeAt1000: true },
     thumbnail: '/thumbs/invadpt2.png',
-    unverified: true,
   },
   {
     id: 'ballbomb',
@@ -94,10 +93,10 @@ export const GAMES: GameDef[] = [
       { name: 'lrescue.3', offset: 0x1000 },
       { name: 'lrescue.4', offset: 0x1800 },
       { name: 'lrescue.5', offset: 0x4000 },
+      { name: 'lrescue.6', offset: 0x4800 },
     ],
     defaultDipswitches: { ships: 3, bonusLifeAt1000: true },
     thumbnail: '/thumbs/lrescue.png',
-    unverified: true,
   },
 ];
 

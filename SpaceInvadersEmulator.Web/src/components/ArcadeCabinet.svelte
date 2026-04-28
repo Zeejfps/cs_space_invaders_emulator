@@ -29,16 +29,16 @@
 
 <div class="cabinet h-full w-full flex flex-col">
   <!-- Marquee -->
-  <div class="marquee shrink-0 flex items-center justify-between px-3 sm:px-6 py-2 bg-zinc-950 border-b-2 border-amber-900/50">
+  <div class="marquee shrink-0 flex items-center gap-2 px-3 sm:px-6 py-2 bg-zinc-950 border-b-2 border-amber-900/50">
     <button
-      class="font-mono text-xs text-zinc-400 hover:text-[var(--color-crt-green)] tracking-widest uppercase px-2 py-1 rounded border border-zinc-800 hover:border-zinc-600 transition-colors"
+      class="shrink-0 font-mono text-xs text-zinc-400 hover:text-[var(--color-crt-green)] tracking-widest uppercase px-2 py-1 rounded border border-zinc-800 hover:border-zinc-600 transition-colors"
       onclick={back}
       aria-label="Back to launcher"
     >‹ BACK</button>
-    <div class="font-mono text-amber-300 [text-shadow:0_0_10px_rgba(252,211,77,0.6)] tracking-[0.25em] uppercase text-sm sm:text-lg">
+    <div class="flex-1 min-w-0 text-center font-mono text-amber-300 [text-shadow:0_0_10px_rgba(252,211,77,0.6)] uppercase whitespace-nowrap overflow-hidden marquee-title">
       ★ {game.title} ★
     </div>
-    <div class="w-[3.5rem]"><!-- spacer to balance back button --></div>
+    <div class="shrink-0 w-[3.5rem]" aria-hidden="true"><!-- spacer to balance back button --></div>
   </div>
 
   <!-- Bezel + screen -->
@@ -62,4 +62,11 @@
 
 <style>
   .cabinet { font-family: ui-monospace, "SF Mono", monospace; }
+  /* Fluid title: scales between 0.7rem and 1.125rem with viewport, tightens
+     letter-spacing on small screens so long titles like "Space Invaders Part II"
+     don't wrap or overflow. */
+  .marquee-title {
+    font-size: clamp(0.7rem, 3vw, 1.125rem);
+    letter-spacing: clamp(0.05em, 1.5vw, 0.25em);
+  }
 </style>

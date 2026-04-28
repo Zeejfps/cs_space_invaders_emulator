@@ -1,0 +1,48 @@
+# Default: normalize line endings for text files.
+* text=auto eol=lf
+
+# Source files: explicitly text.
+*.cs       text diff=csharp
+*.csproj   text
+*.sln      text eol=crlf
+*.json     text
+*.md       text
+*.svelte   text
+*.ts       text
+*.tsx      text
+*.js       text
+*.mjs      text
+*.html     text
+*.css      text
+*.svg      text
+*.yaml     text
+*.yml      text
+*.gitignore text
+*.gitattributes text
+
+# Binary-only: never line-ending munge, never diff.
+*.png      binary
+*.jpg      binary
+*.jpeg     binary
+*.gif      binary
+*.ico      binary
+*.dll      binary
+*.exe      binary
+
+# Git LFS: large/opaque assets. Keeps the repo lean and fast to clone.
+# Audio assets (will be added under SpaceInvadersEmulator.Web/public/sounds/).
+*.wav      filter=lfs diff=lfs merge=lfs -text
+*.mp3      filter=lfs diff=lfs merge=lfs -text
+*.ogg      filter=lfs diff=lfs merge=lfs -text
+
+# ROM binaries (gitignored today, but defensive in case anyone commits one).
+*.bin      filter=lfs diff=lfs merge=lfs -text
+*.rom      filter=lfs diff=lfs merge=lfs -text
+
+# Archives (gitignored .rom-cache, but defensive).
+*.zip      filter=lfs diff=lfs merge=lfs -text
+*.7z       filter=lfs diff=lfs merge=lfs -text
+*.gz       filter=lfs diff=lfs merge=lfs -text
+
+# Compiled WebAssembly (currently gitignored, but defensive).
+*.wasm     filter=lfs diff=lfs merge=lfs -text
