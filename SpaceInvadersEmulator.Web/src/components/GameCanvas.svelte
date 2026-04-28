@@ -67,7 +67,3 @@
   height={SCREEN_H}
   style="width: {SCREEN_W * scale}px; height: {SCREEN_H * scale}px; image-rendering: pixelated; display: block;"
 ></canvas>
-
-<style>
-  canvas { cursor: none; }
-</style>
