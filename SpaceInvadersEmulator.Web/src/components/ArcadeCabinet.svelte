@@ -1,7 +1,6 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte';
   import type { GameDef } from '../lib/games';
-  import { router } from '../lib/router.svelte';
   import { touch } from '../lib/touch.svelte';
   import GameCanvas from './GameCanvas.svelte';
   import ControlPanel from './ControlPanel.svelte';
@@ -83,8 +82,6 @@
     recompute();
     return () => ro.disconnect();
   });
-
-  function back(): void { router.navigate(null); }
 </script>
 
 <!--
@@ -112,11 +109,10 @@
   >
     <!-- Marquee -->
     <div bind:this={marqueeEl} class="marquee flex items-center gap-2 px-3 py-2 bg-zinc-950 border-b-2 border-amber-900/50">
-      <button
-        class="shrink-0 font-mono text-xs text-zinc-400 hover:text-[var(--color-crt-green)] tracking-widest uppercase px-2 py-1 rounded border border-zinc-800 hover:border-zinc-600 transition-colors"
-        onclick={back}
-        aria-label="Back to launcher"
-      >‹ BACK</button>
+      {#if !touch.isTouch}
+        <!-- Invisible left flank balances the help "?" on the right so the title stays centered. -->
+        <div class="shrink-0 w-[3.5rem]" aria-hidden="true"></div>
+      {/if}
       <div class="flex-1 min-w-0 text-center font-mono text-amber-300 [text-shadow:0_0_10px_rgba(252,211,77,0.6)] uppercase whitespace-nowrap overflow-hidden marquee-title">
         ★ {game.title} ★
       </div>
@@ -140,8 +136,6 @@
             </div>
           {/if}
         </div>
-      {:else}
-        <div class="shrink-0 w-[3.5rem]" aria-hidden="true"><!-- balance back button --></div>
       {/if}
     </div>
 

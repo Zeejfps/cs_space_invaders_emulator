@@ -1,7 +1,9 @@
 <script lang="ts">
   import ArcadeButton from '../lib/ui/ArcadeButton.svelte';
   import CoinSlot from '../lib/ui/CoinSlot.svelte';
+  import CoinReturn from '../lib/ui/CoinReturn.svelte';
   import Joystick from '../lib/ui/Joystick.svelte';
+  import { router } from '../lib/router.svelte';
 </script>
 
 <!--
@@ -25,8 +27,9 @@
   <!-- Fire -->
   <ArcadeButton inputKey="fire" label="FIRE" tone="red" size={88} ariaLabel="Fire" />
 
-  <!-- Coin / P1 row -->
+  <!-- Return / Coin / P1 row -->
   <div class="col-span-2 flex gap-4 justify-center items-center">
+    <CoinReturn size={44} onclick={() => router.navigate(null)} />
     <CoinSlot size={44} />
     <ArcadeButton inputKey="p1Start" label="P1" tone="red" size={44} ariaLabel="Player 1 start" />
   </div>
