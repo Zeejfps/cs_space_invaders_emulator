@@ -24,6 +24,7 @@ jobs:
           # Need full history for `git describe` fallback in vite.config.ts;
           # also ensures the tag is materialised in the local repo.
           fetch-depth: 0
+          lfs: true
 
       - uses: actions/setup-node@v4
         with:
