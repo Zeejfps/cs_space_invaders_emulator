@@ -1,4 +1,5 @@
 using System.Buffers;
+using System.Diagnostics;
 using System.Runtime.InteropServices.JavaScript;
 using SpaceInvadersEmulator.Core;
 
@@ -13,6 +14,8 @@ public static partial class Emulator
     private static MemoryHandle _vramHandle;
     private static int _vramPtrValue;
     private static int _vramLen;
+
+    private static long _lastStopwatchTs;
 
     [JSExport]
     public static unsafe void Initialize()
@@ -31,6 +34,7 @@ public static partial class Emulator
     {
         _machine!.LoadRom(data);
         _machine.Start();
+        _lastStopwatchTs = Stopwatch.GetTimestamp();
     }
 
     /// <summary>
@@ -38,7 +42,13 @@ public static partial class Emulator
     /// (accessible via GetVRamPtr/GetVRamLen from HEAPU8) reflects the new frame.
     /// </summary>
     [JSExport]
-    public static void RunFrame() => _clock!.Tick();
+    public static void RunFrame()
+    {
+        var now = Stopwatch.GetTimestamp();
+        var delta = now - _lastStopwatchTs;
+        _lastStopwatchTs = now;
+        _clock!.Advance(delta);
+    }
 
     /// <summary>
     /// Absolute WASM linear-memory address of the start of the pinned VRam region.

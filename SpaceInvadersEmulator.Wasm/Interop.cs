@@ -4,9 +4,6 @@ namespace SpaceInvadersEmulator.Wasm;
 
 internal static partial class Interop
 {
-    [JSImport("globalThis.performance.now")]
-    internal static partial double PerformanceNow();
-
     [JSImport("globalThis.siAudio.setUfoLoopActive")]
     internal static partial void SetUfoLoopActive(bool active);
 
