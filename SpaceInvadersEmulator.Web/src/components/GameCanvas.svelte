@@ -4,19 +4,8 @@
   import { render, SCREEN_W, SCREEN_H } from '../lib/renderer';
   import { setInput, clearAllInputs, type InputKey } from '../lib/inputState';
 
-  let { maxHeight = 0, maxWidth = 0 }: { maxHeight?: number; maxWidth?: number } = $props();
-
   let canvas: HTMLCanvasElement;
   let rafId = 0;
-
-  // Compute the largest scale that fits the parent's bounds. Allow non-integer
-  // scales — black bars on mobile are worse than slight pixel shimmer.
-  const scale = $derived.by(() => {
-    if (!maxWidth && !maxHeight) return 2;
-    const sH = maxHeight ? maxHeight / SCREEN_H : Infinity;
-    const sW = maxWidth ? maxWidth / SCREEN_W : Infinity;
-    return Math.max(1, Math.min(sH, sW));
-  });
 
   const KEY_MAP: Record<string, InputKey> = {
     ArrowLeft:  'left',
@@ -61,9 +50,15 @@
   });
 </script>
 
+<!--
+  The drawing buffer is fixed at the native 224×256 resolution. CSS sizes
+  the displayed element to fill its 7:8-aspect-locked parent — so the canvas
+  always renders at correct aspect, scaled crisply via image-rendering:
+  pixelated. Browser does the (potentially fractional) nearest-neighbor scale.
+-->
 <canvas
   bind:this={canvas}
   width={SCREEN_W}
   height={SCREEN_H}
-  style="width: {SCREEN_W * scale}px; height: {SCREEN_H * scale}px; image-rendering: pixelated; display: block;"
+  class="block w-full h-full [image-rendering:pixelated]"
 ></canvas>

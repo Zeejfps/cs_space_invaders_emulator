@@ -1,5 +1,7 @@
 <script lang="ts">
   import { setInput, type InputKey } from '../lib/inputState';
+  import ArcadeButton from '../lib/ui/ArcadeButton.svelte';
+  import CoinSlot from '../lib/ui/CoinSlot.svelte';
 
   function press(e: PointerEvent, key: InputKey, pressed: boolean): void {
     e.preventDefault();
@@ -44,28 +46,16 @@
     <span class="font-mono tracking-widest text-sm">FIRE</span>
   </button>
 
-  <!-- Coin / Start row, full width -->
-  <div class="col-span-2 flex gap-2 justify-center">
-    <button
-      class="meta-btn font-mono text-[0.65rem] tracking-widest uppercase px-3 py-1.5 rounded-sm bg-zinc-900 border-2 border-amber-900 text-amber-200 active:translate-y-[1px]"
-      aria-label="Insert coin"
-      onpointerdown={(e) => press(e, 'coin', true)}
-      onpointerup={(e) => press(e, 'coin', false)}
-      onpointercancel={(e) => press(e, 'coin', false)}
-    >COIN</button>
-    <button
-      class="meta-btn font-mono text-[0.65rem] tracking-widest uppercase px-3 py-1.5 rounded-sm bg-zinc-900 border-2 border-green-900 text-green-200 active:translate-y-[1px]"
-      aria-label="Player 1 start"
-      onpointerdown={(e) => press(e, 'p1Start', true)}
-      onpointerup={(e) => press(e, 'p1Start', false)}
-      onpointercancel={(e) => press(e, 'p1Start', false)}
-    >1P START</button>
+  <!-- Coin / P1 row (P2 omitted on touch — physical 2P sharing a phone screen isn't feasible). -->
+  <div class="col-span-2 flex gap-4 justify-center items-center">
+    <CoinSlot size={44} />
+    <ArcadeButton inputKey="p1Start" label="P1" tone="red" size={44} ariaLabel="Player 1 start" />
   </div>
 </div>
 
 <style>
   .pad { user-select: none; -webkit-user-select: none; }
-  .dpad-btn, .fire-btn, .meta-btn {
+  .dpad-btn, .fire-btn {
     touch-action: none;
     -webkit-tap-highlight-color: transparent;
   }
