@@ -1,7 +1,7 @@
 <script lang="ts">
   import { setInput, type InputKey } from '../inputState';
 
-  type Tone = 'red' | 'blue';
+  type Tone = 'red' | 'blue' | 'neutral';
   interface Props {
     inputKey: InputKey;
     label: string;
@@ -124,6 +124,15 @@
       inset 0 2px 2px rgba(255, 255, 255, 0.25),
       0 5px 0 rgba(0, 20, 70, 0.85),
       0 6px 8px rgba(0, 0, 0, 0.6);
+  }
+  /* Neutral / zinc — for direction inputs. Reads as "control, not action." */
+  .tone-neutral .cap {
+    background: radial-gradient(circle at 50% 30%, #6e6e76 0%, #3f3f46 60%, #1f1f23 100%);
+    box-shadow:
+      inset 0 -2px 2px rgba(0, 0, 0, 0.45),
+      inset 0 2px 2px rgba(255, 255, 255, 0.18),
+      0 5px 0 rgba(0, 0, 0, 0.7),
+      0 6px 8px rgba(0, 0, 0, 0.55);
   }
 
   .label {
