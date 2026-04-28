@@ -25,8 +25,17 @@
     </ul>
   </section>
 
-  <section class="border-t border-zinc-800 pt-3">
-    <div class="text-[0.65rem] tracking-widest uppercase text-zinc-500 mb-2">About</div>
+  <section class="border-t border-zinc-800 pt-3 flex flex-col gap-2">
+    <div class="text-[0.65rem] tracking-widest uppercase text-zinc-500">About</div>
+    <p class="text-xs text-zinc-400">
+      Created by
+      <a
+        href="https://evasilyev.com"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="text-zinc-200 hover:text-[var(--color-crt-green)] transition-colors"
+      >Evgeny Vasilyev</a>
+    </p>
     <RepoBadge label="Source" />
   </section>
 </div>

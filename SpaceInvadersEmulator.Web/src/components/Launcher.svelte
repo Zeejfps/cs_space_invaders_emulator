@@ -44,7 +44,16 @@
     {/each}
   </div>
 
-  <footer class="mt-auto pt-6 flex items-center justify-center">
+  <footer class="mt-auto pt-6 flex flex-col items-center gap-2">
+    <p class="font-mono text-[0.7rem] text-zinc-500">
+      Created by
+      <a
+        href="https://evasilyev.com"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="text-zinc-300 hover:text-[var(--color-crt-green)] transition-colors"
+      >Evgeny Vasilyev</a>
+    </p>
     <RepoBadge />
   </footer>
 </div>
