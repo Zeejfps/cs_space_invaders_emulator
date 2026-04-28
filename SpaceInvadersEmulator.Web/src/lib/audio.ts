@@ -4,7 +4,6 @@
 const soundFiles: Record<string, string> = {
   ufo_lowpass:   '/sounds/ufo_lowpass.wav',
   shoot:         '/sounds/shoot.wav',
-  player_die:    '/sounds/player_die.wav',
   invader_die:   '/sounds/invader_die.wav',
   fastinvader1:  '/sounds/fastinvader1.wav',
   fastinvader2:  '/sounds/fastinvader2.wav',
@@ -71,7 +70,7 @@ export function initAudio(): Promise<void> {
         });
       },
       playShot:            () => { getCtx().then(() => playBuffer('shoot')); },
-      playPlayerDied:      () => { getCtx().then(() => playBuffer('player_die')); },
+      playPlayerDied:      () => { getCtx().then(() => playBuffer('explosion')); },
       playInvaderDied:     () => { getCtx().then(() => playBuffer('invader_die')); },
       playExtraLifeGained: () => { getCtx().then(() => playBuffer('invader_die')); },
       playFleetMoved:      (step: number) => { getCtx().then(() => playBuffer(`fastinvader${step}`)); },
