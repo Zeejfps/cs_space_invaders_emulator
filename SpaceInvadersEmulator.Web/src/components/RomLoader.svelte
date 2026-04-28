@@ -6,9 +6,27 @@
   let error = $state('');
   let dragging = $state(false);
 
-  const ROM_SIZE = 8192;
-  // MAME invaders.zip loads h→g→f→e (0x0000→0x0800→0x1000→0x1800).
-  const EXT_ORDER = ['h', 'g', 'f', 'e'];
+  const MAX_ROM_SIZE = 0x10000; // 64 KB — full 8080 address space
+
+  // Known per-file load offsets for supported MAME ROM sets. When all dropped
+  // files match an entry here, each is placed at its known address and the
+  // gaps (RAM/VRAM regions on real hardware) are left as zeros.
+  const ROM_OFFSETS: Record<string, number> = {
+    // Space Invaders (invaders.zip)
+    'invaders.h': 0x0000,
+    'invaders.g': 0x0800,
+    'invaders.f': 0x1000,
+    'invaders.e': 0x1800,
+    // Balloon Bomber (ballbomb.zip)
+    'tn01':   0x0000,
+    'tn02':   0x0800,
+    'tn03':   0x1000,
+    'tn04':   0x1800,
+    'tn05':   0x4000,
+    'tn05-1': 0x4000,
+    'tn06':   0x4800,
+    'tn07':   0x5000,
+  };
 
   async function handleFiles(files: FileList): Promise<void> {
     error = '';
@@ -16,26 +34,34 @@
     let romData: Uint8Array;
 
     if (files.length === 1) {
-      romData = new Uint8Array(await files[0].arrayBuffer());
-    } else {
-      const sorted = Array.from(files).sort((a, b) => {
-        const extA = a.name.split('.').pop()?.toLowerCase() ?? '';
-        const extB = b.name.split('.').pop()?.toLowerCase() ?? '';
-        return EXT_ORDER.indexOf(extA) - EXT_ORDER.indexOf(extB);
-      });
-      const buffers = await Promise.all(sorted.map(f => f.arrayBuffer()));
-      const total = buffers.reduce((n, b) => n + b.byteLength, 0);
-      romData = new Uint8Array(total);
-      let offset = 0;
-      for (const buf of buffers) {
-        romData.set(new Uint8Array(buf), offset);
-        offset += buf.byteLength;
+      const data = new Uint8Array(await files[0].arrayBuffer());
+      if (data.byteLength > MAX_ROM_SIZE) {
+        error = `ROM is ${data.byteLength} bytes; max ${MAX_ROM_SIZE} (64 KB).`;
+        return;
       }
-    }
+      romData = data;
+    } else {
+      const arr = Array.from(files);
+      const offsets = arr.map(f => ROM_OFFSETS[f.name.toLowerCase()]);
+      const unknown = arr.filter((_, i) => offsets[i] === undefined).map(f => f.name);
+      if (unknown.length) {
+        error = `Unknown ROM file(s): ${unknown.join(', ')}. Drop a recognized set or a single merged .bin.`;
+        return;
+      }
 
-    if (romData.byteLength !== ROM_SIZE) {
-      error = `Expected ${ROM_SIZE} bytes but got ${romData.byteLength}. Drop all 4 ROM parts (invaders.e .f .g .h) or a single 8 KB .bin.`;
-      return;
+      const buffers = await Promise.all(arr.map(f => f.arrayBuffer()));
+      const totalSize = Math.max(
+        ...arr.map((_, i) => (offsets[i] as number) + buffers[i].byteLength),
+      );
+      if (totalSize > MAX_ROM_SIZE) {
+        error = `Combined ROM is ${totalSize} bytes; max ${MAX_ROM_SIZE} (64 KB).`;
+        return;
+      }
+
+      romData = new Uint8Array(totalSize);
+      for (let i = 0; i < arr.length; i++) {
+        romData.set(new Uint8Array(buffers[i]), offsets[i] as number);
+      }
     }
 
     loadRom(romData);
@@ -71,10 +97,14 @@
     ondragleave={() => (dragging = false)}
   >
     <p class="primary">Drop ROM files here</p>
-    <p class="hint">invaders.e + .f + .g + .h &nbsp;·&nbsp; or a single 8 KB invaders.bin</p>
+    <p class="hint">
+      single .bin (up to 64 KB) &nbsp;·&nbsp;
+      invaders.e/.f/.g/.h &nbsp;·&nbsp;
+      ballbomb tn01–tn07
+    </p>
     <label class="browse-btn">
       Browse files
-      <input type="file" multiple accept=".bin,.e,.f,.g,.h" onchange={onFileChange} />
+      <input type="file" multiple onchange={onFileChange} />
     </label>
   </div>
   {#if error}
