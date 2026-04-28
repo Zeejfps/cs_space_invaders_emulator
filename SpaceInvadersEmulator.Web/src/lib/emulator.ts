@@ -1,13 +1,20 @@
 // Typed wrappers around the [JSExport] methods from SpaceInvadersEmulator.Wasm.
-// Runtime files are copied into public/wasm/ by the copy:assets script; init()
-// fetches dotnet.js + .wasm assets from there as ordinary static URLs.
+// Runtime files are served from /wasm/ by the serveWasmAssets() Vite plugin.
 import { init, type Emulator } from 'space-invaders-emulator';
 
 let _emu: Emulator | null = null;
+let _initPromise: Promise<void> | null = null;
 
-export async function initEmulator(): Promise<void> {
-  _emu = await init({ baseUrl: '/wasm/' });
+export function initEmulator(): Promise<void> {
+  if (!_initPromise) {
+    _initPromise = init({ baseUrl: '/wasm/' }).then((emu) => {
+      _emu = emu;
+    });
+  }
+  return _initPromise;
 }
+
+export function isEmulatorReady(): boolean { return _emu !== null; }
 
 export function loadRom(data: Uint8Array): void    { _emu!.loadRom(data); }
 export function runFrame(): void                    { _emu!.runFrame(); }

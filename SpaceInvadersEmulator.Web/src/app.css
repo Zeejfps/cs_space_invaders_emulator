@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+@theme {
+  --color-crt-green: #0f0;
+  --color-crt-amber: #ff0;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+
+html, body, #app { height: 100%; }
+body {
+  background: #000;
+  color: #fff;
+  font-family: var(--font-mono);
+}
+body.lock-scroll { overflow: hidden; }

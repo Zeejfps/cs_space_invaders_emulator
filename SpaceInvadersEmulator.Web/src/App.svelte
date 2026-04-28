@@ -1,25 +1,16 @@
 <script lang="ts">
-  import RomLoader from './components/RomLoader.svelte';
-  import ArcadeCabinet from './components/ArcadeCabinet.svelte';
+  import { router } from './lib/router.svelte';
+  import { GAMES_BY_ID } from './lib/games';
+  import Launcher from './components/Launcher.svelte';
+  import GameView from './components/GameView.svelte';
 
-  let gameReady = $state(false);
+  const game = $derived(router.current ? GAMES_BY_ID[router.current] : null);
 </script>
 
-<main>
-  {#if !gameReady}
-    <RomLoader onloaded={() => (gameReady = true)} />
+<main class="h-full w-full">
+  {#if game}
+    <GameView {game} />
   {:else}
-    <ArcadeCabinet />
+    <Launcher />
   {/if}
 </main>
-
-<style>
-  main {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100vw;
-    height: 100vh;
-    background: #000;
-  }
-</style>

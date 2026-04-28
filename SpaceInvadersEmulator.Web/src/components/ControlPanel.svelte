@@ -1,73 +1,41 @@
 <script lang="ts">
-  import { writeCoin, writeP1Start, writeP2Start } from '../lib/emulator';
+  import { setInput, type InputKey } from '../lib/inputState';
+  import { cn } from '../lib/ui/cn';
+
+  function press(e: PointerEvent, key: InputKey, pressed: boolean): void {
+    if (pressed) (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    setInput(key, pressed);
+  }
+
+  const buttons: { key: InputKey; label: string; tone: 'red' | 'amber' | 'green' }[] = [
+    { key: 'coin',    label: 'COIN',     tone: 'amber' },
+    { key: 'p1Start', label: '1P START', tone: 'green' },
+    { key: 'p2Start', label: '2P START', tone: 'red' },
+  ];
+
+  const toneClass: Record<'red' | 'amber' | 'green', string> = {
+    red:   'text-red-300   border-red-900   shadow-[inset_0_-3px_0_rgba(127,29,29,0.9),0_0_8px_rgba(220,38,38,0.25)] hover:border-red-700',
+    amber: 'text-amber-200 border-amber-900 shadow-[inset_0_-3px_0_rgba(146,64,14,0.9),0_0_8px_rgba(245,158,11,0.25)] hover:border-amber-700',
+    green: 'text-green-200 border-green-900 shadow-[inset_0_-3px_0_rgba(20,83,45,0.9),0_0_8px_rgba(34,197,94,0.25)] hover:border-green-700',
+  };
 </script>
 
-<div class="control-panel">
-  <button
-    class="btn"
-    onpointerdown={() => writeCoin(true)}
-    onpointerup={() => writeCoin(false)}
-    onpointerleave={() => writeCoin(false)}
-  >
-    INSERT COIN
-  </button>
-  <button
-    class="btn"
-    onpointerdown={() => writeP1Start(true)}
-    onpointerup={() => writeP1Start(false)}
-    onpointerleave={() => writeP1Start(false)}
-  >
-    1P START
-  </button>
-  <button
-    class="btn"
-    onpointerdown={() => writeP2Start(true)}
-    onpointerup={() => writeP2Start(false)}
-    onpointerleave={() => writeP2Start(false)}
-  >
-    2P START
-  </button>
-  <span class="keys">← → Space · C = Coin · 1 2 = Start</span>
+<div class="control-panel flex items-center justify-center gap-3 px-4 py-3 bg-zinc-950 border-x-4 border-b-4 border-zinc-700 rounded-b-md w-full">
+  {#each buttons as b (b.key)}
+    <button
+      class={cn(
+        'arcade-btn font-mono text-[0.7rem] tracking-widest uppercase px-4 py-2 rounded-sm bg-zinc-900 border-2 select-none active:translate-y-[2px] active:shadow-none transition-transform',
+        toneClass[b.tone],
+      )}
+      onpointerdown={(e) => press(e, b.key, true)}
+      onpointerup={(e) => press(e, b.key, false)}
+      onpointercancel={(e) => press(e, b.key, false)}
+    >
+      {b.label}
+    </button>
+  {/each}
 </div>
 
 <style>
-  .control-panel {
-    background: #111;
-    border: 6px solid #444;
-    border-top: none;
-    border-radius: 0 0 8px 8px;
-    padding: 0.75rem 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    width: 100%;
-    justify-content: center;
-  }
-
-  .btn {
-    background: #222;
-    color: #ccc;
-    border: 2px solid #555;
-    border-radius: 4px;
-    padding: 0.35rem 0.9rem;
-    font-family: monospace;
-    font-size: 0.75rem;
-    letter-spacing: 0.08em;
-    cursor: pointer;
-    user-select: none;
-    transition: background 0.1s, color 0.1s;
-  }
-
-  .btn:active,
-  .btn:hover {
-    background: #444;
-    color: #fff;
-  }
-
-  .keys {
-    font-family: monospace;
-    font-size: 0.7rem;
-    color: #555;
-    margin-left: 0.5rem;
-  }
+  .arcade-btn { touch-action: none; -webkit-tap-highlight-color: transparent; }
 </style>

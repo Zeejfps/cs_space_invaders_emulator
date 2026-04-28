@@ -1,20 +1,42 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
-  import {
-    runFrame, getVRam,
-    writeP1Left, writeP1Right, writeP1Fire,
-    writeCoin, writeP1Start, writeP2Start,
-  } from '../lib/emulator';
+  import { runFrame, getVRam } from '../lib/emulator';
   import { render, SCREEN_W, SCREEN_H } from '../lib/renderer';
+  import { setInput, clearAllInputs, type InputKey } from '../lib/inputState';
+
+  let { maxHeight = 0, maxWidth = 0 }: { maxHeight?: number; maxWidth?: number } = $props();
 
   let canvas: HTMLCanvasElement;
   let rafId = 0;
-  let scale = $state(1);
 
-  function computeScale(): void {
-    // Largest integer scale that fits the viewport height (with some margin for the cabinet chrome).
-    const available = window.innerHeight * 0.85;
-    scale = Math.max(1, Math.floor(available / SCREEN_H));
+  // Compute the largest scale that fits the parent's bounds. Allow non-integer
+  // scales — black bars on mobile are worse than slight pixel shimmer.
+  const scale = $derived.by(() => {
+    if (!maxWidth && !maxHeight) return 2;
+    const sH = maxHeight ? maxHeight / SCREEN_H : Infinity;
+    const sW = maxWidth ? maxWidth / SCREEN_W : Infinity;
+    return Math.max(1, Math.min(sH, sW));
+  });
+
+  const KEY_MAP: Record<string, InputKey> = {
+    ArrowLeft:  'left',
+    ArrowRight: 'right',
+    Space:      'fire',
+    KeyC:       'coin',
+    Digit1:     'p1Start',
+    Digit2:     'p2Start',
+  };
+
+  function onKeyDown(e: KeyboardEvent): void {
+    const k = KEY_MAP[e.code];
+    if (!k) return;
+    if (k === 'left' || k === 'right' || k === 'fire') e.preventDefault();
+    setInput(k, true);
+  }
+
+  function onKeyUp(e: KeyboardEvent): void {
+    const k = KEY_MAP[e.code];
+    if (k) setInput(k, false);
   }
 
   function loop(): void {
@@ -25,33 +47,9 @@
     rafId = requestAnimationFrame(loop);
   }
 
-  function onKeyDown(e: KeyboardEvent): void {
-    switch (e.code) {
-      case 'ArrowLeft':  e.preventDefault(); writeP1Left(true);  break;
-      case 'ArrowRight': e.preventDefault(); writeP1Right(true); break;
-      case 'Space':      e.preventDefault(); writeP1Fire(true);  break;
-      case 'KeyC':                           writeCoin(true);    break;
-      case 'Digit1':                         writeP1Start(true); break;
-      case 'Digit2':                         writeP2Start(true); break;
-    }
-  }
-
-  function onKeyUp(e: KeyboardEvent): void {
-    switch (e.code) {
-      case 'ArrowLeft':  writeP1Left(false);  break;
-      case 'ArrowRight': writeP1Right(false); break;
-      case 'Space':      writeP1Fire(false);  break;
-      case 'KeyC':       writeCoin(false);    break;
-      case 'Digit1':     writeP1Start(false); break;
-      case 'Digit2':     writeP2Start(false); break;
-    }
-  }
-
   onMount(() => {
-    computeScale();
     window.addEventListener('keydown', onKeyDown);
     window.addEventListener('keyup', onKeyUp);
-    window.addEventListener('resize', computeScale);
     rafId = requestAnimationFrame(loop);
   });
 
@@ -59,14 +57,10 @@
     cancelAnimationFrame(rafId);
     window.removeEventListener('keydown', onKeyDown);
     window.removeEventListener('keyup', onKeyUp);
-    window.removeEventListener('resize', computeScale);
+    clearAllInputs();
   });
 </script>
 
-<!--
-  The canvas drawing buffer is always the native resolution (224×256).
-  CSS scaling via width/height + image-rendering: pixelated gives crisp integer scaling.
--->
 <canvas
   bind:this={canvas}
   width={SCREEN_W}
@@ -75,7 +69,5 @@
 ></canvas>
 
 <style>
-  canvas {
-    cursor: none;
-  }
+  canvas { cursor: none; }
 </style>

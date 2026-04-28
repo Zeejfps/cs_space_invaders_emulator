@@ -1,8 +1,11 @@
 import { defineConfig, type Plugin } from 'vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
+import tailwindcss from '@tailwindcss/vite';
+import { VitePWA } from 'vite-plugin-pwa';
 import path from 'node:path';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { romsPlugin } from './scripts/vite-plugin-roms';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -69,5 +72,46 @@ function serveWasmAssets(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [svelte(), serveWasmAssets()],
+  plugins: [
+    tailwindcss(),
+    svelte(),
+    serveWasmAssets(),
+    romsPlugin({ rootDir: __dirname }),
+    VitePWA({
+      registerType: 'autoUpdate',
+      includeAssets: ['icons/*.svg', 'thumbs/*.png', 'sounds/*.wav'],
+      manifest: {
+        name: 'Space Invaders Emulator',
+        short_name: 'Invaders',
+        description: 'Classic Taito 8080 arcade ports running on a C# WASM emulator.',
+        theme_color: '#000000',
+        background_color: '#000000',
+        display: 'standalone',
+        orientation: 'any',
+        start_url: '/',
+        icons: [
+          { src: '/icons/icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any maskable' },
+        ],
+      },
+      workbox: {
+        globPatterns: [
+          '**/*.{js,css,html,svg,png,ico,webmanifest,wav}',
+          'roms/**/*.bin',
+        ],
+        // WASM payloads (the .NET runtime + assemblies) are several MB; eager
+        // precache is rude on cellular. Cache lazily on first request instead.
+        runtimeCaching: [
+          {
+            urlPattern: ({ url }) => url.pathname.startsWith('/wasm/'),
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'wasm-runtime',
+              expiration: { maxEntries: 30, maxAgeSeconds: 60 * 60 * 24 * 30 },
+            },
+          },
+        ],
+        maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
+      },
+    }),
+  ],
 });
