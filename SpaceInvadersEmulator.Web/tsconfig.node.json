@@ -4,7 +4,12 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "strict": true,
-    "noEmit": true
+    "noEmit": true,
+    "types": ["node"],
+    // Don't type-check the contents of node_modules. workbox-core's types
+    // reference Service Worker globals (ExtendableEvent etc.) that we don't
+    // need in the Node config context — skipLibCheck silences them.
+    "skipLibCheck": true
   },
   "include": ["vite.config.ts", "scripts/**/*"]
 }
