@@ -7,8 +7,8 @@
   let dragging = $state(false);
 
   const ROM_SIZE = 8192;
-  // ROM files loaded in order: invaders.e → .f → .g → .h
-  const EXT_ORDER = ['e', 'f', 'g', 'h'];
+  // MAME invaders.zip loads h→g→f→e (0x0000→0x0800→0x1000→0x1800).
+  const EXT_ORDER = ['h', 'g', 'f', 'e'];
 
   async function handleFiles(files: FileList): Promise<void> {
     error = '';
