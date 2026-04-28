@@ -1,5 +1,6 @@
 <script lang="ts">
   import RepoBadge from '../lib/ui/RepoBadge.svelte';
+  import { APP_VERSION } from '../lib/version';
 
   // Popover content. Sectioned so future blocks (game info, dipswitches)
   // can drop in alongside the controls section.
@@ -37,5 +38,6 @@
       >Evgeny Vasilyev</a>
     </p>
     <RepoBadge label="Source" />
+    <span class="font-mono text-[0.6rem] text-zinc-600 tracking-widest mt-1">v{APP_VERSION}</span>
   </section>
 </div>

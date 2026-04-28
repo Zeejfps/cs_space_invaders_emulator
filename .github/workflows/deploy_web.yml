@@ -20,6 +20,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Need full history for `git describe` fallback in vite.config.ts;
+          # also ensures the tag is materialised in the local repo.
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
@@ -51,6 +55,12 @@ jobs:
 
       - name: Build (wasm + vite)
         working-directory: SpaceInvadersEmulator.Web
+        # github.ref_name is the tag (e.g. "v0.2.0") on tag-triggered runs,
+        # or the branch name on workflow_dispatch — vite.config.ts strips the
+        # leading "v" and uses it for both the on-screen label and the SW
+        # cacheId so each tagged release invalidates the precache.
+        env:
+          APP_VERSION: ${{ github.ref_name }}
         run: npm run build
 
       - uses: actions/configure-pages@v5

@@ -6,6 +6,7 @@
   import GameCard from './GameCard.svelte';
   import Button from '../lib/ui/Button.svelte';
   import RepoBadge from '../lib/ui/RepoBadge.svelte';
+  import { APP_VERSION } from '../lib/version';
 
   const lastPlayed = $derived(getLastPlayed());
   const lastGame = $derived(lastPlayed ? GAMES_BY_ID[lastPlayed] : null);
@@ -55,5 +56,6 @@
       >Evgeny Vasilyev</a>
     </p>
     <RepoBadge />
+    <span class="font-mono text-[0.6rem] text-zinc-700 tracking-widest">v{APP_VERSION}</span>
   </footer>
 </div>

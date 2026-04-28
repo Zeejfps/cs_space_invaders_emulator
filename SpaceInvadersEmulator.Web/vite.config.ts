@@ -4,10 +4,34 @@ import tailwindcss from '@tailwindcss/vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import path from 'node:path';
 import fs from 'node:fs';
+import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { romsPlugin } from './scripts/vite-plugin-roms';
+import pkg from './package.json' with { type: 'json' };
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// Resolve the build version. Priority:
+//   1. APP_VERSION env var (set by CI from the git tag)
+//   2. `git describe --tags --always --dirty` (works in any local checkout
+//      with at least one tag; gives "v0.2.0" on a clean tagged commit, or
+//      "v0.2.0-3-gabc1234-dirty" mid-development)
+//   3. package.json `version` field as a final fallback
+// Leading "v" is stripped — the UI renders "v{APP_VERSION}".
+function resolveAppVersion(): string {
+  let raw = process.env.APP_VERSION;
+  if (!raw) {
+    try {
+      raw = execSync('git describe --tags --always --dirty', { stdio: ['ignore', 'pipe', 'ignore'] })
+        .toString()
+        .trim();
+    } catch { /* not a git repo, no tags, etc. */ }
+  }
+  if (!raw) raw = pkg.version;
+  return raw.replace(/^v/, '');
+}
+
+const APP_VERSION = resolveAppVersion();
 
 const WASM_PREFIX = '/wasm/';
 const WASM_DIR = path.resolve(__dirname, '../SpaceInvadersEmulator.Wasm/package/dist');
@@ -72,6 +96,12 @@ function serveWasmAssets(): Plugin {
 }
 
 export default defineConfig({
+  // Inject the package version as a build-time constant. The app reads it
+  // for the on-screen version label; the SW cacheId derives from it so a
+  // version bump = a new precache bucket = old caches get cleaned up.
+  define: {
+    __APP_VERSION__: JSON.stringify(APP_VERSION),
+  },
   plugins: [
     tailwindcss(),
     svelte(),
@@ -94,6 +124,10 @@ export default defineConfig({
         ],
       },
       workbox: {
+        // Cache bucket name includes the package version. Bumping the version
+        // produces a fresh precache bucket; cleanupOutdatedCaches sweeps the
+        // old one away on activation. This is the explicit cache-bust handle.
+        cacheId: `invaders-${APP_VERSION}`,
         globPatterns: [
           '**/*.{js,css,html,svg,png,ico,webmanifest,wav}',
           'roms/**/*.bin',
@@ -111,6 +145,16 @@ export default defineConfig({
           },
         ],
         maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
+        // Skip the "wait for all tabs to close" handshake so a fresh deploy
+        // takes effect on the very next page load. Without these, a user on
+        // a stale `index.html` keeps hitting 404s on newly-hashed WASM until
+        // they manually close every tab.
+        skipWaiting: true,
+        clientsClaim: true,
+        // Delete precache entries from previous SW versions on activation so
+        // stale hashed-filename references don't linger in cache storage.
+        cleanupOutdatedCaches: true,
+        globIgnores: ['**/*.map'],
       },
     }),
   ],
