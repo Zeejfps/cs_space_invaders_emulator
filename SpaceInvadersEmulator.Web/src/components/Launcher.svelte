@@ -43,4 +43,14 @@
     {/each}
   </div>
 
+  <footer class="mt-auto pt-12 font-mono text-[0.65rem] text-zinc-600 tracking-widest uppercase flex items-center gap-2">
+    <span>Source</span>
+    <span class="text-zinc-700">·</span>
+    <a
+      href="https://github.com/Zeejfps/cs_space_invaders_emulator"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="text-zinc-500 hover:text-[var(--color-crt-green)] transition-colors"
+    >github.com/Zeejfps/cs_space_invaders_emulator ↗</a>
+  </footer>
 </div>

@@ -38,6 +38,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nuget-
 
+      - name: Install wasm-tools workload
+        run: dotnet workload install wasm-tools
+
       - name: Install Wasm package deps
         working-directory: SpaceInvadersEmulator.Wasm/package
         run: npm ci
