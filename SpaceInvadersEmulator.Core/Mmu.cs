@@ -20,6 +20,15 @@ public sealed class Mmu : IMmu
         VRam = _ram.AsMemory(VRamStartAddress, VRamEndAddress - VRamStartAddress + 1);
     }
     
+    /// <summary>
+    /// Zero out all 64KB of memory. The VRam ReadOnlyMemory&lt;byte&gt; remains valid
+    /// (and pinned) — it views into the same backing array, which is now zeroed.
+    /// </summary>
+    public void Reset()
+    {
+        Array.Clear(_ram);
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public void LoadRom(ReadOnlySpan<byte> value)
     {

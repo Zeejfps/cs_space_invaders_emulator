@@ -65,6 +65,23 @@ public sealed class Machine : ICpuIO
 
     public void LoadRom(ReadOnlySpan<byte> rom)
     {
+        // Full reset so a second LoadRom (game switch) doesn't inherit RAM,
+        // CPU registers, shift register, or sound-edge state from the previous run.
+        // _port2 (Ships / BonusLife dipswitches) is preserved — callers set those
+        // explicitly per-game after LoadRom.
+        if (IsRunning) Stop();
+        _mmu.Reset();
+        _cpu.Reset();
+        _shiftRegHi = 0;
+        _shiftRegLo = 0;
+        _shiftRegOffset = 0;
+        _prevPort3Value = 0;
+        _prevPort5Value = 0;
+        _port1 = 0;
+        _cycleCount = 0;
+        _frameCycles = 0;
+        _nextInterrupt = 0xCF;
+
         _mmu.LoadRom(rom);
         _cpu.Pc = _mmu.RomStartAddress;
     }

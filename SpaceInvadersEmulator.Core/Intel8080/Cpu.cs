@@ -47,6 +47,19 @@ public sealed partial class Cpu
         _io = io;
     }
 
+    public void Reset()
+    {
+        Flags = default;
+        Pc = 0;
+        Sp = 0;
+        Ra = Rb = Rc = Rd = Re = Rh = Rl = 0;
+        InterruptEnabled = true;
+        Halted = false;
+        _isInterruptPending = false;
+        _pendingInterruptOpcode = 0;
+        _enableInterruptsTimer = 0;
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public int Step()
     {
