@@ -54,7 +54,7 @@
   // wins it fills the host, and when the width-derived path wins (narrow
   // viewport) it shrinks vertically and centers — never stretching beyond aspect.
   const BEZEL_VERT_PADDING = 24;   // py-3 top + py-3 bottom
-  const BEZEL_HORIZ_PADDING = 32;  // px-3 + border-x-4 on each side
+  const BEZEL_HORIZ_PADDING = 24;  // px-3 on each side
   const ASPECT_W = 7;
   const ASPECT_H = 8;
 
@@ -146,7 +146,7 @@
     </div>
 
     <!-- Bezel + screen -->
-    <div class="bezel flex items-center justify-center bg-zinc-900 border-x-4 border-zinc-700 px-3 py-3">
+    <div class="bezel flex items-center justify-center bg-zinc-900 px-3 py-3">
       <div
         class="screen bg-black border border-zinc-800 [box-shadow:inset_0_0_30px_#000,0_0_25px_rgba(0,200,0,0.18)]"
         style="width: {screenW}px; height: {screenH}px;"
