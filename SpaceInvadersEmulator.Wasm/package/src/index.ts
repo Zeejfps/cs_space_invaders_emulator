@@ -1,5 +1,3 @@
-import bootConfig from './dotnet.boot.js';
-
 export interface Emulator {
   loadRom(data: Uint8Array): void;
   runFrame(): void;
@@ -21,8 +19,10 @@ export async function init(): Promise<Emulator> {
   const baseUrl = new URL('./', import.meta.url).href;
   const { dotnet } = await import('./dotnet.js');
 
+  // Boot config is baked into dotnet.js by Microsoft.NET.Sdk.WebAssembly.
+  // We only override the resource loader so URLs resolve relative to this module
+  // (so consumers' bundlers can place us anywhere in their output).
   const runtime = await dotnet
-    .withConfig(bootConfig)
     .withResourceLoader((_type: string, name: string) => new URL(name, baseUrl).href)
     .create();
 
