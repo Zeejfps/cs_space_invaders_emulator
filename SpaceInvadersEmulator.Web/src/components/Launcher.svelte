@@ -43,7 +43,4 @@
     {/each}
   </div>
 
-  <footer class="mt-auto pt-12 font-mono text-[0.65rem] text-zinc-600 text-center">
-    Keyboard: ← → SPACE · C = COIN · 1 / 2 = START
-  </footer>
 </div>
