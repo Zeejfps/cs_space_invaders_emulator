@@ -1,5 +1,7 @@
 # Space Invaders Emulator
 
+![INVADERS — a Taito 8080 emulator](SpaceInvadersEmulator.Web/public/og-image.png)
+
 A Taito 8080 arcade emulator written in C#, with a browser frontend.
 
 Play it: [invaders.builtbyzee.com](https://invaders.builtbyzee.com)
