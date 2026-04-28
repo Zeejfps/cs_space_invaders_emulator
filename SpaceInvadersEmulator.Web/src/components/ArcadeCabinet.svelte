@@ -1,14 +1,47 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, tick } from 'svelte';
   import type { GameDef } from '../lib/games';
   import { router } from '../lib/router.svelte';
   import { touch } from '../lib/touch.svelte';
   import GameCanvas from './GameCanvas.svelte';
   import ControlPanel from './ControlPanel.svelte';
   import MobileControlPad from './MobileControlPad.svelte';
-  import KeyboardHints from './KeyboardHints.svelte';
+  import ControlsHelp from './ControlsHelp.svelte';
 
   let { game }: { game: GameDef } = $props();
+
+  // Help popover state. Click outside / Esc / re-click trigger to close.
+  let helpOpen = $state(false);
+  let helpButton: HTMLButtonElement | undefined = $state();
+  let helpPopover: HTMLDivElement | undefined = $state();
+
+  async function toggleHelp(): Promise<void> {
+    helpOpen = !helpOpen;
+    if (helpOpen) {
+      // Wait for the popover to render before attaching outside-click listener,
+      // otherwise the same click that opened it would immediately close it.
+      await tick();
+      document.addEventListener('pointerdown', onOutsidePointer, true);
+      window.addEventListener('keydown', onEscape);
+    } else {
+      document.removeEventListener('pointerdown', onOutsidePointer, true);
+      window.removeEventListener('keydown', onEscape);
+    }
+  }
+  function onOutsidePointer(e: PointerEvent): void {
+    const t = e.target as Node;
+    if (helpPopover?.contains(t) || helpButton?.contains(t)) return;
+    helpOpen = false;
+    document.removeEventListener('pointerdown', onOutsidePointer, true);
+    window.removeEventListener('keydown', onEscape);
+  }
+  function onEscape(e: KeyboardEvent): void {
+    if (e.key === 'Escape') {
+      helpOpen = false;
+      document.removeEventListener('pointerdown', onOutsidePointer, true);
+      window.removeEventListener('keydown', onEscape);
+    }
+  }
 
   // Compute the screen's exact pixel dimensions (preserving 7:8 aspect) by
   // taking whichever axis is limiting:
@@ -87,7 +120,29 @@
       <div class="flex-1 min-w-0 text-center font-mono text-amber-300 [text-shadow:0_0_10px_rgba(252,211,77,0.6)] uppercase whitespace-nowrap overflow-hidden marquee-title">
         ★ {game.title} ★
       </div>
-      <div class="shrink-0 w-[3.5rem]" aria-hidden="true"><!-- balance back button --></div>
+      {#if !touch.isTouch}
+        <div class="shrink-0 w-[3.5rem] flex justify-end relative">
+          <button
+            bind:this={helpButton}
+            class="font-mono text-xs text-zinc-400 hover:text-[var(--color-crt-green)] uppercase w-7 h-7 rounded-full border border-zinc-800 hover:border-zinc-600 transition-colors flex items-center justify-center"
+            onclick={toggleHelp}
+            aria-label="Show controls"
+            aria-expanded={helpOpen}
+          >?</button>
+          {#if helpOpen}
+            <div
+              bind:this={helpPopover}
+              role="dialog"
+              aria-label="Controls"
+              class="help-popover absolute right-0 top-[calc(100%+0.5rem)] z-50 min-w-[14rem] bg-zinc-950 border border-zinc-700 rounded-md shadow-[0_10px_30px_rgba(0,0,0,0.8),0_0_20px_rgba(0,200,0,0.08)] p-3"
+            >
+              <ControlsHelp />
+            </div>
+          {/if}
+        </div>
+      {:else}
+        <div class="shrink-0 w-[3.5rem]" aria-hidden="true"><!-- balance back button --></div>
+      {/if}
     </div>
 
     <!-- Bezel + screen -->
@@ -106,7 +161,6 @@
         <MobileControlPad />
       {:else}
         <ControlPanel />
-        <KeyboardHints />
       {/if}
     </div>
   </div>
@@ -114,6 +168,14 @@
 
 <style>
   .cabinet { font-family: ui-monospace, "SF Mono", monospace; }
+  .help-popover {
+    animation: help-in 110ms ease-out;
+    transform-origin: top right;
+  }
+  @keyframes help-in {
+    from { opacity: 0; transform: scale(0.96) translateY(-2px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
   /* Title scales with cabinet width (cqw = 1% of containing element's width
      when container-type is set on the marquee). Falls back to viewport-based
      clamp on browsers without container queries. */
