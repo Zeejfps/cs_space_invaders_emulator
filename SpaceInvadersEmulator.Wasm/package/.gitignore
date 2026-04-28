@@ -1,3 +1,5 @@
 dist/
 node_modules/
 .publish-tmp/
+src/assets.ts
+src/dotnet.d.ts

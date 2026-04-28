@@ -15,15 +15,17 @@ export interface Emulator {
   setBonusLife(at1000: boolean): void;
 }
 
-export async function init(): Promise<Emulator> {
-  const baseUrl = new URL('./', import.meta.url).href;
-  const { dotnet } = await import('./dotnet.js');
+export interface InitOptions {
+  /** URL where the runtime files are hosted (trailing slash optional). */
+  baseUrl: string;
+}
 
-  // Boot config is baked into dotnet.js by Microsoft.NET.Sdk.WebAssembly.
-  // We only override the resource loader so URLs resolve relative to this module
-  // (so consumers' bundlers can place us anywhere in their output).
+export async function init(opts: InitOptions): Promise<Emulator> {
+  const baseUrl = opts.baseUrl.endsWith('/') ? opts.baseUrl : opts.baseUrl + '/';
+  const { dotnet } = await import(baseUrl + 'dotnet.js');
+
   const runtime = await dotnet
-    .withResourceLoader((_type: string, name: string) => new URL(name, baseUrl).href)
+    .withResourceLoader((_type: string, name: string) => baseUrl + name)
     .create();
 
   await runtime.runMain();

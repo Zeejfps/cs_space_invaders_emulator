@@ -1,6 +1,6 @@
 import { execSync } from 'child_process';
-import { cpSync, existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from 'fs';
-import { dirname, extname, join } from 'path';
+import { cpSync, existsSync, mkdirSync, readdirSync, rmSync } from 'fs';
+import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -49,8 +49,4 @@ rmSync(TMP, { recursive: true, force: true });
 console.log('Compiling TypeScript…');
 execSync('npx tsc', { stdio: 'inherit', cwd: PACKAGE_DIR });
 
-writeFileSync(
-  join(DIST, 'package.json'),
-  JSON.stringify({ name: 'space-invaders-emulator', version: '0.1.0', type: 'module', main: 'index.js', types: 'index.d.ts' }, null, 2) + '\n',
-);
 console.log('Done → dist/');
