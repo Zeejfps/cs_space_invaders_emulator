@@ -6,7 +6,7 @@
     inputKey: InputKey;
     label: string;
     tone: Tone;
-    /** Outer ring diameter in px. Inner cap is ~70% of this. Default 52. */
+    /** Outer ring diameter in px. Inner cap is ~85% of this. Default 52. */
     size?: number;
     ariaLabel?: string;
   }
@@ -31,7 +31,7 @@
 <button
   class="arcade-btn tone-{tone}"
   class:is-pressed={pressed}
-  style="--ring-size: {size}px; --cap-size: {Math.round(size * 0.7)}px;"
+  style="--ring-size: {size}px; --cap-size: {Math.round(size * 0.85)}px;"
   aria-label={ariaLabel ?? label}
   aria-pressed={pressed}
   onpointerdown={down}
@@ -57,6 +57,11 @@
     justify-content: center;
     width: var(--ring-size);
     height: var(--ring-size);
+    /* Enforce 1:1 so the ring stays circular even when a parent flex/grid
+       container would otherwise shrink one axis (border-radius: 50% on a
+       non-square box renders as an ellipse). */
+    aspect-ratio: 1 / 1;
+    flex-shrink: 0;
     -webkit-tap-highlight-color: transparent;
     touch-action: none;
     user-select: none;

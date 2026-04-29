@@ -7,7 +7,7 @@
   const game = $derived(router.current ? GAMES_BY_ID[router.current] : null);
 </script>
 
-<main class="h-full w-full backdrop">
+<main class="h-full w-full" class:backdrop={!!game}>
   {#if game}
     <GameView {game} />
   {:else}
@@ -16,12 +16,16 @@
 </main>
 
 <style>
-  /* Subtle radial vignette: gives the cabinet visual presence on wide
-     desktops where it floats centered with viewport space on either side.
-     On phones the cabinet fills the viewport so the gradient is barely
-     perceptible — that's fine. */
+  /* Warm-toned radial halo: suggests dim ambient arcade lighting falling on
+     the cabinet. Deliberately bright at center so the warm hue is clearly
+     visible (not just a tint on black) — contrasts with the cabinet face's
+     cool gray so the outline of the chassis reads against the surroundings. */
   .backdrop {
     background:
-      radial-gradient(ellipse at center, #0e0e10 0%, #050507 60%, #000 100%);
+      radial-gradient(ellipse at center,
+        rgb(82, 56, 36) 0%,
+        rgb(46, 30, 20) 30%,
+        rgb(18, 12, 8) 65%,
+        rgb(4, 3, 2) 100%);
   }
 </style>

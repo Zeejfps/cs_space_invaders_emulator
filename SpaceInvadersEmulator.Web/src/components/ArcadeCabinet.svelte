@@ -6,6 +6,8 @@
   import ControlPanel from './ControlPanel.svelte';
   import MobileControlPad from './MobileControlPad.svelte';
   import ControlsHelp from './ControlsHelp.svelte';
+  import Joystick from '../lib/ui/Joystick.svelte';
+  import ArcadeButton from '../lib/ui/ArcadeButton.svelte';
 
   let { game }: { game: GameDef } = $props();
 
@@ -52,8 +54,10 @@
   // The cabinet is content-sized (not flex-1) so when the height-derived path
   // wins it fills the host, and when the width-derived path wins (narrow
   // viewport) it shrinks vertically and centers — never stretching beyond aspect.
-  const BEZEL_VERT_PADDING = 24;   // py-3 top + py-3 bottom
-  const BEZEL_HORIZ_PADDING = 24;  // px-3 on each side
+  // Cabinet face padding (py-3/px-3 = 12 on each side) plus the 2px chassis
+  // border that wraps marquee + cabinet on each side.
+  const BEZEL_VERT_PADDING = 24 + 4;   // py-3 (12+12) + chassis border (2+2)
+  const BEZEL_HORIZ_PADDING = 24 + 4;  // px-3 (12+12) + chassis border (2+2)
   const ASPECT_W = 7;
   const ASPECT_H = 8;
 
@@ -61,6 +65,10 @@
   let marqueeEl: HTMLDivElement;
   let controlsEl: HTMLDivElement;
   let bezelEl: HTMLDivElement;
+  // On touch, the deck (joystick + FIRE) is a sibling of the bezel — a
+  // dedicated section of the cabinet face below the screen recess. Measured
+  // so its height is subtracted from the screen's available vertical space.
+  let deckEl: HTMLDivElement | undefined = $state();
   let screenW = $state(0);
   let screenH = $state(0);
   // Bezel dimensions feed the SVG perspective overlay (lines from screen
@@ -75,7 +83,8 @@
       const hostH = host.clientHeight;
       const mh = marqueeEl.offsetHeight;
       const ch = controlsEl.offsetHeight;
-      const availH = Math.max(0, hostH - mh - ch - BEZEL_VERT_PADDING);
+      const dh = deckEl ? deckEl.offsetHeight : 0;
+      const availH = Math.max(0, hostH - mh - ch - dh - BEZEL_VERT_PADDING);
       const availW = Math.max(0, hostW - BEZEL_HORIZ_PADDING);
       const sH = Math.max(0, Math.min(availH, (availW * ASPECT_H) / ASPECT_W));
       screenH = Math.round(sH);
@@ -88,6 +97,7 @@
     ro.observe(marqueeEl);
     ro.observe(controlsEl);
     ro.observe(bezelEl);
+    if (deckEl) ro.observe(deckEl);
     recompute();
     return () => ro.disconnect();
   });
@@ -117,11 +127,19 @@
   slack so there's no gap between the marquee and the controls.
 -->
 <div bind:this={host} class="cabinet-host h-full w-full flex flex-col items-center">
-  <!-- Marquee: sibling of cabinet, sized to cabinet width. -->
+ <!--
+   Chassis: outer wrapper with a visible trim border that frames the marquee
+   + cabinet body as a single unit. Without this the dark cabinet face
+   bleeds into the dark page backdrop on wide displays.
+ -->
+ <div
+   class="chassis flex-1 min-h-0 w-full flex flex-col"
+   style="max-width: {screenW ? screenW + BEZEL_HORIZ_PADDING + 'px' : '100%'};"
+ >
+  <!-- Marquee: sibling of cabinet, sized to chassis width. -->
   <div
     bind:this={marqueeEl}
     class="marquee shrink-0 w-full flex items-center gap-2 px-3 py-5 bg-zinc-950 border-b-2 border-amber-900/50"
-    style="max-width: {screenW ? screenW + BEZEL_HORIZ_PADDING + 'px' : '100%'};"
   >
     {#if !touch.isTouch}
       <!-- Invisible left flank balances the help "?" on the right so the title stays centered. -->
@@ -156,38 +174,64 @@
   <!-- Cabinet: stretches to fill remaining vertical space; bezel absorbs slack. -->
   <div
     class="cabinet flex-1 min-h-0 flex flex-col w-full"
-    style="max-width: {screenW ? screenW + BEZEL_HORIZ_PADDING + 'px' : '100%'};"
   >
-    <!-- Bezel + screen -->
-    <div bind:this={bezelEl} class="bezel relative flex-1 flex items-center justify-center px-3 py-3">
-      <!--
-        Perspective lines: 4 thin diagonals from each screen corner to the
-        matching bezel corner. Reads as a recessed cutout — the lines are
-        the visible edges of the (implicit) sloped walls between the cabinet
-        face and the screen plane.
-      -->
-      {#if bezelW > 0 && bezelH > 0 && screenW > 0 && screenH > 0}
-        {@const sx = (bezelW - screenW) / 2}
-        {@const sy = (bezelH - screenH) / 2}
-        <svg
-          class="perspective absolute inset-0 pointer-events-none"
-          width={bezelW}
-          height={bezelH}
-          viewBox="0 0 {bezelW} {bezelH}"
-          aria-hidden="true"
-        >
-          <line x1="0" y1="0" x2={sx} y2={sy} />
-          <line x1={bezelW} y1="0" x2={sx + screenW} y2={sy} />
-          <line x1="0" y1={bezelH} x2={sx} y2={sy + screenH} />
-          <line x1={bezelW} y1={bezelH} x2={sx + screenW} y2={sy + screenH} />
-        </svg>
-      {/if}
+    <!--
+      Cabinet face: continuous gray gradient surface holding both the screen
+      recess (top, flex-1) and the joystick + FIRE deck (bottom, shrink-0).
+      Both sit on the same surface — no visual seam — and the bezel above the
+      screen + the gap between screen and joystick can shrink as needed.
+    -->
+    <div class="cabinet-face flex-1 min-h-0 flex flex-col px-3 py-3">
+      <!-- Screen recess: perspective lines + screen, takes available height. -->
       <div
-        class="screen bg-black"
-        style="width: {screenW}px; height: {screenH}px;"
+        bind:this={bezelEl}
+        class="screen-recess relative flex-1 min-h-0 flex items-center justify-center"
       >
-        <GameCanvas />
+        {#if bezelW > 0 && bezelH > 0 && screenW > 0 && screenH > 0}
+          {@const sx = (bezelW - screenW) / 2}
+          {@const sy = (bezelH - screenH) / 2}
+          <svg
+            class="perspective absolute inset-0 pointer-events-none"
+            width={bezelW}
+            height={bezelH}
+            viewBox="0 0 {bezelW} {bezelH}"
+            aria-hidden="true"
+          >
+            <line x1="0" y1="0" x2={sx} y2={sy} />
+            <line x1={bezelW} y1="0" x2={sx + screenW} y2={sy} />
+            <line x1="0" y1={bezelH} x2={sx} y2={sy + screenH} />
+            <line x1={bezelW} y1={bezelH} x2={sx + screenW} y2={sy + screenH} />
+          </svg>
+        {/if}
+        <div
+          class="screen bg-black"
+          style="width: {screenW}px; height: {screenH}px;"
+        >
+          <GameCanvas />
+        </div>
       </div>
+
+      {#if touch.isTouch}
+        <!--
+          Joystick (left), P1 (center), FIRE (right): primary gameplay
+          controls mounted directly on the cabinet face. 3-column grid keeps
+          P1 optically centered between the larger flanking controls.
+        -->
+        <div
+          bind:this={deckEl}
+          class="deck-row shrink-0 grid grid-cols-3 items-center pt-3"
+        >
+          <div class="flex justify-start">
+            <Joystick size={112} />
+          </div>
+          <div class="flex justify-center pl-6">
+            <ArcadeButton inputKey="p1Start" label="P1" tone="red" size={52} ariaLabel="Player 1 start" />
+          </div>
+          <div class="flex justify-end">
+            <ArcadeButton inputKey="fire" label="FIRE" tone="red" size={88} ariaLabel="Fire" />
+          </div>
+        </div>
+      {/if}
     </div>
 
     <!-- Controls (wrap so ResizeObserver sees a single element) -->
@@ -198,11 +242,22 @@
         <ControlPanel />
       {/if}
     </div>
-  </div>
+   </div>
+ </div>
 </div>
 
 <style>
   .cabinet { font-family: ui-monospace, "SF Mono", monospace; }
+  /* Chassis: dark gray trim around marquee + cabinet so the unit reads as a
+     distinct object against the page backdrop. The inset top highlight gives
+     the trim a bit of dimensionality (light catching the bevel from above);
+     the outer drop shadow grounds the cabinet on the surroundings. */
+  .chassis {
+    border: 2px solid rgb(55, 55, 60);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      0 12px 40px rgba(0, 0, 0, 0.7);
+  }
   .help-popover {
     animation: help-in 110ms ease-out;
     transform-origin: top right;
@@ -228,24 +283,18 @@
     }
   }
 
-  /* Bezel: simulates the cabinet face sloping inward toward the screen.
-     - Radial gradient: darkest at the screen (center), lighter at outer
-       edges — reads as "the surface dips back" toward the screen.
-     - Linear overlay: subtle top-left highlight, as if light from above-left
-       is catching the front-facing rim of the bezel.
-     - Inset box-shadow: vignette around the edges, deepening the bowl. */
-  .bezel {
+  /* Cabinet face: the continuous gray surface holding both the screen recess
+     and the joystick deck. Subtle vertical gradient (lighter at top, darker
+     near the bottom) suggests light from above. The radial focus is centered
+     on the upper portion where the screen sits, so the recess reads as the
+     darkest point — the joystick area is on the lighter outer surface. */
+  .cabinet-face {
     background:
       linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 45%),
-      radial-gradient(ellipse at center,
+      radial-gradient(ellipse 90% 70% at 50% 35%,
         rgb(8, 8, 10) 0%,
-        rgb(18, 18, 21) 35%,
-        rgb(32, 32, 36) 75%,
-        rgb(42, 42, 47) 100%);
-    box-shadow:
-      inset 0 0 80px rgba(0, 0, 0, 0.55),
-      inset 0 12px 24px rgba(0, 0, 0, 0.35),
-      inset 0 -12px 24px rgba(0, 0, 0, 0.45);
+        rgb(20, 20, 23) 40%,
+        rgb(34, 34, 38) 100%);
   }
 
   /* Screen: just the inset CRT vignette. No outer halo, rim, or border —

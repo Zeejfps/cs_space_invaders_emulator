@@ -10,8 +10,9 @@
 
   let { size = 112, deadzone = 0.25 }: Props = $props();
 
-  // Knob is 50% of base. Max travel = (base - knob) / 2 so knob stays inside rim.
-  const KNOB_FRAC = 0.5;
+  // Knob is 70% of base — leaves a thin rim of socket visible. Max travel
+  // = (base - knob) / 2 so the knob stays inside that rim.
+  const KNOB_FRAC = 0.7;
   const knobSize = $derived(Math.round(size * KNOB_FRAC));
   const maxDist = $derived((size - knobSize) / 2);
   const deadzonePx = $derived(maxDist * deadzone);
@@ -104,6 +105,10 @@
     position: relative;
     width: var(--size);
     height: var(--size);
+    /* Enforce 1:1 so a parent flex/grid container can't squash the base
+       into an ellipse when border-radius: 50% is applied. */
+    aspect-ratio: 1 / 1;
+    flex-shrink: 0;
     border-radius: 50%;
     background: radial-gradient(circle at 50% 40%, #1c1c20 0%, #0a0a0c 80%);
     box-shadow:
