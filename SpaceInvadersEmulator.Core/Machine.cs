@@ -92,15 +92,15 @@ public sealed class Machine
         _clock.Ticked -= Clock_OnTick;
     }
 
-    public void WriteCoin(bool pressed) => _ioBus.WritePort1Input(Port1.InsertCoin, pressed);
-    public void WriteP1Start(bool pressed) => _ioBus.WritePort1Input(Port1.Player1Start, pressed);
-    public void WriteP2Start(bool pressed) => _ioBus.WritePort1Input(Port1.Player2Start, pressed);
-    public void WriteP1Fire(bool pressed) => _ioBus.WritePort1Input(Port1.Player1Fire, pressed);
-    public void WriteP1Left(bool pressed) => _ioBus.WritePort1Input(Port1.Player1Left, pressed);
-    public void WriteP1Right(bool pressed) => _ioBus.WritePort1Input(Port1.Player1Right, pressed);
-    public void WriteP2Fire(bool pressed) => _ioBus.WritePort2Input(Port2.Player2Fire, pressed);
-    public void WriteP2Left(bool pressed) => _ioBus.WritePort2Input(Port2.Player2Left, pressed);
-    public void WriteP2Right(bool pressed) => _ioBus.WritePort2Input(Port2.Player2Right, pressed);
+    public void WriteCoin(bool pressed) => _ioBus.WriteInput(Port1.InsertCoin, pressed);
+    public void WriteP1Start(bool pressed) => _ioBus.WriteInput(Port1.Player1Start, pressed);
+    public void WriteP2Start(bool pressed) => _ioBus.WriteInput(Port1.Player2Start, pressed);
+    public void WriteP1Fire(bool pressed) => _ioBus.WriteInput(Port1.Player1Fire, pressed);
+    public void WriteP1Left(bool pressed) => _ioBus.WriteInput(Port1.Player1Left, pressed);
+    public void WriteP1Right(bool pressed) => _ioBus.WriteInput(Port1.Player1Right, pressed);
+    public void WriteP2Fire(bool pressed) => _ioBus.WriteInput(Port2.Player2Fire, pressed);
+    public void WriteP2Left(bool pressed) => _ioBus.WriteInput(Port2.Player2Left, pressed);
+    public void WriteP2Right(bool pressed) => _ioBus.WriteInput(Port2.Player2Right, pressed);
 
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private void Clock_OnTick()

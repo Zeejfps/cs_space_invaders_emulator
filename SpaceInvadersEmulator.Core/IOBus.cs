@@ -50,13 +50,13 @@ internal sealed class IOBus : IIOBus
             _ => 0
         };    }
     
-    public void WritePort1Input(Port1 flag, bool pressed)
+    public void WriteInput(Port1 flag, bool pressed)
     {
         if (pressed) _port1 |= flag;
         else _port1 &= ~flag;
     }
 
-    public void WritePort2Input(Port2 flag, bool pressed)
+    public void WriteInput(Port2 flag, bool pressed)
     {
         if (pressed) Port2 |= flag;
         else Port2 &= ~flag;
