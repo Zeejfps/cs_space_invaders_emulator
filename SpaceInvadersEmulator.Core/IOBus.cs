@@ -5,9 +5,8 @@ namespace SpaceInvadersEmulator.Core;
 
 internal sealed class IOBus : IIOBus
 {
-    public Port2 Port2 { get; set; }
-
     private Port1 _port1;
+    private Port2 _port2;
     private Port3 _prevPort3Value;
     private Port5 _prevPort5Value;
     private byte _shiftRegHi;
@@ -45,22 +44,26 @@ internal sealed class IOBus : IIOBus
         return port switch
         {
             1 => (byte)_port1,
-            2 => (byte)Port2,
+            2 => (byte)_port2,
             3 => ReadPort3(),
             _ => 0
         };    }
     
     public void WriteInput(Port1 flag, bool pressed)
-    {
-        if (pressed) _port1 |= flag;
-        else _port1 &= ~flag;
-    }
+        => WriteBit(flag, pressed ? flag : 0);
 
     public void WriteInput(Port2 flag, bool pressed)
-    {
-        if (pressed) Port2 |= flag;
-        else Port2 &= ~flag;
-    }
+        => WriteBit(flag, pressed ? flag : 0);
+
+    public Port1 ReadBit(Port1 mask) => _port1 & mask;
+
+    public void WriteBit(Port1 mask, Port1 value)
+        => _port1 = (_port1 & ~mask) | (value & mask);
+
+    public Port2 ReadBit(Port2 mask) => _port2 & mask;
+
+    public void WriteBit(Port2 mask, Port2 value)
+        => _port2 = (_port2 & ~mask) | (value & mask);
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void WritePort4(byte value)

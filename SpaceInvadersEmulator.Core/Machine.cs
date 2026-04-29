@@ -15,18 +15,17 @@ public sealed class Machine
 
     public ShipCount Ships
     {
-        get => (ShipCount)((int)(_ioBus.Port2 & ShipsMask) + 3);
-        set => _ioBus.Port2 = (_ioBus.Port2 & ~ShipsMask) | (Port2)((int)value - 3);
+        get => (ShipCount)((int)_ioBus.ReadBit(ShipsMask) + 3);
+        set => _ioBus.WriteBit(ShipsMask, (Port2)((int)value - 3));
     }
 
     public BonusLifeThreshold BonusLife
     {
-        get => _ioBus.Port2.HasFlag(Port2.BonusAt1000) ? BonusLifeThreshold.At1000 : BonusLifeThreshold.At1500;
-        set
-        {
-            if (value == BonusLifeThreshold.At1000) _ioBus.Port2 |= Port2.BonusAt1000;
-            else _ioBus.Port2 &= ~Port2.BonusAt1000;
-        }
+        get => _ioBus.ReadBit(Port2.BonusAt1000) != 0
+            ? BonusLifeThreshold.At1000
+            : BonusLifeThreshold.At1500;
+        set => _ioBus.WriteBit(Port2.BonusAt1000,
+            value == BonusLifeThreshold.At1000 ? Port2.BonusAt1000 : 0);
     }
 
     private readonly IClock _clock;
