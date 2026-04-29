@@ -64,18 +64,21 @@
   let host: HTMLDivElement;
   let marqueeEl: HTMLDivElement;
   let controlsEl: HTMLDivElement;
+  // bezelEl now binds the entire cabinet-face (the gradient surface holding
+  // both the screen recess and the joystick deck). The SVG perspective
+  // overlay covers the whole face so its lines extend from the screen
+  // corners all the way to the face's outer corners — i.e. to the seam
+  // with the marquee at the top and with the footer at the bottom.
   let bezelEl: HTMLDivElement;
-  // On touch, the deck (joystick + FIRE) is a sibling of the bezel — a
-  // dedicated section of the cabinet face below the screen recess. Measured
-  // so its height is subtracted from the screen's available vertical space.
+  // On touch, the deck (joystick + FIRE) sits at the bottom of the cabinet
+  // face. Its height is subtracted from the screen's available vertical
+  // space and used to position the screen for line endpoint calculations.
   let deckEl: HTMLDivElement | undefined = $state();
   let screenW = $state(0);
   let screenH = $state(0);
-  // Bezel dimensions feed the SVG perspective overlay (lines from screen
-  // corners to bezel corners). Tracked separately from screenW/H because
-  // the bezel grows with vertical slack while the screen is aspect-locked.
   let bezelW = $state(0);
   let bezelH = $state(0);
+  let dh = $state(0);
 
   onMount(() => {
     function recompute(): void {
@@ -83,7 +86,7 @@
       const hostH = host.clientHeight;
       const mh = marqueeEl.offsetHeight;
       const ch = controlsEl.offsetHeight;
-      const dh = deckEl ? deckEl.offsetHeight : 0;
+      dh = deckEl ? deckEl.offsetHeight : 0;
       const availH = Math.max(0, hostH - mh - ch - dh - BEZEL_VERT_PADDING);
       const availW = Math.max(0, hostW - BEZEL_HORIZ_PADDING);
       const sH = Math.max(0, Math.min(availH, (availW * ASPECT_H) / ASPECT_W));
@@ -145,8 +148,12 @@
       <!-- Invisible left flank balances the help "?" on the right so the title stays centered. -->
       <div class="shrink-0 w-[3.5rem]" aria-hidden="true"></div>
     {/if}
-    <div class="flex-1 min-w-0 text-center font-mono text-amber-300 [text-shadow:0_0_10px_rgba(252,211,77,0.6)] uppercase whitespace-nowrap overflow-hidden leading-none marquee-title">
-      ★ {game.title} ★
+    <!-- Container-typed wrapper so the title's font-size scales with the
+         actual space available between the flanks, not the full marquee. -->
+    <div class="flex-1 min-w-0 marquee-title-host overflow-hidden">
+      <div class="text-center font-mono text-amber-300 [text-shadow:0_0_10px_rgba(252,211,77,0.6)] uppercase whitespace-nowrap leading-none marquee-title">
+        ★ {game.title} ★
+      </div>
     </div>
     {#if !touch.isTouch}
       <div class="shrink-0 w-[3.5rem] flex justify-end relative">
@@ -181,28 +188,65 @@
       Both sit on the same surface — no visual seam — and the bezel above the
       screen + the gap between screen and joystick can shrink as needed.
     -->
-    <div class="cabinet-face flex-1 min-h-0 flex flex-col px-3 py-3">
-      <!-- Screen recess: perspective lines + screen, takes available height. -->
-      <div
-        bind:this={bezelEl}
-        class="screen-recess relative flex-1 min-h-0 flex items-center justify-center"
-      >
-        {#if bezelW > 0 && bezelH > 0 && screenW > 0 && screenH > 0}
-          {@const sx = (bezelW - screenW) / 2}
-          {@const sy = (bezelH - screenH) / 2}
-          <svg
-            class="perspective absolute inset-0 pointer-events-none"
-            width={bezelW}
-            height={bezelH}
-            viewBox="0 0 {bezelW} {bezelH}"
-            aria-hidden="true"
-          >
-            <line x1="0" y1="0" x2={sx} y2={sy} />
-            <line x1={bezelW} y1="0" x2={sx + screenW} y2={sy} />
-            <line x1="0" y1={bezelH} x2={sx} y2={sy + screenH} />
-            <line x1={bezelW} y1={bezelH} x2={sx + screenW} y2={sy + screenH} />
-          </svg>
-        {/if}
+    <div
+      bind:this={bezelEl}
+      class="cabinet-face relative flex-1 min-h-0 flex flex-col px-3 py-3"
+    >
+      <!--
+        Perspective lines: from each screen corner to the matching cabinet-face
+        corner (= the seam with the marquee at top and with the footer at
+        bottom). Reads as 4 sloped walls receding from the chassis edge to the
+        screen at the back of the recess.
+      -->
+      {#if bezelW > 0 && bezelH > 0 && screenW > 0 && screenH > 0}
+        {@const sx = 12 + (bezelW - 24 - screenW) / 2}
+        {@const sy = 12 + (bezelH - 24 - dh - screenH) / 2}
+        {@const sxR = sx + screenW}
+        {@const syB = sy + screenH}
+        <svg
+          class="perspective absolute inset-0 pointer-events-none"
+          width={bezelW}
+          height={bezelH}
+          viewBox="0 0 {bezelW} {bezelH}"
+          aria-hidden="true"
+        >
+          <!--
+            4 trapezoidal "walls" sloping from the chassis edges (front face,
+            lighter) to the screen edges (back of recess, darker). Each
+            gradient's direction encodes the implied slope axis.
+          -->
+          <defs>
+            <linearGradient id="wall-top" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="rgb(50, 50, 56)" />
+              <stop offset="100%" stop-color="rgb(22, 22, 25)" />
+            </linearGradient>
+            <linearGradient id="wall-bot" x1="0" y1="1" x2="0" y2="0">
+              <stop offset="0%" stop-color="rgb(50, 50, 56)" />
+              <stop offset="100%" stop-color="rgb(22, 22, 25)" />
+            </linearGradient>
+            <linearGradient id="wall-left" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="rgb(50, 50, 56)" />
+              <stop offset="100%" stop-color="rgb(22, 22, 25)" />
+            </linearGradient>
+            <linearGradient id="wall-right" x1="1" y1="0" x2="0" y2="0">
+              <stop offset="0%" stop-color="rgb(50, 50, 56)" />
+              <stop offset="100%" stop-color="rgb(22, 22, 25)" />
+            </linearGradient>
+          </defs>
+          <polygon points="0,0 {bezelW},0 {sxR},{sy} {sx},{sy}" fill="url(#wall-top)" />
+          <polygon points="0,{bezelH} {bezelW},{bezelH} {sxR},{syB} {sx},{syB}" fill="url(#wall-bot)" />
+          <polygon points="0,0 {sx},{sy} {sx},{syB} 0,{bezelH}" fill="url(#wall-left)" />
+          <polygon points="{bezelW},0 {bezelW},{bezelH} {sxR},{syB} {sxR},{sy}" fill="url(#wall-right)" />
+          <!-- Edge highlights at the wall seams. -->
+          <line x1="0" y1="0" x2={sx} y2={sy} />
+          <line x1={bezelW} y1="0" x2={sxR} y2={sy} />
+          <line x1="0" y1={bezelH} x2={sx} y2={syB} />
+          <line x1={bezelW} y1={bezelH} x2={sxR} y2={syB} />
+        </svg>
+      {/if}
+
+      <!-- Screen recess: takes available height, centers screen. -->
+      <div class="screen-recess flex-1 min-h-0 flex items-center justify-center">
         <div
           class="screen bg-black"
           style="width: {screenW}px; height: {screenH}px;"
@@ -224,7 +268,7 @@
           <div class="flex justify-start">
             <Joystick size={112} />
           </div>
-          <div class="flex justify-center pl-6">
+          <div class="flex justify-end">
             <ArcadeButton inputKey="p1Start" label="P1" tone="red" size={52} ariaLabel="Player 1 start" />
           </div>
           <div class="flex justify-end">
@@ -266,35 +310,33 @@
     from { opacity: 0; transform: scale(0.96) translateY(-2px); }
     to   { opacity: 1; transform: scale(1) translateY(0); }
   }
-  /* Title scales with cabinet width (cqw = 1% of containing element's width
-     when container-type is set on the marquee). Falls back to viewport-based
-     clamp on browsers without container queries. */
-  .marquee {
+  /* Title scales with the title-host's inline width (which excludes the
+     flanks reserved for the help "?" + balancer). The cqi factor is tuned
+     for the longest title we have ("Space Invaders Part II" = 26 chars
+     including stars). With monospace char width ~0.6em and letter-spacing
+     ≤ 0.1em, the worst case fits when font-size ≤ host_width / 18 ≈ 5.5%,
+     so we use 5cqi and a low max letter-spacing. */
+  .marquee-title-host {
     container-type: inline-size;
   }
   .marquee-title {
-    font-size: clamp(0.95rem, 5cqw, 1.75rem);
-    letter-spacing: clamp(0.1em, 2.5cqw, 0.35em);
+    font-size: clamp(0.55rem, 5cqi, 1.75rem);
+    letter-spacing: clamp(0.02em, 0.4cqi, 0.1em);
   }
   @supports not (container-type: inline-size) {
     .marquee-title {
-      font-size: clamp(0.95rem, 4vw, 1.625rem);
-      letter-spacing: clamp(0.1em, 2vw, 0.3em);
+      font-size: clamp(0.55rem, 3vw, 1.5rem);
+      letter-spacing: clamp(0.02em, 0.4vw, 0.1em);
     }
   }
 
-  /* Cabinet face: the continuous gray surface holding both the screen recess
-     and the joystick deck. Subtle vertical gradient (lighter at top, darker
-     near the bottom) suggests light from above. The radial focus is centered
-     on the upper portion where the screen sits, so the recess reads as the
-     darkest point — the joystick area is on the lighter outer surface. */
+  /* Cabinet face: flat fallback color. The visible "depth" comes from 4
+     trapezoidal SVG polygons rendered on top, each filled with a directional
+     gradient (light at the chassis edge, dark at the screen edge) so the
+     screen reads as inset into rectangular sloped walls instead of a soft
+     elliptical bowl. */
   .cabinet-face {
-    background:
-      linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 45%),
-      radial-gradient(ellipse 90% 70% at 50% 35%,
-        rgb(8, 8, 10) 0%,
-        rgb(20, 20, 23) 40%,
-        rgb(34, 34, 38) 100%);
+    background: rgb(28, 28, 32);
   }
 
   /* Screen: just the inset CRT vignette. No outer halo, rim, or border —
