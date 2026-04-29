@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { playCoinReturn } from '../audio';
+
   interface Props {
     /** Bezel plate height. Width is ~70% of height to match CoinSlot. Default 52. */
     size?: number;
@@ -12,6 +14,7 @@
   class="coin-return"
   style="--plate-h: {size}px; --plate-w: {Math.round(size * 0.7)}px;"
   aria-label="Return to launcher"
+  onpointerdown={playCoinReturn}
   {onclick}
 >
   <span class="plate" aria-hidden="true">

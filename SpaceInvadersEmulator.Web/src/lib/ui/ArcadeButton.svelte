@@ -1,5 +1,6 @@
 <script lang="ts">
   import { setInput, type InputKey } from '../inputState';
+  import { playArcadeClick } from '../audio';
 
   type Tone = 'red' | 'blue' | 'neutral';
   interface Props {
@@ -20,6 +21,7 @@
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     pressed = true;
     setInput(inputKey, true);
+    playArcadeClick();
   }
   function up(): void {
     if (!pressed) return;

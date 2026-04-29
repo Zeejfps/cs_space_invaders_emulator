@@ -1,5 +1,6 @@
 <script lang="ts">
   import { setInput } from '../inputState';
+  import { playCoinInsert } from '../audio';
 
   interface Props {
     /** Bezel plate height. Width is ~70% of height (vertical orientation). Default 52. */
@@ -15,6 +16,7 @@
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     pressed = true;
     setInput('coin', true);
+    playCoinInsert();
   }
   function up(): void {
     if (!pressed) return;
