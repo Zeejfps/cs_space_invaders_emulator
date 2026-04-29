@@ -25,13 +25,13 @@ public static class CpuExtensions
     }
 }
 
-class NoOpCpuIO : ICpuIO
+class NoOpCpuIO : IIOBus
 {
     public byte ReadPort(byte port) => 0;
     public void WritePort(byte port, byte value) { }
 }
 
-public class FakeMmu : IMmu
+public class FakeMmu : IMemoryBus
 {
     private readonly byte[] _ram = new byte[64 * 1024];
 

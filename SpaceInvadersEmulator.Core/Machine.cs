@@ -3,7 +3,7 @@ using SpaceInvadersEmulator.Core.Intel8080;
 
 namespace SpaceInvadersEmulator.Core;
 
-public sealed class Machine : ICpuIO
+public sealed class Machine : IIOBus
 {
     private const int CpuFrequency = 2_000_000;
     private const double CyclesPerHalfFrame = CpuFrequency / 60.0 / 2.0;

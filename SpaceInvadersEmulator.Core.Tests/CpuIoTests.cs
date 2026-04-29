@@ -130,13 +130,13 @@ public class CpuIoTests : CpuTestBase
     }
 }
 
-class StubCpuIO(byte readValue, byte expectedPort) : ICpuIO
+class StubCpuIO(byte readValue, byte expectedPort) : IIOBus
 {
     public byte ReadPort(byte port) => port == expectedPort ? readValue : (byte)0;
     public void WritePort(byte port, byte value) { }
 }
 
-class CapturingCpuIO : ICpuIO
+class CapturingCpuIO : IIOBus
 {
     public byte LastPort { get; private set; }
     public byte LastValue { get; private set; }

@@ -1,6 +1,6 @@
 namespace SpaceInvadersEmulator.Core.Intel8080;
 
-public interface IMmu
+public interface IMemoryBus
 {
     void Write(ushort address, byte value);
     void WriteWord(ushort address, ushort value);

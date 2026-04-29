@@ -38,10 +38,10 @@ public sealed partial class Cpu
     private bool _isInterruptPending;
     private byte _pendingInterruptOpcode;
     private int _enableInterruptsTimer;
-    private readonly ICpuIO _io;
-    private readonly IMmu _mmu;
+    private readonly IIOBus _io;
+    private readonly IMemoryBus _mmu;
     
-    public Cpu(IMmu mmu, ICpuIO io)
+    public Cpu(IMemoryBus mmu, IIOBus io)
     {
         _mmu = mmu;
         _io = io;

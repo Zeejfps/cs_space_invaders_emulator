@@ -4,7 +4,7 @@ using SpaceInvadersEmulator.Core.Intel8080;
 
 namespace SpaceInvadersEmulator.Core;
 
-public sealed class Mmu : IMmu
+public sealed class Mmu : IMemoryBus
 {
     public readonly ushort RomStartAddress = 0x0;
     private const ushort RomEndAddress = 0x2000;
