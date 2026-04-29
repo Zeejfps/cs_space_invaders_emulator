@@ -11,7 +11,7 @@ public sealed class Machine
 
     public ReadOnlyMemory<byte> VRam => _mmu.VRam;
 
-    public bool IsRunning { get; private set; }
+    public bool IsPoweredOn { get; private set; }
 
     public ShipCount Ships
     {
@@ -59,7 +59,7 @@ public sealed class Machine
         // CPU registers, shift register, or sound-edge state from the previous run.
         // _port2 (Ships / BonusLife dipswitches) is preserved — callers set those
         // explicitly per-game after LoadRom.
-        if (IsRunning) Stop();
+        if (IsPoweredOn) PowerOff();
         _mmu.Reset();
         _cpu.Reset();
         _ioBus.Reset();
@@ -72,22 +72,22 @@ public sealed class Machine
         _cpu.Pc = _mmu.RomStartAddress;
     }
 
-    public void Start()
+    public void PowerOn()
     {
-        if (IsRunning)
+        if (IsPoweredOn)
             throw new InvalidOperationException("Machine is already running");
 
         _clock.Ticked += Clock_OnTick;
         _lastTimestamp = _clock.GetTimestamp();
-        IsRunning = true;
+        IsPoweredOn = true;
     }
 
-    public void Stop()
+    public void PowerOff()
     {
-        if (!IsRunning)
+        if (!IsPoweredOn)
             return;
 
-        IsRunning = false;
+        IsPoweredOn = false;
         _clock.Ticked -= Clock_OnTick;
     }
 

@@ -32,10 +32,10 @@ public static partial class Emulator
     [JSExport]
     public static void LoadRom(byte[] data)
     {
-        // Machine.LoadRom internally Stop()s if running and resets all internal
+        // Machine.LoadRom internally PowerOff()s if running and resets all internal
         // state, so this is safe to call multiple times (game switching).
         _machine!.LoadRom(data);
-        _machine.Start();
+        _machine.PowerOn();
         _lastStopwatchTs = Stopwatch.GetTimestamp();
     }
 
